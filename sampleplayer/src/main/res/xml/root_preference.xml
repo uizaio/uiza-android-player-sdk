@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright 2018 The app Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="pref_source"
+        app:title="@string/source_title">
+        <ListPreference
+            app:defaultValue="development-api.uizadev.io"
+            app:entries="@array/api_base_arrays"
+            app:entryValues="@array/api_base_values"
+            app:iconSpaceReserved="false"
+            app:key="api_base_url_key"
+            app:title="@string/api_base_title"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:iconSpaceReserved="false"
+            app:key="app_id_key"
+            app:title="@string/api_token_title"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            app:defaultValue="in-bangalore-1"
+            app:entries="@array/region_arrays"
+            app:entryValues="@array/region_arrays"
+            app:iconSpaceReserved="false"
+            app:key="region_key"
+            app:title="@string/region_title"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:key="pref_general"
+        app:title="@string/general_title">
+        <Preference
+            app:defaultValue="200101"
+            app:iconSpaceReserved="false"
+            app:key="version_key"
+            app:title="@string/version_title"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">UZPlayer</string>
+    <string name="drm_license_url">https://wv.service.expressplay.com/hms/wv/rights/?ExpressPlayToken=BAAaXbkVKbEAAABg_0gifyfSLlqtjYGc9boiYUIudGi445e5xHzay2CzEazC0uj6GWg79k_yexpv7t2GmjWF10ehecUV2kqV5MBWM-7kURuaQcSJ368ocXFpcoT4l2EXQO8_9R67vZC3Y9lDqLE-9_FTTIqg7C-oWLoXZgWAmJQ</string>
+    <string name="use_bottom_uz_timebar">use_bottom_uz_timebar</string>
+    <string name="speed">Speed</string>
+    <string name="error_change_skin_with_vdhview">You cannot change skin because you use UZVideo with VDHView.</string>
+    <string name="error_speed_live_content">Error UizaSpeed: You cannot set speed with live content.</string>
+    <string name="error_speed_illegal">Error UizaSpeed: Please set speed with the value between -3 and 3.</string>
+    <string name="tks_4_watching">Thanks for your watching</string>
+    <string name="default_stats_1">----</string>
+    <string name="default_stats_2">-- / --</string>
+    <string name="default_stats_3">-- / -- / --</string>
+    <string name="video_format">Video Format</string>
+    <string name="audio_format">Audio Format</string>
+    <string name="stat_entity_id">Video Entity ID</string>
+    <string name="stat_buffer_health">Buffer Health</string>
+    <string name="stat_network_activity">Network Activity</string>
+    <string name="stat_volume">Volume</string>
+    <string name="stat_current_optimal_res">Current / Optimal Res</string>
+    <string name="stat_viewport_frames">Viewport / Frames</string>
+    <string name="stat_connection_speed">Connection Speed</string>
+    <string name="stat_host">Host</string>
+    <string name="stat_sdk_player_api_version">SDK / Player / API Version</string>
+    <string name="stat_os_device_info">Device Info</string>
+    <string name="stat_live_stream_latency">Live stream latency</string>
+
+    <string name="format_viewport_frame">%1$dx%2$d / %3$d dropped frames</string>
+    <string name="format_audio_format">%1$s %2$dHz ch: %3$d</string>
+    <string name="format_video_format">%1$s %2$dx%3$d@%4$d %5$s</string>
+    <string name="format_volume">%1$d%%</string>
+    <string name="format_version">%1$s / %2$s</string>
+    <string name="format_connection_speed_k">%1$s kbps</string>
+    <string name="format_connection_speed_m">%1$s mbps</string>
+    <string name="format_device_info">%1$s / Android: %2$s</string>
+    <string name="format_buffer_health">%1$s s</string>
+    <string name="format_resolution">%1$dx%2$d / %3$dx%4$d</string>
+    <string name="format_live_stream_latency">%s ms</string>
+    <!-- -->
+    <string name="live">• LIVE</string>
+    <string name="playlist">Playlist</string>
+    <string name="starring">Starring:</string>
+    <string name="director">Director:</string>
+    <string name="genres">Genres:</string>
+    <string name="more_like_this">More like this</string>
+    <string name="ok">OK</string>
+    <string name="video">Video Setting</string>
+    <string name="audio">Audio Setting</string>
+    <string name="text">Subtitle Setting</string>
+    <string name="no_caption">No captions are available for this video</string>
+    <string name="casty_introduction_text">Use this button to connect with Chromecast</string>
+    <string name="cannot_play_will_try">Can not play, UZPlayer will try to play the next link...</string>
+    <string name="share_via">Share via</string>
+    <string name="can_not_find_share_app">Không tìm thấy ứng dụng này trên thiết bị của bạn.</string>
+    <string name="empty_list">Danh sách rỗng</string>
+    <string name="related_list">Related List</string>
+    <string name="err_no_internet_tap_to_retry">No internet connection.\nTap to retry.</string>
+</resources>

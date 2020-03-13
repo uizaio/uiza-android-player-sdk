@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@id/root_view_uz_video"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="false">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:id="@id/root_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@id/bkg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/black" />
+        </RelativeLayout>
+
+        <com.uiza.sdk.view.StatsForNerdsView
+            android:id="@id/stats_for_nerds"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/black_65"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/iv_cover"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_5"
+        android:contentDescription="@string/app_name"
+        android:scaleType="centerCrop"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        android:id="@id/pb"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="@dimen/w_20"
+        android:layout_height="@dimen/w_20"
+        android:layout_centerInParent="true" />
+
+    <LinearLayout
+        android:id="@id/debug_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/red"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@id/controls_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_msg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/background_player_controller"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_msg"
+            android:layout_width="@dimen/w_40"
+            android:layout_height="@dimen/w_40"
+            android:layout_centerInParent="true"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/err" />
+
+        <TextView
+            android:id="@id/tv_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/iv_msg"
+            android:layout_marginTop="@dimen/margin_5"
+            android:gravity="center"
+            android:padding="@dimen/padding_5"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/txt_16"
+            android:textStyle="bold" />
+    </RelativeLayout>
+</RelativeLayout>
+

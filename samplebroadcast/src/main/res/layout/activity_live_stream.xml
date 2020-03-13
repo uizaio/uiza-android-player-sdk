@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_example_rtmp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <com.com.uiza.sdk.view.UZBroadCastView
+        android:id="@+id/uiza_live_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:AAEnabled="false"
+        app:audioBitrate="64"
+        app:audioSampleRate="32000"
+        app:audioStereo="true"
+        app:fps="24"
+        app:frame_interval="2"
+        app:isFlipHorizontal="false"
+        app:isFlipVertical="false"
+        app:keepAspectRatio="true"
+        app:numFilters="1"
+        app:useCamera2="true"
+        app:videoSize="p720" />
+
+    <RelativeLayout
+        android:id="@+id/ll_top"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:gravity="start">
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:paddingStart="16dp"
+            android:paddingEnd="8dp"
+            app:srcCompat="@drawable/ic_arrow_back_white_24" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_top"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="8dp"
+        android:gravity="center" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/ll_bottom"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <io.com.uiza.widget.UizaMediaButton
+            android:id="@+id/btn_audio"
+            style="@style/UizaMediaLiveButton"
+            android:tint="@android:color/white"
+            android:tintMode="src_in"
+            android:visibility="gone"
+            app:srcActive="@drawable/ic_mic_white_24"
+            app:srcInactive="@drawable/ic_mic_off_white_24" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <io.com.uiza.widget.UizaMediaButton
+            android:id="@+id/b_record"
+            style="@style/UizaMediaLiveButton.Record"
+            android:layout_marginEnd="5dp"
+            android:tint="@android:color/holo_red_light"
+            android:tintMode="src_in"
+            app:srcActive="@drawable/ic_stop_white_24"
+            app:srcInactive="@drawable/ic_record_white_24" />
+
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <io.com.uiza.widget.UizaMediaButton
+                android:id="@+id/b_start_stop"
+                style="@style/UizaMediaLiveButton.Start"
+                android:layout_centerInParent="true"
+                android:layout_marginEnd="5dp"
+                android:tintMode="src_in"
+                app:srcActive="@drawable/ic_stop_live"
+                app:srcInactive="@drawable/ic_start_live" />
+        </RelativeLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:id="@+id/switch_camera"
+            style="@style/UizaMediaLiveButton.SwitchCamera"
+            android:tint="@android:color/white"
+            android:tintMode="src_in" />
+    </LinearLayout>
+</RelativeLayout>
