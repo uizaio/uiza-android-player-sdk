@@ -4,6 +4,7 @@
         <attr name="useCamera2" format="boolean" />
         <attr name="videoSize" format="enum">
             <enum name="p360" value="360" />
+            <enum name="p480" value="480" />
             <enum name="p720" value="720" />
             <enum name="p1080" value="1080" />
         </attr>

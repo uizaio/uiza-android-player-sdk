@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -42,8 +41,8 @@ import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.helpers.Camera1Helper;
 import com.uiza.sdk.helpers.Camera2Helper;
 import com.uiza.sdk.helpers.ICameraHelper;
-import com.uiza.sdk.interfaces.CameraChangeListener;
-import com.uiza.sdk.interfaces.RecordListener;
+import com.uiza.sdk.interfaces.UZCameraChangeListener;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.util.ViewUtil;
 
@@ -123,29 +122,22 @@ public class UZBroadCastView extends RelativeLayout {
 
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
-            if (cameraHelper.isRecording()) {
+            if (cameraHelper.isRecording())
                 cameraHelper.stopRecord();
-            }
-            if (cameraHelper.isStreaming()) {
+            if (cameraHelper.isStreaming())
                 cameraHelper.stopStream();
-            }
             if (cameraHelper.isOnPreview())
                 cameraHelper.stopPreview();
             startBackgroundTimer();
-            if (liveListener != null) {
+            if (liveListener != null)
                 liveListener.surfaceDestroyed();
-            }
+
         }
     };
     private ConnectCheckerRtmp connectCheckerRtmp = new ConnectCheckerRtmp() {
         @Override
         public void onConnectionSuccessRtmp() {
-            bitrateAdapter = new BitrateAdapter(new BitrateAdapter.Listener() {
-                @Override
-                public void onBitrateAdapted(int bitrate) {
-                    cameraHelper.setVideoBitrateOnFly(bitrate);
-                }
-            });
+            bitrateAdapter = new BitrateAdapter(bitrate -> cameraHelper.setVideoBitrateOnFly(bitrate));
             bitrateAdapter.setMaxBitrate(cameraHelper.getBitrate());
             ((Activity) getContext()).runOnUiThread(() -> {
                 showLiveStatus();
@@ -171,9 +163,8 @@ public class UZBroadCastView extends RelativeLayout {
                     hideLiveStatus();
                     invalidate();
                     requestLayout();
-                    if (liveListener != null) {
+                    if (liveListener != null)
                         liveListener.onConnectionFailed(reason);
-                    }
                 }
             });
         }
@@ -249,15 +240,16 @@ public class UZBroadCastView extends RelativeLayout {
             try {
                 boolean hasLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
                 useCamera2 = a.getBoolean(R.styleable.UZBroadCastView_useCamera2, hasLollipop);
-                int res = a.getInt(R.styleable.UZBroadCastView_videoSize, 360);
-                if (res == 1080) {
+                int res = a.getInt(R.styleable.UZBroadCastView_videoSize, 720);
+                if (res == 1080)
                     profile = ProfileVideoEncoder.P1080;
-                } else if (res == 720) {
-                    profile = ProfileVideoEncoder.P720;
-                } else {
+                else if (res == 360)
                     profile = ProfileVideoEncoder.P360;
-                }
-                fps = a.getInt(R.styleable.UZBroadCastView_fps, 24);
+                else if (res == 480)
+                    profile = ProfileVideoEncoder.P480;
+                else
+                    profile = ProfileVideoEncoder.P720;
+                fps = a.getInt(R.styleable.UZBroadCastView_fps, 30);
                 frameInterval = a.getInt(R.styleable.UZBroadCastView_frame_interval, 2);
                 audioStereo = a.getBoolean(R.styleable.UZBroadCastView_audioStereo, true);
                 audioBitrate = a.getInt(R.styleable.UZBroadCastView_audioBitrate, 64) * 1024; //64 Kbps
@@ -359,12 +351,7 @@ public class UZBroadCastView extends RelativeLayout {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.need_permission);
         builder.setMessage(R.string.this_app_needs_permission);
-        builder.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                checkLivePermission();
-            }
-        });
+        builder.setPositiveButton(R.string.okay, (dialog, which) -> checkLivePermission());
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
             if (liveListener != null)
                 liveListener.onInit(false);
@@ -410,9 +397,8 @@ public class UZBroadCastView extends RelativeLayout {
     public void onResume() {
         checkAndResumeLiveStreamIfNeeded();
         if (isFromBackgroundTooLong) {
-            if (liveListener != null) {
+            if (liveListener != null)
                 liveListener.onBackgroundTooLong();
-            }
             isFromBackgroundTooLong = false;
         }
     }
@@ -437,9 +423,8 @@ public class UZBroadCastView extends RelativeLayout {
         (new Handler()).postDelayed(() -> {
             try {
                 stopStream(); // make sure stop stream and start it again
-                if (prepareAudio() && prepareVideo(isLandscape)) {
+                if (prepareAudio() && prepareVideo(isLandscape))
                     startStream(mainStreamUrl);
-                }
             } catch (Exception ignored) {
                 Timber.e("Can not resume livestream right now !");
             }
@@ -463,9 +448,8 @@ public class UZBroadCastView extends RelativeLayout {
     }
 
     private void cancelBackgroundTimer() {
-        if (backgroundTimer != null) {
+        if (backgroundTimer != null)
             backgroundTimer.cancel();
-        }
         backgroundTimer = null;
     }
 
@@ -474,7 +458,7 @@ public class UZBroadCastView extends RelativeLayout {
      *
      * @param cameraChangeListener : camera witch listener
      */
-    public void setCameraChangeListener(CameraChangeListener cameraChangeListener) {
+    public void setCameraChangeListener(UZCameraChangeListener cameraChangeListener) {
         cameraHelper.setCameraChangeListener(cameraChangeListener);
     }
 
@@ -483,7 +467,7 @@ public class UZBroadCastView extends RelativeLayout {
      *
      * @param recordListener : record status listener
      */
-    public void setRecordListener(RecordListener recordListener) {
+    public void setRecordListener(UZRecordListener recordListener) {
         cameraHelper.setRecordListener(recordListener);
     }
 

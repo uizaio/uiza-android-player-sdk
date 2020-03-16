@@ -10,31 +10,31 @@ import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.uiza.samplebroadcast.R;
 
-public class UizaMediaButton extends AppCompatImageButton implements Checkable {
+public class UZMediaButton extends AppCompatImageButton implements Checkable {
 
     private int activeDrawableId = -1, inActiveDrawableId = -1;
     private boolean checked = false;
 
 
-    public UizaMediaButton(Context context) {
+    public UZMediaButton(Context context) {
         this(context, null);
     }
 
-    public UizaMediaButton(Context context, AttributeSet attrs) {
+    public UZMediaButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(attrs, 0);
     }
 
-    public UizaMediaButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public UZMediaButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(attrs, defStyleAttr);
     }
 
     private void initView(AttributeSet attrs, int defStyleAttr) {
         if (attrs != null) {
-            TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.UizaMediaButton, defStyleAttr, 0);
-            activeDrawableId = a.getResourceId(R.styleable.UizaMediaButton_srcActive, -1);
-            inActiveDrawableId = a.getResourceId(R.styleable.UizaMediaButton_srcInactive, -1);
+            TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.UZMediaButton, defStyleAttr, 0);
+            activeDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcActive, -1);
+            inActiveDrawableId = a.getResourceId(R.styleable.UZMediaButton_srcInactive, -1);
         } else {
             activeDrawableId = -1;
             inActiveDrawableId = -1;

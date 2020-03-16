@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <com.com.uiza.sdk.view.UZBroadCastView
+    <com.uiza.sdk.view.UZBroadCastView
         android:id="@+id/uiza_live_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +14,7 @@
         app:audioBitrate="64"
         app:audioSampleRate="32000"
         app:audioStereo="true"
-        app:fps="24"
+        app:fps="30"
         app:frame_interval="2"
         app:isFlipHorizontal="false"
         app:isFlipVertical="false"
@@ -55,17 +55,24 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/ll_bottom"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
-        <io.com.uiza.widget.UizaMediaButton
+        <com.uiza.widget.UZMediaButton
             android:id="@+id/btn_audio"
             style="@style/UizaMediaLiveButton"
             android:tint="@android:color/white"
             android:tintMode="src_in"
-            android:visibility="gone"
+            android:visibility="visible"
             app:srcActive="@drawable/ic_mic_white_24"
             app:srcInactive="@drawable/ic_mic_off_white_24" />
 
+        <com.uiza.widget.UZMediaButton
+            android:id="@+id/btn_menu"
+            style="@style/UizaMediaLiveButton"
+            android:tint="@android:color/white"
+            android:tintMode="src_in"
+            app:srcActive="@drawable/ic_settings_white_24"
+            app:srcInactive="@drawable/ic_settings_white_24" />
     </LinearLayout>
 
     <LinearLayout
@@ -81,7 +88,7 @@
         android:orientation="horizontal">
 
 
-        <io.com.uiza.widget.UizaMediaButton
+        <com.uiza.widget.UZMediaButton
             android:id="@+id/b_record"
             style="@style/UizaMediaLiveButton.Record"
             android:layout_marginEnd="5dp"
@@ -96,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1">
 
-            <io.com.uiza.widget.UizaMediaButton
+            <com.uiza.widget.UZMediaButton
                 android:id="@+id/b_start_stop"
                 style="@style/UizaMediaLiveButton.Start"
                 android:layout_centerInParent="true"

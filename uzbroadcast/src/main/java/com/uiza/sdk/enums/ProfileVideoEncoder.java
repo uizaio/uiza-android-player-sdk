@@ -8,7 +8,8 @@ package com.uiza.sdk.enums;
  */
 public enum ProfileVideoEncoder {
     P1080(2800 * 1024, 1920, 1080), //bandwidth 2800 Kbps
-    P720(1400 * 1024, 1280, 720), // //bandwidth 1400 Kbps
+    P720(1400 * 1024, 1280, 720), // bandwidth 1400 Kbps
+    P480(1000 * 1024, 854, 480), //bandwidth 1000 Kbps
     P360(600 * 1024, 640, 360); // //bandwidth 600 Kbps
 
     /**
@@ -35,6 +36,8 @@ public enum ProfileVideoEncoder {
             return P1080;
         else if (height >= 720)
             return P720;
+        else if(height >= 480)
+            return P480;
         else return P360;
     }
 

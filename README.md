@@ -1,11 +1,11 @@
 
-## Welcome to UizaSDK
+## Welcome to UIZA Android SDK
 
 Simple Streaming at scale.
 
 Uiza is the complete toolkit for building a powerful video streaming application with unlimited scalability. We design Uiza so simple that you only need a few lines of codes to start streaming, but sophisticated enough for you to build complex products on top of it.
 
-Read [CHANGELOG here](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/CHANGELOG.md).
+Read [CHANGELOG here](https://github.com/uizaio/uiza-android-sdk/blob/master/CHANGELOG.md).
 
 ## Importing the Library
 **Step 1. Add the `JitPack` repository to your `build.gradle` file**
@@ -26,19 +26,19 @@ Read [CHANGELOG here](https://github.com/uizaio/com.uiza-android-com.com.uiza.co
     }
     dependencies {
         // for playing VOD, LIVE video
-        implementation 'com.github.uizaio.com.uiza-android-com.com.uiza.com.com.uiza.sdk-player:uizacoresdk:[latest-release-number]'
+        implementation 'com.uiza.uiza-android-sdk:uzplayer:[latest-release-number]'
         // for broadcasting / live streaming
-        implementation 'com.github.uizaio.com.uiza-android-com.com.uiza.com.com.uiza.sdk-player:uizalivestream:[latest-release-number]'
+        implementation 'com.uiza.uiza-android-sdk:uzbroadcast:[latest-release-number]'
     }
 ```
 
-Get latest release number [HERE](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/releases).
+Get latest release number [HERE](https://github.com/uizaio/uiza-android-sdk/releases).
 
-If you are using `uiza_android_sdk_player` (Version 4.0.9 and above), you will need to import dependencies:
+If you are using `uiza-android-sdk` (Version 1.0.0 and above), you will need to import dependencies:
 
 ```xml
     // for playing VOD, LIVE video
-    implementation 'com.github.uizaio.com.uiza-android-com.com.uiza.com.com.uiza.sdk-player:uizacoresdk:4.0.9'
+    implementation 'com.uiza.uiza-android-sdk:uzplayer:1.x.x'
     implementation 'com.google.android.exoplayer:exoplayer:2.10.8'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.8'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.8'
@@ -49,7 +49,7 @@ If you are using `uiza_android_sdk_player` (Version 4.0.9 and above), you will n
 ```xml
         // for ChromeCast
         implementation 'androidx.mediarouter:mediarouter:1.0.0'
-        implementation 'com.google.android.gms:play-services-cast-framework:18.0.0'
+        implementation 'com.google.android.gms:play-services-cast-framework:18.1.0'
 ```
 
 - If advertising support should be enabled, also add the following dependencies to your project:
@@ -57,28 +57,15 @@ If you are using `uiza_android_sdk_player` (Version 4.0.9 and above), you will n
 ```xml
         // for IMA Ads
         implementation 'com.google.android.exoplayer:extension-ima:2.10.8'
-        implementation 'com.google.android.gms:play-services-ads:18.3.0'
+        implementation 'com.google.android.gms:play-services-ads:19.0.0'
 ```
 
 **Note:**
 - The version of the ExoPlayer Extension IMA must match the version of the ExoPlayer library being used.
 - If you are using both ChromeCast and IMA Ads dependencies, we recommend using dependency 'com.google.android.gms:play-services-cast-framework:$version' with version >= 18.0.0 to avoid dependency version conflicts
 
-If you are using uiza_android_sdk_player (Version < 4.0.9), you only need to import dependencies:
 
-```xml
-    // for playing video VOD, LIVE, ChromeCast and advertising support
-    implementation 'com.github.uizaio.com.uiza-android-com.com.uiza.com.com.uiza.sdk-player:uizacoresdk:X.X.X'
-```
-
-***Please note if your project uses firebase***:
-**firebase-core** & **firebase-database** ... should be same version:
-Basically, you need to bump all  _Play Services_  and  _Firebase_  libraries to their latest version (which may be different for each since version 15).
-
-You may use  [https://mvnrepository.com/](https://mvnrepository.com/)  to find the latest version for each library.
-See also:  [https://firebase.google.com/support/release-notes/android#20180523](https://firebase.google.com/support/release-notes/android#20180523)
-
-Check [example here](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/sample/build.gradle).
+Check [example here](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/build.gradle).
 
 **Turn on Java 8 support**
 
@@ -89,10 +76,9 @@ compileOptions {
   targetCompatibility JavaVersion.VERSION_1_8
 }
 ```
-> Node, Inside v5:
+> Node, Inside v1:
 >
 > - Use [androidx](https://developer.android.com/jetpack/androidx)
-> - Use [rxjava2](https://github.com/ReactiveX/RxJava/tree/2.x)
 > - Use [Timber](https://github.com/JakeWharton/timber) for logger
 
 ## Init SDK
@@ -105,7 +91,7 @@ compileOptions {
             @Override
             public void onCreate() {
                 super.onCreate();
-                UizaCoreSDK.initWorkspace(this, apiUrl, appId);
+                UZPlayer.init(this);
             }
      }
      ```
@@ -116,19 +102,6 @@ compileOptions {
             Timber.plant(new Timber.DebugTree());
         }
 ```
-> Note:
-> To get signed of apk,
->
-```sh
-keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore | openssl sha1 -binary | openssl md5
-```
->
-> with signed for release
-```sh
-keytool -exportcert -alias <alias_name> -keystore <release.keyfile> | openssl sha1 -binary | openssl md5
-```
->
-
 
 ### Manifest
 
@@ -138,47 +111,11 @@ keytool -exportcert -alias <alias_name> -keystore <release.keyfile> | openssl sh
     >
 ```
 
-## How to call API?:
-Call api by using this function
-
-```java
-    UizaLiveService service = UizaClientFactory.getLiveService();
-    RxBinder.bind(service.getEntity(entityId),
-    	liveEntity -> {
-			// onSucces
-    	},
-    	throwable -> {
-    		// onError
-    	}
-    );
-```
-To get list of objects
-
-```java
-    UizaLiveService service = UizaClientFactory.getLiveService();
-    RxBinder.bind(service.getEntities().map(ListWrap::getData),
-    	entities -> {
-			// onSucces
-    	},
-    	throwable -> {
-    		// onError
-    	}
-    );
-```
-
-  Other API can be used with the same function above.
-
-**API doc**
-[APIDOC](https://docs.com.uiza.io/v4/#introduction)
-
-This class help you know how to use all Uiza API, please refer to
-[THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v5/sample/src/main/java/testlibuiza/sample/UizaTestAPIActivity.java)
-
 ## How to play the video?:
 **XML**
 
 ```xml
-    <uizacoresdk.view.UizaVideoView
+    <com.uiza.sdk.view.UZVideoView
       android:id="@id/uiza_video"
       android:layout_width="match_parent"
       android:layout_height="wrap_content" />
@@ -206,18 +143,9 @@ In your `activity` or `fragment`
 - Play with entity:
 
     ```java
-    uzVideo = (UizaVideoView) findViewById(R.id.uiza_video);
+    uzVideo = (UZVideoView) findViewById(R.id.uiza_video);
     uzVideo.setUZCallback(this);
-    uzVideo.play("PlaybackInfo");
-	// or for VOD
-	uzVideo.play("put entityId");
-	// or Live
-	uzVideo.play("put entityId", true);
-    ```
-- Play with playlist/folder:
-
-    ```java
-    uzVideo.initPlaylistFolder("put the playlist/folder id here");
+    uzVideo.play("UZPlaybackInfo");
     ```
 
 Don't forget to add in activity life cycle event:
@@ -248,31 +176,16 @@ Don't forget to add in activity life cycle event:
     }
 ```
 
-If you wanna listen all events of SDK, check the [sample here](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/sample/src/main/java/testlibuiza/sample/v3/event/EventActivity.java).
-
-This sample help you know how to use all Uiza SDK, please refer to  [THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/tree/v5/sample)
-
-**More information for AndroidTV, AndroidBox:**
-
-You can use this SDK for `AndroidTV`, `AndroidBox` as well, but limited some features.
-We also provide some functions for `AndroidTV` like:
-
-```java
-    uzVideo.addUZTVCallback(this); // listen event onFocusChange of components.
-```
-
-Please take a look at module [sampletv](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/tree/v4/sampletv) for more details.
-
 ## How to customize your skin?
 Only 3 steps, you can customize everything about player skin.
 
 **Step 1:**
-Create layout ***uiza_controller_skin_custom_main.xml*** like [THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/sample/src/main/res/layout/uiza_controller_skin_custom_main.xml):
+Create layout ***uiza_controller_skin_custom_main.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uiza_controller_skin_custom_main.xml):
 
 Please note *`app:controller_layout_id="@layout/uiza_controller_skin_custom_detail"`*
 
 **Step 2:**
-Create layout ***uiza_controller_skin_custom_detail.xml*** like [THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/sample/src/main/res/layout/uiza_controller_skin_custom_detail.xml):
+Create layout ***uiza_controller_skin_custom_detail.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uiza_controller_skin_custom_detail.xml):
 - In this xml file, you can edit anything you like: position, color, drawable resouces...
 - You can add more view (TextView, Button, ImageView...).
 - You can remove any component which you dont like.
@@ -282,22 +195,22 @@ Create layout ***uiza_controller_skin_custom_detail.xml*** like [THIS](https://g
 On function `onCreate()` of `Activity`, put this code:
 
 ```java
-    UizaCoreSDK.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+    UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
 ```
 Ex:
 ```java
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
-		UizaCoreSDK.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+		UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
         super.onCreate(savedState);
     }
 ```
-**Note:** If you are using Chromecast, please use UZUtil.setCasty(Activity activity) on function onCreate() of Activity
+**Note:** If you are using Chromecast, please use UZPlayer.setCasty(Activity activity) on function onCreate() of Activity
 ```java
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
-        UizaCoreSDK.setCasty(this);
-        UizaCoreSDK.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+        UZPlayer.setCasty(this);
+        UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
         super.onCreate(savedState);
     }
 ```
@@ -315,28 +228,28 @@ But if you wanna change the player's skin when the player is playing, please you
     uzVideo.changeSkin(R.layout.uiza_controller_skin_custom_main);
 ```
 
-This sample help you know how to customize player's skin, please refer to  [THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/tree/v4/sample/src/main/java/testlibuiza/sample/v3/customskin)
+This sample help you know how to customize player's skin, please refer to  [THIS](https://github.com/uizaio/uiza-android-sdk/tree/master/sampleplayer/src/main/java/com/uiza/sampleplayer/customskin)
 
 ***Note:***
 - You should not change the id of the view.
 Ex: `android:id="@id/player_view"`
 Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_0"` ...
 
-## How to livestream with UizaSDK?:
+## How to broadcast with UizaSDK?:
 It's very easy, plz follow these steps below to implement:
 
 XML:
 
 ```xml
-    <uizalivestream.view.UZLivestream
-      android:id="@+id/uiza_livestream"
+    <com.uiza.sdk.view.UZBroadCastView
+      android:id="@+id/uz_broadcast"
       android:layout_width="match_parent"
       android:layout_height="match_parent" />
 ```
 
-In class [`LivePortraitActivity`](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/samplelivestream/src/main/java/test/loitp/samplelivestream/LivePortraitActivity.java):
+In class [`LivePortraitActivity`](https://github.com/uizaio/uiza-android-sdk/blob/master/samplebroadcast/src/main/java/com/uiza/samplebroadcast/UZBroadCastActivity.java):
 ```java
-    public class LivePortraitActivity extends AppCompatActivity implements UZLivestreamCallback {
+    public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener {
         // ...
     }
 ```
@@ -345,8 +258,8 @@ In `onCreate()`:
 ```java
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-    uzLivestream = (UZLivestream) findViewById(R.id.uiza_livestream);
-    uzLivestream.setUzLivestreamCallback(this);
+    uzBroadCast = (UZBroadCastView) findViewById(R.id.uz_broadcast);
+    uzBroadCast.setUzLivestreamCallback(this);
 ```
 
 In `onResume()`:
@@ -354,54 +267,54 @@ In `onResume()`:
 ```java
     @Override
     protected void onResume() {
-        uzLivestream.onResume();
+        uzBroadCast.onResume();
         super.onResume();
     }
 ```
 Start a `portrait` livestream:
 
 ```java
-    if (uzLivestream.prepareStream()) {
-        uzLivestream.startStream(liveStreamUrl);
+    if (uzBroadCast.prepareStream()) {
+        uzBroadCast.startStream(liveStreamUrl);
     }
 ```
 
-To stream in landscape mode, use `uzLivestream.prepareStream(true)` instead.
+To stream in landscape mode, use `uzBroadCast.prepareStream(true)` instead.
 
 Start a livestream and save to MP4 file:
 
 ```java
-	uzLivestream.setProfile(ProfileVideoEncoder.P720);
-    if (uzLivestream.prepareStream()) {
-        uzLivestream.startStream("streamUrl");
+	uzBroadCast.setProfile(ProfileVideoEncoder.P720);
+    if (uzBroadCast.prepareStream()) {
+        uzBroadCast.startStream("streamUrl");
     }
 ```
 
 Stop streaming (It auto saves mp4 file in your gallery if you start a livestream with option save local file)
 
 ```java
-    uzLivestream.stopStream();
+    uzBroadCast.stopStream();
 ```
 
 Switch camera:
 
 ```java
-    uzLivestream.switchCamera();
+    uzBroadCast.switchCamera();
 ```
 Allows streaming again after back from background:
 
 ```java
-    uzLivestream.setBackgroundAllowedDuration(YOUR_ALLOW_TIME); // default time is 2 minutes
+    uzBroadCast.setBackgroundAllowedDuration(YOUR_ALLOW_TIME); // default time is 2 minutes
 ```
 
-This sample help you know how to use all Uiza SDK for livestream, please refer to  [THIS](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/tree/v4/samplelivestream/src/main/java/test/loitp/samplelivestream)
+This sample help you know how to use all Uiza SDK for livestream, please refer to  [THIS](https://github.com/uizaio/uiza-android-sdk/tree/master/samplebroadcast)
 
 ## For contributors
 
  Uiza Checkstyle configuration is based on the Google coding conventions from Google Java Style
  that can be found at [here](https://google.github.io/styleguide/javaguide.html).
 
- Your code must be followed the rules that defined in our [`uiza_style.xml` rules](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/tree/v4/configs/codestyle/uiza_style.xml)
+ Your code must be followed the rules that defined in our [`uiza_style.xml` rules](https://github.com/uizaio/uiza-android-sdk/tree/master/configs/codestyle/uiza_style.xml)
 
  You can setting the rules after import project to Android Studio follow below steps:
 
@@ -424,21 +337,21 @@ This sample help you know how to use all Uiza SDK for livestream, please refer t
 
 
 ## Docs
-[Docs](https://uizaio.github.io/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/)
+[Docs](https://uizaio.github.io/uiza-android-sdk/)
 
 ## Supported devices
 
-Support all devices which have ***Android 4.4 (API level 19) above.***
+Support all devices which have ***Android 5.0 (API level 21) above.***
 For a given use case, we aim to support UizaSDK on all Android devices that satisfy the minimum version requirement.
 
 **Note:** Some Android emulators do not properly implement components of Android’s media stack, and as a result do not support UizaSDK. This is an issue with the emulator, not with UizaSDK. Android’s official emulator (“Virtual Devices” in Android Studio) supports UizaSDK provided the system image has an API level of at least 23. System images with earlier API levels do not support UizaSDK. The level of support provided by third party emulators varies. Issues running UizaSDK on third party emulators should be reported to the developer of the emulator rather than to the UizaSDK team. Where possible, we recommend testing media applications on physical devices rather than emulators.
 
 ## Error message
-Check this [class](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/uizabase/src/main/java/vn/com.uiza/core/exception/UZException.java) you can know error code and error message when use UizaSDK.
+Check this [class](https://github.com/uizaio/uiza-android-sdk/blob/master/uzplayer/src/main/java/com/uiza/sdk/exceptions/UZException.java) you can know error code and error message when use UizaSDK.
 
 ## Support
 
-If you've found an error in this sample, please file an [issue ](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/issues)
+If you've found an error in this sample, please file an [issue ](https://github.com/uizaio/uiza-android-sdk/issues)
 
 Patches are encouraged, and may be submitted by forking this project and submitting a pull request through GitHub. Please feel free to contact me anytime: developer@com.uiza.io for more details.
 
@@ -448,6 +361,6 @@ Website: _[com.uiza.io](http://com.uiza.io/)_
 
 ## License
 
-UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/com.uiza-android-com.com.uiza.com.com.uiza.sdk-player/blob/v4/LICENSE)  for details.
+UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/uiza-android-sdk/blob/master/LICENSE)  for details.
 
 

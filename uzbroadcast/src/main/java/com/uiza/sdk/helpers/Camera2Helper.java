@@ -16,8 +16,8 @@ import com.pedro.encoder.input.video.CameraOpenException;
 import com.pedro.rtplibrary.rtmp.RtmpCamera2;
 import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
-import com.uiza.sdk.interfaces.CameraChangeListener;
-import com.uiza.sdk.interfaces.RecordListener;
+import com.uiza.sdk.interfaces.UZCameraChangeListener;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
 import com.uiza.sdk.view.UZSize;
 
@@ -31,9 +31,9 @@ public class Camera2Helper implements ICameraHelper {
 
     private RtmpCamera2 rtmpCamera2;
 
-    private CameraChangeListener cameraChangeListener;
+    private UZCameraChangeListener cameraChangeListener;
 
-    private RecordListener recordListener;
+    private UZRecordListener recordListener;
 
 
     public Camera2Helper(@NonNull RtmpCamera2 camera) {
@@ -51,12 +51,12 @@ public class Camera2Helper implements ICameraHelper {
     }
 
     @Override
-    public void setCameraChangeListener(@NonNull CameraChangeListener cameraChangeListener) {
+    public void setCameraChangeListener(@NonNull UZCameraChangeListener cameraChangeListener) {
         this.cameraChangeListener = cameraChangeListener;
     }
 
     @Override
-    public void setRecordListener(RecordListener recordListener) {
+    public void setRecordListener(UZRecordListener recordListener) {
         this.recordListener = recordListener;
     }
 

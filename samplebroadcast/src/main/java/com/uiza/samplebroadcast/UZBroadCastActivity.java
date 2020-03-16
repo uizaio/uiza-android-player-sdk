@@ -4,16 +4,14 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.TextUtils;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,12 +26,12 @@ import com.uiza.sdk.enums.FilterRender;
 import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.enums.Translate;
-import com.uiza.sdk.interfaces.CameraChangeListener;
-import com.uiza.sdk.interfaces.RecordListener;
+import com.uiza.sdk.interfaces.UZCameraChangeListener;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
 import com.uiza.sdk.view.UZBroadCastView;
-import com.uiza.widget.UizaMediaButton;
+import com.uiza.widget.UZMediaButton;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,15 +41,13 @@ import java.util.Locale;
 
 import timber.log.Timber;
 
-public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastListener,
-        View.OnClickListener, RecordListener, CameraChangeListener, OrientationManager.OrientationListener {
+public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener,
+        View.OnClickListener, UZRecordListener, UZCameraChangeListener {
 
     private static final String RECORD_FOLDER = "com.uiza-live";
-    OrientationManager orientationManager;
     int beforeRotation;
-    private UizaMediaButton startButton;
-    private UizaMediaButton bRecord;
-    private UizaMediaButton btAudio;
+    PopupMenu popupMenu;
+    private UZMediaButton startButton, recordButton, audioButton, menuButton;
     private String liveStreamUrl;
     private String currentDateAndTime = "";
     private File folder;
@@ -62,7 +58,7 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
         super.onCreate(savedState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-        setContentView(R.layout.activity_live_stream);
+        setContentView(R.layout.activity_broad_cast);
         findViewById(R.id.btn_back).setOnClickListener(this);
         liveView = findViewById(R.id.uiza_live_view);
         liveView.setLiveListener(this);
@@ -70,10 +66,12 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
         startButton = findViewById(R.id.b_start_stop);
         startButton.setOnClickListener(this);
         startButton.setEnabled(false);
-        bRecord = findViewById(R.id.b_record);
-        btAudio = findViewById(R.id.btn_audio);
-        bRecord.setOnClickListener(this);
-        btAudio.setOnClickListener(this);
+        recordButton = findViewById(R.id.b_record);
+        audioButton = findViewById(R.id.btn_audio);
+        menuButton = findViewById(R.id.btn_menu);
+        recordButton.setOnClickListener(this);
+        audioButton.setOnClickListener(this);
+        menuButton.setOnClickListener(this);
         AppCompatImageButton switchCamera = findViewById(R.id.switch_camera);
         switchCamera.setOnClickListener(this);
         File movieFolder = getExternalFilesDir(Environment.DIRECTORY_MOVIES);
@@ -84,37 +82,10 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
         if (TextUtils.isEmpty(liveStreamUrl)) {
             liveStreamUrl = SampleLiveApplication.getLiveEndpoint();
         }
+        int profile = getIntent().getIntExtra(SampleLiveApplication.EXTRA_STREAM_PROFILE, 720);
+        Timber.e("profile = " + profile);
+        liveView.setProfile(ProfileVideoEncoder.find(profile));
         liveView.setBackgroundAllowedDuration(10000);
-        orientationManager = new OrientationManager(this, SensorManager.SENSOR_DELAY_NORMAL, this);
-        orientationManager.enable();
-    }
-
-    @Override
-    public void onOrientationChange(OrientationManager.ScreenOrientation screenOrientation) {
-        switch (screenOrientation) {
-            case PORTRAIT:
-                rotateView(0);
-                break;
-            case LANDSCAPE:
-                rotateView(1);
-                break;
-            case REVERSED_PORTRAIT:
-                rotateView(2);
-                break;
-            case REVERSED_LANDSCAPE:
-                rotateView(3);
-                break;
-        }
-    }
-
-    public void rotateView(int rotation) {
-        AppCompatImageButton switchCamera = findViewById(R.id.switch_camera);
-        float dk = rotation - beforeRotation;
-        if (dk >= 3) dk = -1f;
-        if (dk <= -3) dk = 1f;
-        float deg = switchCamera.getRotation() + dk * 90F;
-        switchCamera.animate().rotation(deg).setInterpolator(new AccelerateDecelerateInterpolator());
-        beforeRotation = rotation;
     }
 
     @Override
@@ -143,14 +114,7 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
         builder.show();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gl_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    private boolean onMenuItemSelected(MenuItem item) {
         //Stop listener for image, text and gif stream objects.
 //        openGlView.setFilter(null);
         int itemId = item.getItemId();
@@ -162,9 +126,6 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
             return true;
         } else if (itemId == R.id.no_filter) {
             liveView.setFilter(FilterRender.None);
-            return true;
-        } else if (itemId == R.id.analog_tv) {
-//            liveView.setFilter(FilterRender.AnalogTV);
             return true;
         } else if (itemId == R.id.android_view) {
             liveView.setFilter(FilterRender.AndroidView);
@@ -342,9 +303,8 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == 1001) {
             if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 recordAction();
-            }
             return;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -375,7 +335,7 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
             }
         } catch (IOException e) {
             liveView.stopRecord();
-            bRecord.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_record_white_24, null));
+            recordButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_record_white_24, null));
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
@@ -403,7 +363,7 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
             }
         } else if (id == R.id.b_record) {
             if (!liveView.isRecording()) {
-                ActivityCompat.requestPermissions(UizaLiveActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
+                ActivityCompat.requestPermissions(UZBroadCastActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
             } else {
                 liveView.stopRecord();
             }
@@ -413,16 +373,25 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
             } else {
                 liveView.disableAudio();
             }
-            btAudio.setChecked(liveView.isAudioMuted());
+            audioButton.setChecked(liveView.isAudioMuted());
         } else if (id == R.id.btn_back) {
             onBackPressed();
+        } else if (id == R.id.btn_menu) {
+            if (popupMenu == null) setPopupMenu();
+            popupMenu.show();
         }
+    }
+
+    private void setPopupMenu() {
+        popupMenu = new PopupMenu(UZBroadCastActivity.this, menuButton);
+        popupMenu.getMenuInflater().inflate(R.menu.gl_menu, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(this::onMenuItemSelected);
     }
 
     @Override
     public void onInit(boolean success) {
         startButton.setEnabled(success);
-        btAudio.setVisibility(View.GONE);
+        audioButton.setVisibility(View.GONE);
         liveView.setCameraChangeListener(this);
         liveView.setRecordListener(this);
     }
@@ -430,20 +399,20 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
     @Override
     public void onConnectionSuccess() {
         startButton.setChecked(true);
-        btAudio.setVisibility(View.VISIBLE);
-        btAudio.setChecked(false);
-        Toast.makeText(UizaLiveActivity.this, "Connection success", Toast.LENGTH_SHORT).show();
+        audioButton.setVisibility(View.VISIBLE);
+        audioButton.setChecked(false);
+        Toast.makeText(UZBroadCastActivity.this, "Connection success", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onRetryConnection(long delay) {
-        Toast.makeText(UizaLiveActivity.this, "Retry " + delay / 1000 + " s", Toast.LENGTH_SHORT)
+        Toast.makeText(UZBroadCastActivity.this, "Retry " + delay / 1000 + " s", Toast.LENGTH_SHORT)
                 .show();
     }
 
     @Override
     public void onConnectionFailed(@Nullable final String reason) {
-        Toast.makeText(UizaLiveActivity.this, "Connection failed. " + reason, Toast.LENGTH_SHORT)
+        Toast.makeText(UZBroadCastActivity.this, "Connection failed. " + reason, Toast.LENGTH_SHORT)
                 .show();
     }
 
@@ -455,20 +424,20 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
     @Override
     public void onDisconnect() {
         startButton.setChecked(false);
-        btAudio.setVisibility(View.GONE);
-        btAudio.setChecked(false);
-        Toast.makeText(UizaLiveActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
+        audioButton.setVisibility(View.GONE);
+        audioButton.setChecked(false);
+        Toast.makeText(UZBroadCastActivity.this, "Disconnected", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onAuthError() {
-        Toast.makeText(UizaLiveActivity.this, "Auth error", Toast.LENGTH_SHORT).show();
+        Toast.makeText(UZBroadCastActivity.this, "Auth error", Toast.LENGTH_SHORT).show();
 
     }
 
     @Override
     public void onAuthSuccess() {
-        Toast.makeText(UizaLiveActivity.this, "Auth success", Toast.LENGTH_SHORT).show();
+        Toast.makeText(UZBroadCastActivity.this, "Auth success", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -499,14 +468,14 @@ public class UizaLiveActivity extends AppCompatActivity implements UZBroadCastLi
     @Override
     public void onStatusChange(RecordStatus status) {
         runOnUiThread(() -> {
-            bRecord.setChecked(status == RecordStatus.RECORDING);
+            recordButton.setChecked(status == RecordStatus.RECORDING);
             if (status == RecordStatus.RECORDING) {
                 Toast.makeText(this, "Recording... ", Toast.LENGTH_SHORT).show();
             } else if (status == RecordStatus.STOPPED) {
                 currentDateAndTime = "";
                 Toast.makeText(this, "Stopped", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(UizaLiveActivity.this, "Record " + status.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(UZBroadCastActivity.this, "Record " + status.toString(), Toast.LENGTH_SHORT).show();
             }
         });
     }

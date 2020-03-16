@@ -7,6 +7,7 @@ import timber.log.Timber;
 public class SampleLiveApplication extends MultiDexApplication {
 
     public static final String EXTRA_STREAM_ENDPOINT = "uiza_live_extra_stream_endpoint";
+    public static final String EXTRA_STREAM_PROFILE = "uiza_live_extra_stream_profile";
 
     public static final String LIVE_URL = "rtmp://679b139b89-in.streamwiz.dev/transcode";
     public static final String STREAM_KEY = "live_ljNx4GLp3F";

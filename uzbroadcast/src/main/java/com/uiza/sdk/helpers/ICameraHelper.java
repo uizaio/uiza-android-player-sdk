@@ -6,8 +6,8 @@ import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.video.CameraHelper;
 import com.pedro.rtplibrary.base.Camera2Base;
 import com.uiza.sdk.enums.ProfileVideoEncoder;
-import com.uiza.sdk.interfaces.CameraChangeListener;
-import com.uiza.sdk.interfaces.RecordListener;
+import com.uiza.sdk.interfaces.UZCameraChangeListener;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
 import com.uiza.sdk.view.UZSize;
 
@@ -20,9 +20,9 @@ public interface ICameraHelper {
      */
     void setConnectReTries(int reTries);
 
-    void setCameraChangeListener(CameraChangeListener cameraChangeListener);
+    void setCameraChangeListener(UZCameraChangeListener cameraChangeListener);
 
-    void setRecordListener(RecordListener recordListener);
+    void setRecordListener(UZRecordListener recordListener);
 
     /**
      * Set filter in position 0.
