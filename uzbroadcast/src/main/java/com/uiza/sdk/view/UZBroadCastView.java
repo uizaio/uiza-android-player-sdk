@@ -37,7 +37,7 @@ import com.pedro.rtplibrary.view.OpenGlView;
 import com.uiza.sdk.R;
 import com.uiza.sdk.enums.AspectRatio;
 import com.uiza.sdk.enums.FilterRender;
-import com.uiza.sdk.enums.ProfileVideoEncoder;
+import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.helpers.Camera1Helper;
 import com.uiza.sdk.helpers.Camera2Helper;
 import com.uiza.sdk.helpers.ICameraHelper;
@@ -69,14 +69,6 @@ public class UZBroadCastView extends RelativeLayout {
      * ProfileEncoder default 360p
      */
     private ProfileVideoEncoder profile;
-    /**
-     * FPS default 24
-     */
-    private int fps;
-    /**
-     * Keyframe default 2
-     */
-    private int frameInterval;
     /**
      * Audio Stereo: default true
      */
@@ -238,17 +230,6 @@ public class UZBroadCastView extends RelativeLayout {
             try {
                 boolean hasLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
                 useCamera2 = a.getBoolean(R.styleable.UZBroadCastView_useCamera2, hasLollipop);
-                int res = a.getInt(R.styleable.UZBroadCastView_videoSize, 720);
-                if (res == 1080)
-                    profile = ProfileVideoEncoder.P1080;
-                else if (res == 360)
-                    profile = ProfileVideoEncoder.P360;
-                else if (res == 480)
-                    profile = ProfileVideoEncoder.P480;
-                else
-                    profile = ProfileVideoEncoder.P720;
-                fps = a.getInt(R.styleable.UZBroadCastView_fps, 30);
-                frameInterval = a.getInt(R.styleable.UZBroadCastView_frame_interval, 2);
                 audioStereo = a.getBoolean(R.styleable.UZBroadCastView_audioStereo, true);
                 audioBitrate = a.getInt(R.styleable.UZBroadCastView_audioBitrate, 64) * 1024; //64 Kbps
                 audioSampleRate = a.getInt(R.styleable.UZBroadCastView_audioSampleRate, 32000); // 32 KHz
@@ -263,9 +244,6 @@ public class UZBroadCastView extends RelativeLayout {
             }
         } else {
             useCamera2 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-            profile = ProfileVideoEncoder.P1080;
-            fps = 24;
-            frameInterval = 2;
             audioStereo = true;
             audioBitrate = 64 * 1024; //64 Kbps
             audioSampleRate = 32000; // 32 KHz
@@ -594,12 +572,12 @@ public class UZBroadCastView extends RelativeLayout {
     public boolean prepareVideo() {
         int rotation = CameraHelper.getCameraOrientation(getContext());
         isLandscape = rotation == 0 || rotation == 180;
-        return cameraHelper.prepareVideo(profile, fps, frameInterval, rotation);
+        return cameraHelper.prepareVideo(profile, rotation);
     }
 
     public boolean prepareVideo(boolean isLandscape) {
         this.isLandscape = isLandscape;
-        return cameraHelper.prepareVideo(profile, fps, frameInterval, isLandscape ? 0 : 90);
+        return cameraHelper.prepareVideo(profile, isLandscape ? 0 : 90);
     }
 
     public void enableAA(boolean enable) {
@@ -626,14 +604,6 @@ public class UZBroadCastView extends RelativeLayout {
 
     public int getStreamHeight() {
         return cameraHelper.getStreamHeight();
-    }
-
-    public void setFps(int fps) {
-        this.fps = fps;
-    }
-
-    public void setFrameInterval(int frameInterval) {
-        this.frameInterval = frameInterval;
     }
 
     public void setAudioStereo(boolean audioStereo) {

@@ -22,14 +22,14 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 
+import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.enums.FilterRender;
-import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.enums.Translate;
-import com.uiza.sdk.interfaces.UZCameraChangeListener;
-import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZBroadCastListener;
+import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.view.UZBroadCastView;
 import com.uiza.widget.UZMediaButton;
 
@@ -51,7 +51,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
     private String liveStreamUrl;
     private String currentDateAndTime = "";
     private File folder;
-    private UZBroadCastView liveView;
+    private UZBroadCastView broadCastView;
 
     @Override
     protected void onCreate(Bundle savedState) {
@@ -60,9 +60,8 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         setContentView(R.layout.activity_broad_cast);
         findViewById(R.id.btn_back).setOnClickListener(this);
-        liveView = findViewById(R.id.uiza_live_view);
-        liveView.setUZBroadcastListener(this);
-        liveView.setProfile(ProfileVideoEncoder.P720);
+        broadCastView = findViewById(R.id.uiza_live_view);
+        broadCastView.setUZBroadcastListener(this);
         startButton = findViewById(R.id.b_start_stop);
         startButton.setOnClickListener(this);
         startButton.setEnabled(false);
@@ -83,15 +82,21 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
             liveStreamUrl = SampleLiveApplication.getLiveEndpoint();
         }
         int profile = getIntent().getIntExtra(SampleLiveApplication.EXTRA_STREAM_PROFILE, 720);
-        Timber.e("profile = " + profile);
-        liveView.setProfile(ProfileVideoEncoder.find(profile));
-        liveView.setBackgroundAllowedDuration(10000);
+        if (profile == 1080)
+            broadCastView.setProfile(ProfileVideoEncoder.create1080p(30, 5500000));
+        else if (profile == 720)
+            broadCastView.setProfile(ProfileVideoEncoder.create720p(30, 2800000));
+        else if (profile == 480)
+            broadCastView.setProfile(ProfileVideoEncoder.create480p(30, 2100000));
+        else
+            broadCastView.setProfile(ProfileVideoEncoder.create360p(30, 1400000));
+        broadCastView.setBackgroundAllowedDuration(10000);
     }
 
     @Override
     protected void onResume() {
-        if (liveView != null) {
-            liveView.onResume();
+        if (broadCastView != null) {
+            broadCastView.onResume();
         }
         super.onResume();
     }
@@ -119,145 +124,145 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 //        openGlView.setFilter(null);
         int itemId = item.getItemId();
         if (itemId == R.id.e_d_fxaa) {
-            liveView.enableAA(!liveView.isAAEnabled());
+            broadCastView.enableAA(!broadCastView.isAAEnabled());
             Toast.makeText(this,
-                    "FXAA " + (liveView.isAAEnabled() ? "enabled" : "disabled"),
+                    "FXAA " + (broadCastView.isAAEnabled() ? "enabled" : "disabled"),
                     Toast.LENGTH_SHORT).show();
             return true;
         } else if (itemId == R.id.no_filter) {
-            liveView.setFilter(FilterRender.None);
+            broadCastView.setFilter(FilterRender.None);
             return true;
         } else if (itemId == R.id.android_view) {
-            liveView.setFilter(FilterRender.AndroidView);
+            broadCastView.setFilter(FilterRender.AndroidView);
             return true;
         } else if (itemId == R.id.basic_deformation) {
-            liveView.setFilter(FilterRender.BasicDeformation);
+            broadCastView.setFilter(FilterRender.BasicDeformation);
             return true;
         } else if (itemId == R.id.beauty) {
-            liveView.setFilter(FilterRender.Beauty);
+            broadCastView.setFilter(FilterRender.Beauty);
             return true;
         } else if (itemId == R.id.black) {
-            liveView.setFilter(FilterRender.Black);
+            broadCastView.setFilter(FilterRender.Black);
             return true;
         } else if (itemId == R.id.blur) {
-            liveView.setFilter(FilterRender.Blur);
+            broadCastView.setFilter(FilterRender.Blur);
             return true;
         } else if (itemId == R.id.brightness) {
-            liveView.setFilter(FilterRender.Brightness);
+            broadCastView.setFilter(FilterRender.Brightness);
             return true;
         } else if (itemId == R.id.cartoon) {
-            liveView.setFilter(FilterRender.Cartoon);
+            broadCastView.setFilter(FilterRender.Cartoon);
             return true;
         } else if (itemId == R.id.circle) {
-            liveView.setFilter(FilterRender.Circle);
+            broadCastView.setFilter(FilterRender.Circle);
             return true;
         } else if (itemId == R.id.color) {
-            liveView.setFilter(FilterRender.Color);
+            broadCastView.setFilter(FilterRender.Color);
             return true;
         } else if (itemId == R.id.contrast) {
-            liveView.setFilter(FilterRender.Contrast);
+            broadCastView.setFilter(FilterRender.Contrast);
             return true;
         } else if (itemId == R.id.duotone) {
-            liveView.setFilter(FilterRender.Duotone);
+            broadCastView.setFilter(FilterRender.Duotone);
             return true;
         } else if (itemId == R.id.early_bird) {
-            liveView.setFilter(FilterRender.EarlyBird);
+            broadCastView.setFilter(FilterRender.EarlyBird);
             return true;
         } else if (itemId == R.id.edge_detection) {
-            liveView.setFilter(FilterRender.EdgeDetection);
+            broadCastView.setFilter(FilterRender.EdgeDetection);
             return true;
         } else if (itemId == R.id.exposure) {
-            liveView.setFilter(FilterRender.Exposure);
+            broadCastView.setFilter(FilterRender.Exposure);
             return true;
         } else if (itemId == R.id.fire) {
-            liveView.setFilter(FilterRender.Fire);
+            broadCastView.setFilter(FilterRender.Fire);
             return true;
         } else if (itemId == R.id.gamma) {
-            liveView.setFilter(FilterRender.Gamma);
+            broadCastView.setFilter(FilterRender.Gamma);
             return true;
         } else if (itemId == R.id.glitch) {
-            liveView.setFilter(FilterRender.Glitch);
+            broadCastView.setFilter(FilterRender.Glitch);
             return true;
         } else if (itemId == R.id.gif) {
             setGifToStream();
             return true;
         } else if (itemId == R.id.grey_scale) {
-            liveView.setFilter(FilterRender.GreyScale);
+            broadCastView.setFilter(FilterRender.GreyScale);
             return true;
         } else if (itemId == R.id.halftone_lines) {
-            liveView.setFilter(FilterRender.HalftoneLines);
+            broadCastView.setFilter(FilterRender.HalftoneLines);
             return true;
         } else if (itemId == R.id.image) {
             setImageToStream();
             return true;
         } else if (itemId == R.id.image_70s) {
-            liveView.setFilter(FilterRender.Image70s);
+            broadCastView.setFilter(FilterRender.Image70s);
             return true;
         } else if (itemId == R.id.lamoish) {
-            liveView.setFilter(FilterRender.Lamoish);
+            broadCastView.setFilter(FilterRender.Lamoish);
             return true;
         } else if (itemId == R.id.money) {
-            liveView.setFilter(FilterRender.Money);
+            broadCastView.setFilter(FilterRender.Money);
             return true;
         } else if (itemId == R.id.negative) {
-            liveView.setFilter(FilterRender.Negative);
+            broadCastView.setFilter(FilterRender.Negative);
             return true;
         } else if (itemId == R.id.pixelated) {
-            liveView.setFilter(FilterRender.Pixelated);
+            broadCastView.setFilter(FilterRender.Pixelated);
             return true;
         } else if (itemId == R.id.polygonization) {
-            liveView.setFilter(FilterRender.Polygonization);
+            broadCastView.setFilter(FilterRender.Polygonization);
             return true;
         } else if (itemId == R.id.rainbow) {
-            liveView.setFilter(FilterRender.Rainbow);
+            broadCastView.setFilter(FilterRender.Rainbow);
             return true;
         } else if (itemId == R.id.rgb_saturate) {
             FilterRender rgbSaturation = FilterRender.RGBSaturation;
-            liveView.setFilter(rgbSaturation);
+            broadCastView.setFilter(rgbSaturation);
             //Reduce green and blue colors 20%. Red will predominate.
             rgbSaturation.setRGBSaturation(1f, 0.8f, 0.8f);
             return true;
         } else if (itemId == R.id.ripple) {
-            liveView.setFilter(FilterRender.Ripple);
+            broadCastView.setFilter(FilterRender.Ripple);
             return true;
         } else if (itemId == R.id.rotation) {
             FilterRender filterRender = FilterRender.Rotation;
-            liveView.setFilter(filterRender);
+            broadCastView.setFilter(filterRender);
             filterRender.setRotation(90);
             return true;
         } else if (itemId == R.id.saturation) {
-            liveView.setFilter(FilterRender.Saturation);
+            broadCastView.setFilter(FilterRender.Saturation);
             return true;
         } else if (itemId == R.id.sepia) {
-            liveView.setFilter(FilterRender.Sepia);
+            broadCastView.setFilter(FilterRender.Sepia);
             return true;
         } else if (itemId == R.id.sharpness) {
-            liveView.setFilter(FilterRender.Sharpness);
+            broadCastView.setFilter(FilterRender.Sharpness);
             return true;
         } else if (itemId == R.id.snow) {
-            liveView.setFilter(FilterRender.Snow);
+            broadCastView.setFilter(FilterRender.Snow);
             return true;
         } else if (itemId == R.id.swirl) {
-            liveView.setFilter(FilterRender.Swirl);
+            broadCastView.setFilter(FilterRender.Swirl);
             return true;
         } else if (itemId == R.id.surface_filter) {//You can render this filter with other api that draw in a surface. for example you can use VLC
             FilterRender surfaceFilterRender = FilterRender.Surface;
-            liveView.setFilter(surfaceFilterRender);
+            broadCastView.setFilter(surfaceFilterRender);
             MediaPlayer mediaPlayer = MediaPlayer.create(this, R.raw.big_bunny_240p);
             mediaPlayer.setSurface(surfaceFilterRender.getSurface());
             mediaPlayer.start();
             //Video is 360x240 so select a percent to keep aspect ratio (50% x 33.3% screen)
             surfaceFilterRender.setScale(50f, 33.3f);
-            liveView.setFilter(surfaceFilterRender); //Optional
+            broadCastView.setFilter(surfaceFilterRender); //Optional
             return true;
         } else if (itemId == R.id.temperature) {
-            liveView.setFilter(FilterRender.Temperature);
+            broadCastView.setFilter(FilterRender.Temperature);
             return true;
         } else if (itemId == R.id.text) {
             setTextToStream();
             return true;
         } else if (itemId == R.id.zebra) {
-            liveView.setFilter(FilterRender.Zebra);
+            broadCastView.setFilter(FilterRender.Zebra);
             return true;
         }
         return false;
@@ -265,23 +270,23 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
 
     private void setTextToStream() {
         FilterRender textObject = FilterRender.TextObject;
-        liveView.setFilter(textObject);
+        broadCastView.setFilter(textObject);
         textObject.setText("Hello world", 22, Color.RED);
-        textObject.setDefaultScale(liveView.getStreamWidth(),
-                liveView.getStreamHeight());
+        textObject.setDefaultScale(broadCastView.getStreamWidth(),
+                broadCastView.getStreamHeight());
         textObject.setPosition(Translate.CENTER);
-        liveView.setFilter(textObject); //Optional
+        broadCastView.setFilter(textObject); //Optional
     }
 
     private void setImageToStream() {
         FilterRender imageObjectFilterRender = FilterRender.ImageObject;
-        liveView.setFilter(imageObjectFilterRender);
+        broadCastView.setFilter(imageObjectFilterRender);
         imageObjectFilterRender.setImage(
                 BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-        imageObjectFilterRender.setDefaultScale(liveView.getStreamWidth(),
-                liveView.getStreamHeight());
+        imageObjectFilterRender.setDefaultScale(broadCastView.getStreamWidth(),
+                broadCastView.getStreamHeight());
         imageObjectFilterRender.setPosition(Translate.RIGHT);
-        liveView.setFilter(imageObjectFilterRender); //Optional
+        broadCastView.setFilter(imageObjectFilterRender); //Optional
 //        liveView.setPreventMoveOutside(false); //Optional
     }
 
@@ -289,11 +294,11 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         try {
             FilterRender gifObjectFilterRender = FilterRender.GifObject;
             gifObjectFilterRender.setGif(getResources().openRawResource(R.raw.banana));
-            liveView.setFilter(gifObjectFilterRender);
-            gifObjectFilterRender.setDefaultScale(liveView.getStreamWidth(),
-                    liveView.getStreamHeight());
+            broadCastView.setFilter(gifObjectFilterRender);
+            gifObjectFilterRender.setDefaultScale(broadCastView.getStreamWidth(),
+                    broadCastView.getStreamHeight());
             gifObjectFilterRender.setPosition(Translate.BOTTOM);
-            liveView.setFilter(gifObjectFilterRender); //Optional
+            broadCastView.setFilter(gifObjectFilterRender); //Optional
         } catch (IOException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -322,19 +327,19 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
             }
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
             currentDateAndTime = sdf.format(new Date());
-            if (!liveView.isStreaming()) {
-                if (liveView.prepareStream()) {
-                    liveView.startRecord(
+            if (!broadCastView.isStreaming()) {
+                if (broadCastView.prepareStream()) {
+                    broadCastView.startRecord(
                             folder.getAbsolutePath() + "/" + currentDateAndTime + ".mp4");
                 } else {
                     Toast.makeText(this, "Error preparing stream, This device cant do it",
                             Toast.LENGTH_SHORT).show();
                 }
             } else {
-                liveView.startRecord(folder.getAbsolutePath() + "/" + currentDateAndTime + ".mp4");
+                broadCastView.startRecord(folder.getAbsolutePath() + "/" + currentDateAndTime + ".mp4");
             }
         } catch (IOException e) {
-            liveView.stopRecord();
+            broadCastView.stopRecord();
             recordButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_record_white_24, null));
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -344,36 +349,36 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
     public void onClick(View view) {
         int id = view.getId();
         if (id == R.id.b_start_stop) {
-            if (!liveView.isStreaming()) {
-                if (liveView.isRecording()
-                        || liveView.prepareStream()) {
-                    liveView.startStream(liveStreamUrl);
+            if (!broadCastView.isStreaming()) {
+                if (broadCastView.isRecording()
+                        || broadCastView.prepareStream()) {
+                    broadCastView.startStream(liveStreamUrl);
                 } else {
                     Toast.makeText(this, "Error preparing stream, This device cant do it",
                             Toast.LENGTH_SHORT).show();
                 }
             } else {
-                liveView.stopStream();
+                broadCastView.stopStream();
             }
         } else if (id == R.id.switch_camera) {
             try {
-                liveView.switchCamera();
+                broadCastView.switchCamera();
             } catch (UZCameraOpenException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.b_record) {
-            if (!liveView.isRecording()) {
+            if (!broadCastView.isRecording()) {
                 ActivityCompat.requestPermissions(UZBroadCastActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1001);
             } else {
-                liveView.stopRecord();
+                broadCastView.stopRecord();
             }
         } else if (id == R.id.btn_audio) {
-            if (liveView.isAudioMuted()) {
-                liveView.enableAudio();
+            if (broadCastView.isAudioMuted()) {
+                broadCastView.enableAudio();
             } else {
-                liveView.disableAudio();
+                broadCastView.disableAudio();
             }
-            audioButton.setChecked(liveView.isAudioMuted());
+            audioButton.setChecked(broadCastView.isAudioMuted());
         } else if (id == R.id.btn_back) {
             onBackPressed();
         } else if (id == R.id.btn_menu) {
@@ -392,8 +397,8 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
     public void onInit(boolean success) {
         startButton.setEnabled(success);
         audioButton.setVisibility(View.GONE);
-        liveView.setUZCameraChangeListener(this);
-        liveView.setUZRecordListener(this);
+        broadCastView.setUZCameraChangeListener(this);
+        broadCastView.setUZRecordListener(this);
     }
 
     @Override

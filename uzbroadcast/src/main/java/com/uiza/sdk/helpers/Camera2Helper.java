@@ -14,7 +14,7 @@ import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.video.CameraHelper;
 import com.pedro.encoder.input.video.CameraOpenException;
 import com.pedro.rtplibrary.rtmp.RtmpCamera2;
-import com.uiza.sdk.enums.ProfileVideoEncoder;
+import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
@@ -134,18 +134,18 @@ public class Camera2Helper implements ICameraHelper {
 
     @Override
     public boolean prepareVideo(@NonNull ProfileVideoEncoder profile) {
-        return prepareVideo(profile, 24, 2, 90);
+        return prepareVideo(profile, 90);
     }
 
     @Override
-    public boolean prepareVideo(@NonNull ProfileVideoEncoder profile, int fps, int iFrameInterval, int rotation) {
+    public boolean prepareVideo(@NonNull ProfileVideoEncoder profile,int rotation) {
         return rtmpCamera2.prepareVideo(
                 profile.getWidth(),
                 profile.getHeight(),
-                fps,
+                profile.getFps(),
                 profile.getBitrate(),
                 false,
-                iFrameInterval,
+                profile.getFrameInterval(),
                 rotation,
                 MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
                 MediaCodecInfo.CodecProfileLevel.AVCLevel4);

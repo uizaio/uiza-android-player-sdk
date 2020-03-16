@@ -276,20 +276,10 @@ In `onResume()`:
         super.onResume();
     }
 ```
-Start a `portrait` livestream:
+Start a livestream:
 
 ```java
-    if (uzBroadCast.prepareStream()) {
-        uzBroadCast.startStream(liveStreamUrl);
-    }
-```
-
-To stream in landscape mode, use `uzBroadCast.prepareStream(true)` instead.
-
-Start a livestream and save to MP4 file:
-
-```java
-	uzBroadCast.setProfile(ProfileVideoEncoder.P720);
+	uzBroadCast.setProfile(ProfileVideoEncoder profile);
     if (uzBroadCast.prepareStream()) {
         uzBroadCast.startStream("streamUrl");
     }

@@ -1,10 +1,10 @@
 <resources>
     <!-- Video Size Preference -->
     <string-array name="profile_entries">
-        <item>1080p (2800 Kbps)</item>
-        <item>720p (1400 Kbps)</item>
-        <item>480p (1000 Kbps)</item>
-        <item>360p (600 Kbps)</item>
+        <item>1080p (5500 Kbps)</item>
+        <item>720p (2800 Kbps)</item>
+        <item>480p (2100 Kbps)</item>
+        <item>360p (1400 Kbps)</item>
     </string-array>
 
     <string-array name="profile_values">

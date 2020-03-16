@@ -5,7 +5,7 @@ import android.view.MotionEvent;
 import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.video.CameraHelper;
 import com.pedro.rtplibrary.base.Camera2Base;
-import com.uiza.sdk.enums.ProfileVideoEncoder;
+import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
@@ -125,7 +125,6 @@ public interface ICameraHelper {
     boolean prepareVideo(ProfileVideoEncoder profile);
 
     /**
-     * @param fps      frames per second of the stream.
      * @param rotation could be 90, 180, 270 or 0 (Normally 0 if you are streaming in landscape or 90
      *                 if you are streaming in Portrait). This only affect to stream result. NOTE: Rotation with
      *                 encoder is silence ignored in some devices.
@@ -133,8 +132,6 @@ public interface ICameraHelper {
      * doesn't support any configuration seated or your device hasn't a H264 encoder).
      */
     boolean prepareVideo(ProfileVideoEncoder profile,
-                         int fps,
-                         int iFrameInterval,
                          int rotation
     );
 

@@ -14,14 +14,11 @@
         app:audioBitrate="64"
         app:audioSampleRate="32000"
         app:audioStereo="true"
-        app:fps="30"
-        app:frame_interval="2"
         app:isFlipHorizontal="false"
         app:isFlipVertical="false"
         app:keepAspectRatio="true"
         app:numFilters="1"
-        app:useCamera2="true"
-        app:videoSize="p720" />
+        app:useCamera2="true"/>
 
     <RelativeLayout
         android:id="@+id/ll_top"
