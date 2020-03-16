@@ -197,9 +197,9 @@ public class UZVideoView extends VideoViewBase
     private UZLiveContentCallback uzLiveContentCallback;
     private ProgressListener progressListener;
     private PreviewView.OnPreviewChangeListener onPreviewChangeListener;
-    private UZVideoViewItemClick uizaVideoViewItemClick;
+    private UZVideoViewItemClick uzVideoViewItemClick;
     private UZCallback uzCallback;
-    private UZTVFocusChangeListener uizaTVFocusChangeListener;
+    private UZTVFocusChangeListener uzTVFocusChangeListener;
     private UZPlayerView.ControllerStateCallback controllerStateCallback;
     private boolean isGetClickedPip;
     private long timestampInitDataSource;
@@ -747,13 +747,10 @@ public class UZVideoView extends VideoViewBase
 
     @Override
     public void onFocusChange(View view, boolean isFocus) {
-        if (uizaTVFocusChangeListener != null) {
-            uizaTVFocusChangeListener.onFocusChange(view, isFocus);
-        } else {
-            if (firstViewHasFocus == null) {
-                firstViewHasFocus = view;
-            }
-        }
+        if (uzTVFocusChangeListener != null)
+            uzTVFocusChangeListener.onFocusChange(view, isFocus);
+        else if (firstViewHasFocus == null)
+            firstViewHasFocus = view;
     }
 
     public boolean isLandscape() {
@@ -887,9 +884,8 @@ public class UZVideoView extends VideoViewBase
                 }
             }
         }
-        if (uizaVideoViewItemClick != null) {
-            uizaVideoViewItemClick.onItemClick(v);
-        }
+        if (uzVideoViewItemClick != null)
+            uzVideoViewItemClick.onItemClick(v);
     }
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -1886,8 +1882,8 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void handleFirstViewHasFocus() {
-        if (firstViewHasFocus != null && uizaTVFocusChangeListener != null) {
-            uizaTVFocusChangeListener.onFocusChange(firstViewHasFocus, true);
+        if (firstViewHasFocus != null && uzTVFocusChangeListener != null) {
+            uzTVFocusChangeListener.onFocusChange(firstViewHasFocus, true);
             firstViewHasFocus = null;
         }
     }
@@ -2194,12 +2190,12 @@ public class UZVideoView extends VideoViewBase
         this.uzLiveContentCallback = uzLiveContentCallback;
     }
 
-    public void addUZCallback(UZCallback uzCallback) {
+    public void setUZCallback(UZCallback uzCallback) {
         this.uzCallback = uzCallback;
     }
 
     public void setUizaTVFocusChangeListener(UZTVFocusChangeListener uizaTVFocusChangeListener) {
-        this.uizaTVFocusChangeListener = uizaTVFocusChangeListener;
+        this.uzTVFocusChangeListener = uizaTVFocusChangeListener;
         handleFirstViewHasFocus();
     }
 
@@ -2213,8 +2209,8 @@ public class UZVideoView extends VideoViewBase
 
     //=============================================================================================END EVENT
 
-    public void setUizaVideoViewItemClick(UZVideoViewItemClick uizaVideoViewItemClick) {
-        this.uizaVideoViewItemClick = uizaVideoViewItemClick;
+    public void setUZVideoViewItemClick(UZVideoViewItemClick uzVideoViewItemClick) {
+        this.uzVideoViewItemClick = uzVideoViewItemClick;
     }
 
     public void addControllerStateCallback(final UZPlayerView.ControllerStateCallback controllerStateCallback) {

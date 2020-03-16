@@ -63,8 +63,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
         vdhv.setCallback(this);
         vdhv.setOnTouchEvent(this);
         vdhv.setScreenRotate(false);
-        uzVideo.addUZCallback(this);
-        uzVideo.setUizaVideoViewItemClick(this);
+        uzVideo.setUZCallback(this);
+        uzVideo.setUZVideoViewItemClick(this);
         uzVideo.addControllerStateCallback(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
