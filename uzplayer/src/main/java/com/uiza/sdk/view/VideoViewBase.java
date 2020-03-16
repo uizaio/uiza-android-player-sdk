@@ -49,8 +49,24 @@ public abstract class VideoViewBase extends RelativeLayout {
         onCreateView();
     }
 
+    /**
+     * Play from custom Playback
+     * @return true if success init
+     */
+    public abstract boolean play();
+
+    /**
+     * Play a playback
+     * @param playback
+     * @return true if success init
+     */
     public abstract boolean play(@NonNull UZPlaybackInfo playback);
 
+    /**
+     * play a playlist
+     * @param playlist
+     * @return true if success init
+     */
     public abstract boolean play(List<UZPlaybackInfo> playlist);
 
     public abstract long getCurrentPosition();

@@ -136,6 +136,16 @@ public class UZFloatVideoView extends VideoViewBase {
     }
 
     @Override
+    public boolean play() {
+        UZPlaybackInfo playback = UZData.getInstance().getPlaybackInfo();
+        if (playback != null) {
+            init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
+            return true;
+        } else
+            return false;
+    }
+
+    @Override
     public boolean play(@NonNull UZPlaybackInfo playback) {
         init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
         return true;
@@ -300,7 +310,7 @@ public class UZFloatVideoView extends VideoViewBase {
     }
 
     protected void getLinkPlayOfNextItem(CallbackGetNextPlayback callback) {
-        if(callback == null) return;
+        if (callback == null) return;
         if (UZData.getInstance().getPlayList() == null) {
             Timber.e("playPlaylistPosition error: incorrect position");
             callback.onSuccess(null);

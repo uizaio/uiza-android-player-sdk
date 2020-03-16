@@ -16,7 +16,6 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlaybackInfo;
-import com.uiza.sdk.util.ListUtils;
 import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.UZViewUtils;
 import com.uiza.sdk.view.UZPlayerView;
@@ -125,9 +124,9 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
             btPlaylist.performClick();
     }
 
-    private void initPlaylist(){
+    private void initPlaylist() {
         playlist = new ArrayList<>();
-        for (String url : urls){
+        for (String url : urls) {
             UZPlaybackInfo playback = new UZPlaybackInfo();
             playback.setHls(url);
             playlist.add(playback);
@@ -139,7 +138,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
         UZPlayer.setCurrentPlaybackInfo(playback);
-        boolean isInitSuccess = uzVideo.initCustomLinkPlay();
+        boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");
         }

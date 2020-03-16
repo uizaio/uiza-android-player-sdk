@@ -147,6 +147,9 @@ In your `activity` or `fragment`
     uzVideo.setUZCallback(this);
     uzVideo.play(UZPlaybackInfo playback);
     // or 
+    UZPlayer.setCurrentPlaybackInfo(UZPlaybackInfo playback);
+    uzVideo.play();
+    // or playlist
     uzVideo.play(List<UZPlaybackInfo> playlist);
     ```
 

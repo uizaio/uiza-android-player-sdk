@@ -391,25 +391,6 @@ public class UZVideoView extends VideoViewBase
         }
     }
 
-    public boolean initCustomLinkPlay() {
-        Context context = getContext();
-        if (UZData.getInstance().getPlaybackInfo() == null) {
-            Timber.e(ErrorConstant.ERR_14);
-            return false;
-        }
-        if (!ConnectivityUtils.isConnected(context)) {
-            Timber.e(ErrorConstant.ERR_0);
-            return false;
-        }
-        UZPlaybackInfo playbackInfo = UZData.getInstance().getPlaybackInfo();
-        if (!LocalData.getClickedPip()) {
-            UZAppUtils.stopMiniPlayer(context);
-        }
-        initPlayback(playbackInfo.getLinkPlay(), playbackInfo.isLive(), true);
-        LocalData.setIsInitPlaylistFolder(false);
-        return true;
-    }
-
     private void handlePlayPlayListFolderUI() {
         if (isPlayPlaylistFolder()) {
             setVisibilityOfPlaylistFolderController(VISIBLE);
@@ -428,6 +409,31 @@ public class UZVideoView extends VideoViewBase
         if (uzPlayerManager != null) {
             uzPlayerManager.seekTo(positionMs);
         }
+    }
+
+    /**
+     * Play with custom playback
+     *
+     * @return true if not error
+     */
+    @Override
+    public boolean play() {
+        if (UZData.getInstance().getPlaybackInfo() == null) {
+            Timber.e(ErrorConstant.ERR_14);
+            return false;
+        }
+        Context context = getContext();
+        if (!ConnectivityUtils.isConnected(context)) {
+            Timber.e(ErrorConstant.ERR_0);
+            return false;
+        }
+        UZPlaybackInfo playbackInfo = UZData.getInstance().getPlaybackInfo();
+        if (!LocalData.getClickedPip()) {
+            UZAppUtils.stopMiniPlayer(context);
+        }
+        initPlayback(playbackInfo.getLinkPlay(), playbackInfo.isLive(), true);
+        LocalData.setIsInitPlaylistFolder(false);
+        return true;
     }
 
     /**
@@ -454,8 +460,19 @@ public class UZVideoView extends VideoViewBase
         return true;
     }
 
+    /**
+     * Play with {@link UZPlaybackInfo}
+     *
+     * @param playlist List of PlaybackInfo
+     * @return true if not error
+     */
     @Override
     public boolean play(List<UZPlaybackInfo> playlist) {
+        // TODO: Check how to get subtitle of a custom link play, because we have no idea about entityId or appId
+        if (!ConnectivityUtils.isConnected(getContext())) {
+            notifyError(ErrorUtils.exceptionNoConnection());
+            return false;
+        }
         if (ListUtils.isEmpty(playlist)) {
             Timber.d("initPlaylist::playlist is Empty");
             return false;
@@ -517,7 +534,7 @@ public class UZVideoView extends VideoViewBase
         return (uzPlayerManager == null) ? 0 : uzPlayerManager.getVideoHeight();
     }
 
-    public void initPlayback(@NonNull String linkPlay, boolean isLiveStream, boolean isClearDataPlaylistFolder) {
+    private void initPlayback(@NonNull String linkPlay, boolean isLiveStream, boolean isClearDataPlaylistFolder) {
         Timber.d("init linkPlay %s", linkPlay);
         if (isClearDataPlaylistFolder) {
             UZData.getInstance().clearDataForPlaylistFolder();
@@ -540,11 +557,6 @@ public class UZVideoView extends VideoViewBase
             showProgress();
         }
         updateUIDependOnLivestream();
-        // TODO: Check how to get subtitle of a custom link play, because we have no idea about entityId or appId
-        if (!ConnectivityUtils.isConnected(getContext())) {
-            notifyError(ErrorUtils.exceptionNoConnection());
-            return;
-        }
         initDataSource(linkPlay, UZData.getInstance().getUrlIMAAd(), UZData.getInstance().getThumbnail(), UZAppUtils.isAdsDependencyAvailable());
         if (uzCallback != null)
             uzCallback.isInitResult(false, UZData.getInstance().getPlaybackInfo());
