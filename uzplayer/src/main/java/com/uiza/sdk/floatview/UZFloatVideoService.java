@@ -786,20 +786,18 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
 
     private void onStateEnded() {
         if (UZData.getInstance().isPlayWithPlaylistFolder()) {
-            if (fuzVideo == null) {
-                return;
-            }
-            //LLog.d(TAG, "Dang play o che do playlist/folder -> play next item");
-            fuzVideo.getLinkPlayOfNextItem(lp -> {
-                linkPlay = lp;
-                if (linkPlay == null) {
+            if (fuzVideo == null) return;
+            Timber.d("Dang play o che do playlist/folder -> play next item");
+            fuzVideo.getLinkPlayOfNextItem(playback -> {
+                if (playback == null || !playback.canPlay()) {
                     stopSelf();
                 }
+                linkPlay = playback.getLinkPlay();
                 contentPosition = 0;
                 setupVideo();
             });
         } else {
-            //LLog.d(TAG, "Dang play o che do entity -> stopSelf()");
+            Timber.d("Dang play o che do entity -> stopSelf()");
             stopSelf();
         }
     }

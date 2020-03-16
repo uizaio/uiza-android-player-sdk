@@ -137,6 +137,9 @@ public class UZData {
 
     public void setCurrentPositionOfPlayList(int currentPositionOfPlayList) {
         this.currentPositionOfPlayList = currentPositionOfPlayList;
+        UZPlaybackInfo currentInfo = playList.get(currentPositionOfPlayList);
+        if (currentInfo != null) this.playbackInfo = currentInfo;
+
     }
     //end singleton data if play playlist folder
 

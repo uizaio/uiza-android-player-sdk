@@ -6,8 +6,7 @@ import com.uiza.sdk.models.UZPlaybackInfo;
 public interface UZCallback {
     //when video init done with result
     //isInitSuccess onStateReadyFirst
-    //isGetDataSuccess da co data ResultGetLinkPlay va Data
-    void isInitResult(boolean isInitSuccess, boolean isGetDataSuccess, UZPlaybackInfo playback);
+    void isInitResult(boolean isInitSuccess,UZPlaybackInfo playback);
 
     //when pip video is init success
     void onStateMiniPlayer(boolean isInitMiniPlayerSuccess);

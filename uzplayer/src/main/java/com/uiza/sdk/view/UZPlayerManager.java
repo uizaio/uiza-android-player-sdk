@@ -24,7 +24,7 @@ import timber.log.Timber;
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
 //https://medium.com/@takusemba/understands-callbacks-of-exoplayer-c05ac3c322c2
-public final class UZPlayerManager extends IUizaPlayerManager implements AdsMediaSource.MediaSourceFactory {
+public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaSource.MediaSourceFactory {
 
     private ImaAdsLoader adsLoader = null;
     private boolean isOnAdEnded;
@@ -35,30 +35,26 @@ public final class UZPlayerManager extends IUizaPlayerManager implements AdsMedi
         super(uzVideo, linkPlay, thumbnailsUrl);
 
         if (!TextUtils.isEmpty(urlIMAAd)) {
-            if (LocalData.getClickedPip()) {
+            if (LocalData.getClickedPip())
                 Timber.e("UizaPlayerManager don't init urlIMAAd because called from PIP again");
-            } else {
+            else
                 adsLoader = new ImaAdsLoader(context, Uri.parse(urlIMAAd));
-            }
         }
-
         setRunnable();
     }
 
     private void onAdEnded() {
-        if (!isOnAdEnded && uzVideo != null) {
+        if (!isOnAdEnded && uzVideoView != null) {
             isOnAdEnded = true;
-            if (progressListener != null) {
+            if (progressListener != null)
                 progressListener.onAdEnded();
-            }
         }
     }
 
     @Override
     protected boolean isPlayingAd() {
-        if (uzVideoAdPlayerListener == null) {
+        if (uzVideoAdPlayerListener == null)
             return false;
-        }
         return uzVideoAdPlayerListener.isPlayingAd();
     }
 
@@ -66,20 +62,17 @@ public final class UZPlayerManager extends IUizaPlayerManager implements AdsMedi
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideo == null || uzVideo.getUzPlayerView() == null) {
+            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null) {
                 return;
             }
-            if (uzVideoAdPlayerListener.isEnded()) {
+            if (uzVideoAdPlayerListener.isEnded())
                 onAdEnded();
-            }
-            if (isPlayingAd()) {
+            if (isPlayingAd())
                 handleAdProgress();
-            } else {
+            else
                 handleVideoProgress();
-            }
-            if (handler != null && runnable != null) {
+            if (handler != null && runnable != null)
                 handler.postDelayed(runnable, 1000);
-            }
         };
         handler.postDelayed(runnable, 0);
     }
@@ -87,14 +80,13 @@ public final class UZPlayerManager extends IUizaPlayerManager implements AdsMedi
     private void handleAdProgress() {
         hideProgress();
         isOnAdEnded = false;
-        uzVideo.setUseController(false);
+        uzVideoView.setUseController(false);
         if (progressListener != null) {
             VideoProgressUpdate videoProgressUpdate = adsLoader.getAdProgress();
             duration = (int) videoProgressUpdate.getDuration();
             s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
-            if (duration != 0) {
+            if (duration != 0)
                 percent = (int) (s * 100 / duration);
-            }
             progressListener.onAdProgress(s, (int) duration, percent);
         }
     }
@@ -108,7 +100,7 @@ public final class UZPlayerManager extends IUizaPlayerManager implements AdsMedi
         player = buildPlayer(drmSessionManager);
         playerHelper = new UZPlayerHelper(player);
 
-        uzVideo.getUzPlayerView().setPlayer(player);
+        uzVideoView.getUzPlayerView().setPlayer(player);
 
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // merge ads to media source subtitle
@@ -122,21 +114,19 @@ public final class UZPlayerManager extends IUizaPlayerManager implements AdsMedi
             adsLoader.addCallback(uzVideoAdPlayerListener);
         }
         player.prepare(mediaSourceWithAds);
-        setPlayWhenReady(uzVideo.isAutoStart());
-        if (uzVideo.isLivestream()) {
+        setPlayWhenReady(uzVideoView.isAutoStart());
+        if (uzVideoView.isLiveStream())
             playerHelper.seekToDefaultPosition();
-        } else {
+        else
             seekTo(contentPosition);
-        }
         notifyUpdateButtonVisibility();
     }
 
     private MediaSource createMediaSourceWithAds(MediaSource mediaSource) {
-        if (adsLoader == null) {
+        if (adsLoader == null)
             return mediaSource;
-        }
         return new AdsMediaSource(mediaSource, this, adsLoader,
-                uzVideo.getUzPlayerView());
+                uzVideoView.getUzPlayerView());
     }
 
     public void reset() {

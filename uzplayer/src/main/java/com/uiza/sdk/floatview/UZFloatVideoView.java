@@ -26,6 +26,8 @@ import com.uiza.sdk.util.UZData;
 import com.uiza.sdk.util.UZViewUtils;
 import com.uiza.sdk.view.VideoViewBase;
 
+import java.util.List;
+
 import timber.log.Timber;
 
 public class UZFloatVideoView extends VideoViewBase {
@@ -129,15 +131,19 @@ public class UZFloatVideoView extends VideoViewBase {
     }
 
     private void releasePlayerManager() {
-        if (fuzUizaPlayerManager != null) {
+        if (fuzUizaPlayerManager != null)
             fuzUizaPlayerManager.release();
-        }
     }
 
     @Override
     public boolean play(@NonNull UZPlaybackInfo playback) {
         init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
         return true;
+    }
+
+    @Override
+    public boolean play(List<UZPlaybackInfo> playlist) {
+        return false;
     }
 
     //=============================================================================================================END CONFIG
@@ -293,33 +299,32 @@ public class UZFloatVideoView extends VideoViewBase {
             callback.isInitResult(true);
     }
 
-    protected void getLinkPlayOfNextItem(CallbackGetLinkPlay callbackGetLinkPlay) {
+    protected void getLinkPlayOfNextItem(CallbackGetNextPlayback callback) {
+        if(callback == null) return;
         if (UZData.getInstance().getPlayList() == null) {
             Timber.e("playPlaylistPosition error: incorrect position");
-            callbackGetLinkPlay.onSuccess(null);
+            callback.onSuccess(null);
             return;
         }
         int currentPositionOfDataList = UZData.getInstance().getCurrentPositionOfPlayList();
         int position = currentPositionOfDataList + 1;
         if (position < 0) {
             Timber.e("This is the first item");
-            callbackGetLinkPlay.onSuccess(null);
+            callback.onSuccess(null);
             return;
         }
         if (position > UZData.getInstance().getPlayList().size() - 1) {
             Timber.e("This is the last item");
-            callbackGetLinkPlay.onSuccess(null);
+            callback.onSuccess(null);
             return;
         }
         UZData.getInstance().setCurrentPositionOfPlayList(position);
-        UZPlaybackInfo data = UZData.getInstance().getDataWithPositionOfPlayList(position);
-        if (data == null || data.getId() == null || data.getId().isEmpty()) {
-            Timber.e("playPlaylistPosition error: data null or cannot get id");
-            callbackGetLinkPlay.onSuccess(null);
-            return;
-        }
-        Timber.d("-----------------------> playPlaylistPosition %d -> %s", position, data.getName());
-//        callAPIGetTokenStreaming(data.getId(), callbackGetLinkPlay);
+        callback.onSuccess(UZData.getInstance().getPlaybackInfo());
+    }
+
+
+    public interface CallbackGetNextPlayback {
+        void onSuccess(UZPlaybackInfo playback);
     }
 
     public interface Callback {
@@ -330,10 +335,6 @@ public class UZFloatVideoView extends VideoViewBase {
         void onVideoSizeChanged(int width, int height);
 
         void onPlayerError(UZException error);
-    }
-
-    public interface CallbackGetLinkPlay {
-        void onSuccess(String linkPlay);
     }
     //=============================================================================================================END CALLBACK
 }

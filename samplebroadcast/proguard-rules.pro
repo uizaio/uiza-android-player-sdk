@@ -28,8 +28,8 @@
 
 -dontwarn com.google.android.material.**
 -keep class com.google.android.material.** { *; }
--dontwarn com.google.firebase.database.**
--keep class com.google.firebase.database.** { *; }
+#-dontwarn com.google.firebase.database.**
+#-keep class com.google.firebase.database.** { *; }
 
 -dontwarn androidx.**
 -keep class androidx.** { *; }
@@ -40,8 +40,8 @@
 # timber
 -dontwarn org.jetbrains.annotations.NonNls
 # joda
--keep class org.joda.time.** { *; }
--keep class org.joda.convert.** { *; }
+#-keep class org.joda.time.** { *; }
+#-keep class org.joda.convert.** { *; }
 
 -keepattributes Signature
 
@@ -51,10 +51,6 @@
 # Gson specific classes
 -dontwarn sun.misc.**
 #-keep class com.google.gson.stream.** { *; }
-
-# Application classes that will be serialized/deserialized over Gson
--keep class vn.com.uiza.models.** { <fields>; }
--keep class io.com.uiza.adapters.** { <fields>; }
 
 # Prevent proguard from stripping interface information from TypeAdapter, TypeAdapterFactory,
 # JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
@@ -68,4 +64,4 @@
   @com.google.gson.annotations.SerializedName <fields>;
 }
 
--dontwarn retrofit2.**
+#-dontwarn retrofit2.**

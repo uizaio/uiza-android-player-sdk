@@ -61,7 +61,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         setContentView(R.layout.activity_broad_cast);
         findViewById(R.id.btn_back).setOnClickListener(this);
         liveView = findViewById(R.id.uiza_live_view);
-        liveView.setLiveListener(this);
+        liveView.setUZBroadcastListener(this);
         liveView.setProfile(ProfileVideoEncoder.P720);
         startButton = findViewById(R.id.b_start_stop);
         startButton.setOnClickListener(this);
@@ -392,8 +392,8 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
     public void onInit(boolean success) {
         startButton.setEnabled(success);
         audioButton.setVisibility(View.GONE);
-        liveView.setCameraChangeListener(this);
-        liveView.setRecordListener(this);
+        liveView.setUZCameraChangeListener(this);
+        liveView.setUZRecordListener(this);
     }
 
     @Override

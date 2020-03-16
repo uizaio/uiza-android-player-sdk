@@ -41,9 +41,9 @@ import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.helpers.Camera1Helper;
 import com.uiza.sdk.helpers.Camera2Helper;
 import com.uiza.sdk.helpers.ICameraHelper;
+import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZRecordListener;
-import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.util.ViewUtil;
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
@@ -92,7 +92,7 @@ public class UZBroadCastView extends RelativeLayout {
     private ProgressBar progressBar;
     private TextView tvLiveStatus;
     private boolean useCamera2;
-    private UZBroadCastListener liveListener;
+    private UZBroadCastListener uzBroadCastListener;
     private long backgroundAllowedDuration = 2 * MINUTE; // default is 2 minutes
     private CountDownTimer backgroundTimer;
     private boolean isBroadcastingBeforeGoingBackground;
@@ -106,18 +106,16 @@ public class UZBroadCastView extends RelativeLayout {
 
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-            if (liveListener != null) {
-                liveListener.surfaceCreated();
-            }
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.surfaceCreated();
         }
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             int mHeight = Math.min((int) (width * aspectRatio.getAspectRatio()), height);
             cameraHelper.startPreview(CameraHelper.Facing.BACK, width, mHeight);
-            if (liveListener != null) {
-                liveListener.surfaceChanged(format, width, mHeight);
-            }
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.surfaceChanged(format, width, mHeight);
         }
 
         @Override
@@ -129,8 +127,8 @@ public class UZBroadCastView extends RelativeLayout {
             if (cameraHelper.isOnPreview())
                 cameraHelper.stopPreview();
             startBackgroundTimer();
-            if (liveListener != null)
-                liveListener.surfaceDestroyed();
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.surfaceDestroyed();
 
         }
     };
@@ -144,8 +142,8 @@ public class UZBroadCastView extends RelativeLayout {
                 progressBar.setVisibility(View.GONE);
                 invalidate();
                 requestLayout();
-                if (liveListener != null)
-                    liveListener.onConnectionSuccess();
+                if (uzBroadCastListener != null)
+                    uzBroadCastListener.onConnectionSuccess();
             });
             isBroadcastingBeforeGoingBackground = true;
         }
@@ -155,16 +153,16 @@ public class UZBroadCastView extends RelativeLayout {
             ((Activity) getContext()).runOnUiThread(() -> {
                 //Wait 5s and retry connect stream
                 if (cameraHelper.reTry(5000, reason)) {
-                    if (liveListener != null)
-                        liveListener.onRetryConnection(5000);
+                    if (uzBroadCastListener != null)
+                        uzBroadCastListener.onRetryConnection(5000);
                 } else {
                     cameraHelper.stopStream();
                     progressBar.setVisibility(View.GONE);
                     hideLiveStatus();
                     invalidate();
                     requestLayout();
-                    if (liveListener != null)
-                        liveListener.onConnectionFailed(reason);
+                    if (uzBroadCastListener != null)
+                        uzBroadCastListener.onConnectionFailed(reason);
                 }
             });
         }
@@ -181,8 +179,8 @@ public class UZBroadCastView extends RelativeLayout {
                 progressBar.setVisibility(View.GONE);
                 invalidate();
                 requestLayout();
-                if (liveListener != null)
-                    liveListener.onDisconnect();
+                if (uzBroadCastListener != null)
+                    uzBroadCastListener.onDisconnect();
             });
 
         }
@@ -193,8 +191,8 @@ public class UZBroadCastView extends RelativeLayout {
                 progressBar.setVisibility(View.GONE);
                 invalidate();
                 requestLayout();
-                if (liveListener != null)
-                    liveListener.onAuthError();
+                if (uzBroadCastListener != null)
+                    uzBroadCastListener.onAuthError();
             });
         }
 
@@ -204,8 +202,8 @@ public class UZBroadCastView extends RelativeLayout {
                 progressBar.setVisibility(View.GONE);
                 invalidate();
                 requestLayout();
-                if (liveListener != null)
-                    liveListener.onAuthSuccess();
+                if (uzBroadCastListener != null)
+                    uzBroadCastListener.onAuthSuccess();
             });
         }
     };
@@ -331,8 +329,8 @@ public class UZBroadCastView extends RelativeLayout {
             public void onPermissionsChecked(MultiplePermissionsReport report) {
                 if (report.areAllPermissionsGranted()) {
                     onCreateView();
-                    if (liveListener != null)
-                        liveListener.onInit(true);
+                    if (uzBroadCastListener != null)
+                        uzBroadCastListener.onInit(true);
                 } else if (report.isAnyPermissionPermanentlyDenied())
                     showSettingsDialog();
                 else
@@ -353,8 +351,8 @@ public class UZBroadCastView extends RelativeLayout {
         builder.setMessage(R.string.this_app_needs_permission);
         builder.setPositiveButton(R.string.okay, (dialog, which) -> checkLivePermission());
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
-            if (liveListener != null)
-                liveListener.onInit(false);
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.onInit(false);
 
         });
         AlertDialog dialog = builder.create();
@@ -375,16 +373,20 @@ public class UZBroadCastView extends RelativeLayout {
 
         });
         builder.setNegativeButton(R.string.cancel, (dialog, which) -> {
-            if (liveListener != null)
-                liveListener.onInit(false);
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.onInit(false);
         });
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         dialog.show();
     }
 
-    public void setLiveListener(UZBroadCastListener liveListener) {
-        this.liveListener = liveListener;
+
+    /**
+     * @param uzBroadCastListener
+     */
+    public void setUZBroadcastListener(UZBroadCastListener uzBroadCastListener) {
+        this.uzBroadCastListener = uzBroadCastListener;
     }
 
     public void setLandscape(boolean landscape) {
@@ -397,26 +399,25 @@ public class UZBroadCastView extends RelativeLayout {
     public void onResume() {
         checkAndResumeLiveStreamIfNeeded();
         if (isFromBackgroundTooLong) {
-            if (liveListener != null)
-                liveListener.onBackgroundTooLong();
+            if (uzBroadCastListener != null)
+                uzBroadCastListener.onBackgroundTooLong();
             isFromBackgroundTooLong = false;
         }
     }
 
     /**
-     * Set duration which allows livestream to keep the info
+     * Set duration which allows broadcasting to keep the info
      *
-     * @param duration the duration which allows livestream to keep the info
+     * @param duration the duration which allows broadcasting to keep the info
      */
     public void setBackgroundAllowedDuration(long duration) {
         this.backgroundAllowedDuration = duration;
     }
 
+
     private void checkAndResumeLiveStreamIfNeeded() {
         cancelBackgroundTimer();
-
         if (!isBroadcastingBeforeGoingBackground) return;
-
         isBroadcastingBeforeGoingBackground = false;
         // We delay a second because the surface need to be resumed before we can prepare something
         // Improve this method whenever you can
@@ -426,7 +427,7 @@ public class UZBroadCastView extends RelativeLayout {
                 if (prepareAudio() && prepareVideo(isLandscape))
                     startStream(mainStreamUrl);
             } catch (Exception ignored) {
-                Timber.e("Can not resume livestream right now !");
+                Timber.e("Can not resume broadcasting right now !");
             }
         }, SECOND);
     }
@@ -448,18 +449,19 @@ public class UZBroadCastView extends RelativeLayout {
     }
 
     private void cancelBackgroundTimer() {
-        if (backgroundTimer != null)
+        if (backgroundTimer != null) {
             backgroundTimer.cancel();
-        backgroundTimer = null;
+            backgroundTimer = null;
+        }
     }
 
     /**
      * you must call in onInit()
      *
-     * @param cameraChangeListener : camera witch listener
+     * @param uzCameraChangeListener : camera witch listener
      */
-    public void setCameraChangeListener(UZCameraChangeListener cameraChangeListener) {
-        cameraHelper.setCameraChangeListener(cameraChangeListener);
+    public void setUZCameraChangeListener(UZCameraChangeListener uzCameraChangeListener) {
+        cameraHelper.setUZCameraChangeListener(uzCameraChangeListener);
     }
 
     /**
@@ -467,8 +469,8 @@ public class UZBroadCastView extends RelativeLayout {
      *
      * @param recordListener : record status listener
      */
-    public void setRecordListener(UZRecordListener recordListener) {
-        cameraHelper.setRecordListener(recordListener);
+    public void setUZRecordListener(UZRecordListener recordListener) {
+        cameraHelper.setUZRecordListener(recordListener);
     }
 
     public void hideLiveStatus() {

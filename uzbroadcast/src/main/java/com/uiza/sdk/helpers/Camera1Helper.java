@@ -15,8 +15,8 @@ import com.pedro.rtplibrary.rtmp.RtmpCamera1;
 import com.uiza.sdk.enums.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
-import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
+import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.view.UZSize;
 
 import org.jetbrains.annotations.NotNull;
@@ -25,14 +25,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * use camera1 library
+ */
 public class Camera1Helper implements ICameraHelper {
 
     private RtmpCamera1 rtmpCamera1;
 
-    private UZCameraChangeListener cameraChangeListener;
+    private UZCameraChangeListener uzCameraChangeListener;
 
-    private UZRecordListener recordListener;
+    private UZRecordListener uzRecordListener;
 
     public Camera1Helper(@NonNull RtmpCamera1 camera) {
         this.rtmpCamera1 = camera;
@@ -49,13 +51,13 @@ public class Camera1Helper implements ICameraHelper {
     }
 
     @Override
-    public void setCameraChangeListener(@NonNull UZCameraChangeListener cameraChangeListener) {
-        this.cameraChangeListener = cameraChangeListener;
+    public void setUZCameraChangeListener(@NonNull UZCameraChangeListener uzCameraChangeListener) {
+        this.uzCameraChangeListener = uzCameraChangeListener;
     }
 
     @Override
-    public void setRecordListener(UZRecordListener recordListener) {
-        this.recordListener = recordListener;
+    public void setUZRecordListener(UZRecordListener uzRecordListener) {
+        this.uzRecordListener = uzRecordListener;
     }
 
 
@@ -174,8 +176,8 @@ public class Camera1Helper implements ICameraHelper {
         } catch (CameraOpenException e) {
             throw new UZCameraOpenException(e.getMessage());
         }
-        if (cameraChangeListener != null)
-            cameraChangeListener.onCameraChange(rtmpCamera1.isFrontCamera());
+        if (uzCameraChangeListener != null)
+            uzCameraChangeListener.onCameraChange(rtmpCamera1.isFrontCamera());
     }
 
     @Override
@@ -222,11 +224,10 @@ public class Camera1Helper implements ICameraHelper {
 
     @Override
     public void startRecord(@NotNull String savePath) throws IOException {
-        if (recordListener != null) {
-            rtmpCamera1.startRecord(savePath, status -> recordListener.onStatusChange(RecordStatus.lookup(status)));
-        } else {
+        if (uzRecordListener != null)
+            rtmpCamera1.startRecord(savePath, status -> uzRecordListener.onStatusChange(RecordStatus.lookup(status)));
+        else
             rtmpCamera1.startRecord(savePath);
-        }
     }
 
     @Override

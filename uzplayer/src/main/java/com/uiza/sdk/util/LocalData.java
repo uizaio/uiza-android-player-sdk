@@ -16,7 +16,7 @@ import com.uiza.sdk.R;
 public class LocalData {
 
     //=============================================================================START PREF
-    private final static String PREFERENCES_FILE_NAME = "com.com.uiza.sdk-v5";
+    private final static String PREFERENCES_FILE_NAME = "com.uiza.sdk::uzplayer";
     private final static String CLICKED_PIP = "CLICKED_PIP";
     //private final static String CLASS_NAME_OF_PLAYER = "CLASS_NAME_OF_PLAYER";
     private final static String IS_INIT_PLAYLIST_FOLDER = "IS_INIT_PLAYLIST_FOLDER";
@@ -229,18 +229,15 @@ public class LocalData {
         int screenH = UZViewUtils.getScreenHeight();
         int rangeMarginW = screenW / 5;
         int rangeMarginH = screenH / 5;
-        if (marginL < 0 || marginL > rangeMarginW) {
+        if (marginL < 0 || marginL > rangeMarginW)
             throw new IllegalArgumentException("Error: marginL is invalid, the right value must from 0px to " + rangeMarginW + "px or 0dp to " + ConvertUtils.px2dp(rangeMarginW) + "dp");
-        }
-        if (marginT < 0 || marginT > rangeMarginH) {
+        if (marginT < 0 || marginT > rangeMarginH)
             throw new IllegalArgumentException("Error: marginT is invalid, the right value must from 0px to " + rangeMarginH + "px or 0dp to " + ConvertUtils.px2dp(rangeMarginH) + "dp");
-        }
-        if (marginR < 0 || marginR > rangeMarginW) {
+        if (marginR < 0 || marginR > rangeMarginW)
             throw new IllegalArgumentException("Error: marginR is invalid, the right value must from 0px to " + rangeMarginW + "px or 0dp to " + ConvertUtils.px2dp(rangeMarginW) + "dp");
-        }
-        if (marginB < 0 || marginB > rangeMarginH) {
+        if (marginB < 0 || marginB > rangeMarginH)
             throw new IllegalArgumentException("Error: marginB is invalid, the right value must from 0px to " + rangeMarginH + "px or 0dp to " + ConvertUtils.px2dp(rangeMarginH) + "dp");
-        }
+
         setMiniPlayerMarginL(marginL);
         setMiniPlayerMarginT(marginT);
         setMiniPlayerMarginR(marginR);
@@ -263,12 +260,11 @@ public class LocalData {
         }
         int screenWPx = UZViewUtils.getScreenWidth();
         int screenHPx = UZViewUtils.getScreenHeight();
-        if (videoWidthPx < 0 || videoWidthPx > screenWPx) {
+        if (videoWidthPx < 0 || videoWidthPx > screenWPx)
             throw new IllegalArgumentException("Error: videoWidthPx is invalid, the right value must from 0px to " + screenWPx + "px or 0dp to " + ConvertUtils.px2dp(screenWPx) + "dp");
-        }
-        if (videoHeightPx < 0 || videoHeightPx > screenHPx) {
+        if (videoHeightPx < 0 || videoHeightPx > screenHPx)
             throw new IllegalArgumentException("Error: videoHeightPx is invalid, the right value must from 0px to " + screenHPx + "px or 0dp to " + ConvertUtils.px2dp(screenHPx) + "dp");
-        }
+
         setMiniPlayerSizeWidth(videoWidthPx);
         setMiniPlayerSizeHeight(videoHeightPx);
         return true;

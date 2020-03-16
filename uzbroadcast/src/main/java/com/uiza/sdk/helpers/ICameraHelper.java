@@ -20,9 +20,15 @@ public interface ICameraHelper {
      */
     void setConnectReTries(int reTries);
 
-    void setCameraChangeListener(UZCameraChangeListener cameraChangeListener);
+    /**
+     * @param uzCameraChangeListener
+     */
+    void setUZCameraChangeListener(UZCameraChangeListener uzCameraChangeListener);
 
-    void setRecordListener(UZRecordListener recordListener);
+    /**
+     * @param uzRecordListener
+     */
+    void setUZRecordListener(UZRecordListener uzRecordListener);
 
     /**
      * Set filter in position 0.

@@ -86,12 +86,11 @@ public class UZChromeCast {
     }
 
     public void setTintMediaRouteButton(final int color) {
-        if (uzMediaRouteButton != null) {
+        if (uzMediaRouteButton != null)
             uzMediaRouteButton.post(() -> uzMediaRouteButton.applyTint(color));
-        }
     }
 
-    public UZMediaRouteButton getUzMediaRouteButton() {
+    public UZMediaRouteButton getUZMediaRouteButton() {
         return uzMediaRouteButton;
     }
 

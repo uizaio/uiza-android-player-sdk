@@ -2,8 +2,6 @@ package com.uiza.sampleplayer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,12 +16,16 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.util.ListUtils;
 import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.UZViewUtils;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.view.VDHView;
 import com.uiza.sdk.widget.UZToast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by loitp on 9/1/2019.
@@ -40,8 +42,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     private UZVideoView uzVideo;
     private VDHView vdhv;
     private EditText etLinkPlay;
-    private Button btPlay;
-    private boolean isLive = false;
+    private Button btPlaylist;
+    private List<UZPlaybackInfo> playlist;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
@@ -59,13 +61,13 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
         vdhv = findViewById(R.id.vdhv);
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
-        btPlay = findViewById(R.id.bt_play);
+        btPlaylist = findViewById(R.id.bt_playlist);
         vdhv.setCallback(this);
         vdhv.setOnTouchEvent(this);
         vdhv.setScreenRotate(false);
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
-        uzVideo.addControllerStateCallback(this);
+        uzVideo.setControllerStateCallback(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlaybackInfo playbackInfo = null;
@@ -74,65 +76,40 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
             if (playbackInfo != null) {
                 llBottom.setVisibility(View.GONE);
                 etLinkPlay.setVisibility(View.GONE);
-                btPlay.setVisibility(View.GONE);
             } else {
                 llBottom.setVisibility(View.VISIBLE);
                 etLinkPlay.setVisibility(View.VISIBLE);
-                btPlay.setVisibility(View.VISIBLE);
+                initPlaylist();
             }
         } else {
             llBottom.setVisibility(View.VISIBLE);
             etLinkPlay.setVisibility(View.VISIBLE);
-            btPlay.setVisibility(View.VISIBLE);
+            initPlaylist();
         }
-        btPlay.setEnabled(playbackInfo != null);
-        etLinkPlay.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence == null || charSequence.toString().isEmpty()) {
-                    btPlay.setEnabled(false);
-                } else {
-                    btPlay.setEnabled(true);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
 
         findViewById(R.id.bt_0).setOnClickListener(view -> {
             etLinkPlay.setText(urls[0]);
             setLastCursorEditText(etLinkPlay);
+            onPlay(false);
         });
         findViewById(R.id.bt_1).setOnClickListener(view -> {
             etLinkPlay.setText(urls[1]);
-            isLive = true;
             setLastCursorEditText(etLinkPlay);
+            onPlay(false);
         });
         findViewById(R.id.bt_2).setOnClickListener(view -> {
             etLinkPlay.setText(urls[2]);
-            isLive = true;
             setLastCursorEditText(etLinkPlay);
+            onPlay(false);
         });
         findViewById(R.id.bt_3).setOnClickListener(view -> {
             etLinkPlay.setText(urls[3]);
             setLastCursorEditText(etLinkPlay);
+            onPlay(true);
         });
 
-        btPlay.setOnClickListener(view -> {
-            final UZPlaybackInfo playback = new UZPlaybackInfo();
-            playback.setHls(etLinkPlay.getText().toString());
-            playback.setLive(isLive);
-            UZPlayer.setCurrentPlaybackInfo(playback);
-            boolean isInitSuccess = uzVideo.initCustomLinkPlay();
-            if (!isInitSuccess) {
-                UZToast.show(this, "Init failed");
-            }
+        btPlaylist.setOnClickListener(view -> {
+            uzVideo.play(playlist);
         });
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
             if (uzVideo != null) {
@@ -141,17 +118,35 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
         });
         if (playbackInfo != null) {
             boolean isInitSuccess = uzVideo.play(playbackInfo);
-            if (!isInitSuccess) {
+            if (!isInitSuccess)
                 UZToast.show(this, "Init failed");
-            }
         }
-        if (LocalData.getClickedPip()) {
-            btPlay.performClick();
+        if (LocalData.getClickedPip())
+            btPlaylist.performClick();
+    }
+
+    private void initPlaylist(){
+        playlist = new ArrayList<>();
+        for (String url : urls){
+            UZPlaybackInfo playback = new UZPlaybackInfo();
+            playback.setHls(url);
+            playlist.add(playback);
+        }
+    }
+
+    private void onPlay(boolean live) {
+        final UZPlaybackInfo playback = new UZPlaybackInfo();
+        playback.setHls(etLinkPlay.getText().toString());
+        playback.setLive(live);
+        UZPlayer.setCurrentPlaybackInfo(playback);
+        boolean isInitSuccess = uzVideo.initCustomLinkPlay();
+        if (!isInitSuccess) {
+            UZToast.show(this, "Init failed");
         }
     }
 
     @Override
-    public void isInitResult(boolean isInitSuccess, boolean isGetDataSuccess, UZPlaybackInfo data) {
+    public void isInitResult(boolean isInitSuccess, UZPlaybackInfo data) {
         vdhv.setInitResult(isInitSuccess);
     }
 
@@ -168,9 +163,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
 
     @Override
     public void onStateMiniPlayer(boolean isInitMiniPlayerSuccess) {
-        if (isInitMiniPlayerSuccess) {
+        if (isInitMiniPlayerSuccess)
             onBackPressed();
-        }
     }
 
     @Override
@@ -256,7 +250,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     @Override
     public void onOverScroll(VDHView.State state, VDHView.Part part) {
         uzVideo.pause();
-        vdhv.dissappear();
+        vdhv.disappear();
     }
 
     @Override

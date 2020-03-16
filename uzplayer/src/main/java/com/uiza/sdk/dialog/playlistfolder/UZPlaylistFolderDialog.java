@@ -50,7 +50,7 @@ public class UZPlaylistFolderDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.v3_dialog_list_playlist_folder);
+        setContentView(R.layout.dialog_list_playlist_folder);
         recyclerView = findViewById(R.id.recycler_view);
         final ImageButton btExit = findViewById(R.id.bt_exit);
         btExit.setOnClickListener(v -> dismiss());

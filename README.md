@@ -146,6 +146,8 @@ In your `activity` or `fragment`
     uzVideo = (UZVideoView) findViewById(R.id.uiza_video);
     uzVideo.setUZCallback(this);
     uzVideo.play(UZPlaybackInfo playback);
+    // or 
+    uzVideo.play(List<UZPlaybackInfo> playlist);
     ```
 
 Don't forget to add in activity life cycle event:

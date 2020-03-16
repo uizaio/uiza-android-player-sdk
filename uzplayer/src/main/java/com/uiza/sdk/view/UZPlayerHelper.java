@@ -27,9 +27,8 @@ final class UZPlayerHelper {
     }
 
     void setPlayWhenReady(boolean ready) {
-        if (isPlayerValid()) {
+        if (isPlayerValid())
             player.setPlayWhenReady(ready);
-        }
     }
 
     void release() {
@@ -44,9 +43,8 @@ final class UZPlayerHelper {
     }
 
     void setVolume(float value) {
-        if (isPlayerValid()) {
+        if (isPlayerValid())
             player.setVolume(value);
-        }
     }
 
     boolean seekTo(long positionMs) {
@@ -58,28 +56,21 @@ final class UZPlayerHelper {
     }
 
     void seekToDefaultPosition() {
-        if (isPlayerValid()) {
+        if (isPlayerValid())
             player.seekToDefaultPosition();
-        }
     }
 
     void seekToForward(long forward) {
-        if (isPlayerValid()) {
-            if (player.getCurrentPosition() + forward > player.getDuration()) {
-                player.seekTo(player.getDuration());
-            } else {
-                player.seekTo(player.getCurrentPosition() + forward);
-            }
-        }
+        if (isPlayerValid())
+            player.seekTo(Math.min(player.getCurrentPosition() + forward, player.getDuration()));
     }
 
     void seekToBackward(long backward) {
         if (isPlayerValid()) {
-            if (player.getCurrentPosition() - backward > 0) {
+            if (player.getCurrentPosition() - backward > 0)
                 player.seekTo(player.getCurrentPosition() - backward);
-            } else {
+            else
                 player.seekTo(0);
-            }
         }
     }
 
@@ -104,9 +95,7 @@ final class UZPlayerHelper {
      */
     @Nullable
     String getPlayerStateString() {
-        if (!isPlayerValid()) {
-            return null;
-        }
+        if (!isPlayerValid()) return null;
         String playbackStateString;
         switch (player.getPlaybackState()) {
             case Player.STATE_BUFFERING:
@@ -133,11 +122,9 @@ final class UZPlayerHelper {
      */
     @Nullable
     String getVideoString() {
-        if (!isPlayerValid())
-            return null;
+        if (!isPlayerValid()) return null;
         Format format = player.getVideoFormat();
-        if (format == null)
-            return null;
+        if (format == null) return null;
         return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
                 + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
                 + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
@@ -145,8 +132,7 @@ final class UZPlayerHelper {
 
     @Nullable
     String getDecoderCountersBufferCountString(DecoderCounters counters) {
-        if (counters == null)
-            return null;
+        if (counters == null) return null;
         counters.ensureUpdated();
         return " sib:" + counters.skippedInputBufferCount
                 + " sb:" + counters.skippedOutputBufferCount
@@ -161,20 +147,16 @@ final class UZPlayerHelper {
     }
 
     int getVideoProfileW() {
-        if (!isPlayerValid())
-            return 0;
+        if (!isPlayerValid()) return 0;
         Format format = player.getVideoFormat();
-        if (format == null)
-            return 0;
+        if (format == null) return 0;
         return format.width;
     }
 
     int getVideoProfileH() {
-        if (!isPlayerValid())
-            return 0;
+        if (!isPlayerValid()) return 0;
         Format format = player.getVideoFormat();
-        if (format == null)
-            return 0;
+        if (format == null) return 0;
         return format.height;
     }
 
@@ -183,11 +165,9 @@ final class UZPlayerHelper {
      */
     @Nullable
     String getAudioString() {
-        if (player == null)
-            return null;
+        if (player == null) return null;
         Format format = player.getAudioFormat();
-        if (format == null)
-            return null;
+        if (format == null) return null;
         return "\n" + format.sampleMimeType
                 + "(id:" + format.id
                 + " hz:" + format.sampleRate

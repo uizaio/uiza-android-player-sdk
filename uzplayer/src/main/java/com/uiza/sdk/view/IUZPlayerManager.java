@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -72,7 +71,7 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
-abstract class IUizaPlayerManager implements PreviewLoader {
+abstract class IUZPlayerManager implements PreviewLoader {
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
     private static final long INVALID_PROGRAM_DATE_TIME = 0;
@@ -80,7 +79,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     private final DataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
     protected Context context;
-    protected UZVideoView uzVideo;
+    protected UZVideoView uzVideoView;
     protected long contentPosition;
     protected SimpleExoPlayer player;
     protected UZPlayerHelper playerHelper;
@@ -96,7 +95,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     protected String drmScheme;
     private String linkPlay;
     private boolean isFirstStateReady;
-    private UZPreviewTimeBar uzTimebar;
+    private UZPreviewTimeBar uzTimeBar;
     private String thumbnailsUrl;
     private ImageView imageView;
     private boolean isCanAddViewWatchTime;
@@ -108,20 +107,18 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     private float volumeToggle;
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
-    private DefaultBandwidthMeter bandwidthMeter;
 
-    IUizaPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
+    IUZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
         this.context = uzVideo.getContext();
-        this.bandwidthMeter = new DefaultBandwidthMeter.Builder(uzVideo.getContext()).build();
         this.videoWidth = 0;
         this.videoHeight = 0;
         this.mls = 0;
         this.bufferPosition = 0;
         this.bufferPercentage = 0;
-        this.uzVideo = uzVideo;
+        this.uzVideoView = uzVideo;
         this.linkPlay = linkPlay;
         this.isFirstStateReady = false;
 
@@ -144,7 +141,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
 
         //SETUP OTHER
         this.imageView = uzVideo.getIvThumbnail();
-        this.uzTimebar = uzVideo.getUZTimeBar();
+        this.uzTimeBar = uzVideo.getUZTimeBar();
         this.thumbnailsUrl = thumbnailsUrl;
     }
 
@@ -178,13 +175,10 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     }
 
     public void loadPreview(long currentPosition, long max) {
-        if (!isPlayerValid()) {
-            return;
-        }
+        if (!isPlayerValid()) return;
         setPlayWhenReady(false);
-        if (thumbnailsUrl != null) {
+        if (thumbnailsUrl != null)
             ImageUtils.loadThumbnail(imageView, thumbnailsUrl, currentPosition);
-        }
     }
 
     public DefaultTrackSelector getTrackSelector() {
@@ -230,14 +224,13 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     }
 
     protected void hideProgress() {
-        if (uzVideo.isCastingChromecast()) {
+        if (uzVideoView.isCastingChromecast())
             return;
-        }
-        uzVideo.getProgressBar().setVisibility(View.GONE);
+        uzVideoView.getProgressBar().setVisibility(View.GONE);
     }
 
     protected void showProgress() {
-        uzVideo.getProgressBar().setVisibility(View.VISIBLE);
+        uzVideoView.getProgressBar().setVisibility(View.VISIBLE);
     }
 
     protected SimpleExoPlayer getPlayer() {
@@ -261,9 +254,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     }
 
     protected void toggleVolumeMute(UZImageButton exoVolume) {
-        if (!isPlayerValid() || exoVolume == null) {
-            return;
-        }
+        if (!isPlayerValid() || exoVolume == null) return;
         if (getVolume() == 0f) {
             setVolume(volumeToggle);
             exoVolume.setSrcDrawableEnabled();
@@ -281,12 +272,12 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     protected void setVolume(float volume) {
         if (!isPlayerValid()) return;
         playerHelper.setVolume(volume);
-        if (uzVideo == null) return;
-        if (uzVideo.getIbVolumeIcon() != null) {
+        if (uzVideoView == null) return;
+        if (uzVideoView.getIbVolumeIcon() != null) {
             if (getVolume() != 0f) {
-                uzVideo.getIbVolumeIcon().setSrcDrawableEnabled();
+                uzVideoView.getIbVolumeIcon().setSrcDrawableEnabled();
             } else {
-                uzVideo.getIbVolumeIcon().setSrcDrawableDisabledCanTouch();
+                uzVideoView.getIbVolumeIcon().setSrcDrawableDisabledCanTouch();
             }
         }
     }
@@ -388,28 +379,24 @@ abstract class IUizaPlayerManager implements PreviewLoader {
         if (progressListener != null && isPlayerValid()) {
             mls = getCurrentPosition();
             duration = getDuration();
-            if (mls >= duration) {
-                mls = duration;
-            }
-            if (duration != 0) {
+            mls = Math.min(mls, duration);
+            if (duration != 0)
                 percent = (int) (mls * 100 / duration);
-            }
             s = Math.round(mls / 1000.0f);
             progressListener.onVideoProgress(mls, s, duration, percent);
             //buffer changing
-            if (bufferPosition != uzVideo.getBufferedPosition()
-                    || bufferPercentage != uzVideo.getBufferedPercentage()) {
-                bufferPosition = uzVideo.getBufferedPosition();
-                bufferPercentage = uzVideo.getBufferedPercentage();
+            if (bufferPosition != uzVideoView.getBufferedPosition()
+                    || bufferPercentage != uzVideoView.getBufferedPercentage()) {
+                bufferPosition = uzVideoView.getBufferedPosition();
+                bufferPercentage = uzVideoView.getBufferedPercentage();
                 progressListener.onBufferProgress(bufferPosition, bufferPercentage, duration);
             }
         }
     }
 
     void notifyUpdateButtonVisibility() {
-        if (debugCallback != null) {
+        if (debugCallback != null)
             debugCallback.onUpdateButtonVisibilities();
-        }
     }
 
     MediaSource createMediaSourceVideo() {
@@ -428,9 +415,8 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                 new DefaultLoadControl() {
                     @Override
                     public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
-                        if (bufferCallback != null) {
+                        if (bufferCallback != null)
                             bufferCallback.onBufferChanged(bufferedDurationUs, playbackSpeed);
-                        }
                         return super.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
                     }
                 }, drmSessionManager);
@@ -440,20 +426,17 @@ abstract class IUizaPlayerManager implements PreviewLoader {
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
         if (!TextUtils.isEmpty(drmScheme)) {
             String drmLicenseUrl = Constants.DRM_LICENSE_URL;
-            String[] keyRequestPropertiesArray = null;
-            boolean multiSession = false;
             String errorStringId = "An unknown DRM error occurred";
             try {
                 UUID drmSchemeUuid = Util.getDrmUuid(drmScheme);
                 drmSessionManager =
-                        buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl, keyRequestPropertiesArray,
-                                multiSession);
+                        buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl, null,
+                                false);
             } catch (UnsupportedDrmException e) {
                 Timber.e(e, "UnsupportedDrmException");
             }
-            if (drmSessionManager == null) {
+            if (drmSessionManager == null)
                 Timber.e("Error drmSessionManager: %s", errorStringId);
-            }
         }
         return drmSessionManager;
     }
@@ -467,11 +450,11 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     }
 
     private void onFirstStateReady() {
-        if (uzVideo == null) return;
-        long durationInSec = uzVideo.getDuration() / 1000;
+        if (uzVideoView == null) return;
+        long durationInSec = uzVideoView.getDuration() / 1000;
         TmpParamData.getInstance().setEntityDuration(String.valueOf(durationInSec));
         TmpParamData.getInstance().setEntitySourceDuration(String.valueOf(durationInSec));
-        uzVideo.removeVideoCover(false);
+        uzVideoView.removeVideoCover(false);
     }
 
     private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
@@ -505,23 +488,20 @@ abstract class IUizaPlayerManager implements PreviewLoader {
     class UZAudioEventListener implements AudioListener {
         @Override
         public void onAudioSessionId(int audioSessionId) {
-            if (uzVideo != null && uzVideo.audioListener != null) {
-                uzVideo.audioListener.onAudioSessionId(audioSessionId);
-            }
+            if (uzVideoView != null && uzVideoView.audioListener != null)
+                uzVideoView.audioListener.onAudioSessionId(audioSessionId);
         }
 
         @Override
         public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-            if (uzVideo != null && uzVideo.audioListener != null) {
-                uzVideo.audioListener.onAudioAttributesChanged(audioAttributes);
-            }
+            if (uzVideoView != null && uzVideoView.audioListener != null)
+                uzVideoView.audioListener.onAudioAttributesChanged(audioAttributes);
         }
 
         @Override
         public void onVolumeChanged(float volume) {
-            if (uzVideo != null && uzVideo.audioListener != null) {
-                uzVideo.audioListener.onVolumeChanged(volume);
-            }
+            if (uzVideoView != null && uzVideoView.audioListener != null)
+                uzVideoView.audioListener.onVolumeChanged(volume);
         }
     }
 
@@ -534,26 +514,23 @@ abstract class IUizaPlayerManager implements PreviewLoader {
             videoHeight = height;
             TmpParamData.getInstance().setEntitySourceWidth(width);
             TmpParamData.getInstance().setEntitySourceHeight(height);
-            if (uzVideo != null && uzVideo.videoListener != null) {
-                uzVideo.videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
+            if (uzVideoView != null && uzVideoView.videoListener != null)
+                uzVideoView.videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
                         pixelWidthHeightRatio);
-            }
         }
 
         @Override
         public void onSurfaceSizeChanged(int width, int height) {
-            if (uzVideo != null && uzVideo.videoListener != null) {
-                uzVideo.videoListener.onSurfaceSizeChanged(width, height);
-            }
+            if (uzVideoView != null && uzVideoView.videoListener != null)
+                uzVideoView.videoListener.onSurfaceSizeChanged(width, height);
         }
 
         //This is called when first frame is rendered
         @Override
         public void onRenderedFirstFrame() {
             exoPlaybackException = null;
-            if (uzVideo != null && uzVideo.videoListener != null) {
-                uzVideo.videoListener.onRenderedFirstFrame();
-            }
+            if (uzVideoView != null && uzVideoView.videoListener != null)
+                uzVideoView.videoListener.onRenderedFirstFrame();
         }
     }
 
@@ -562,9 +539,8 @@ abstract class IUizaPlayerManager implements PreviewLoader {
         //This is called when there is metadata associated with current playback time
         @Override
         public void onMetadata(Metadata metadata) {
-            if (uzVideo != null && uzVideo.metadataOutput != null) {
-                uzVideo.metadataOutput.onMetadata(metadata);
-            }
+            if (uzVideoView != null && uzVideoView.metadataOutput != null)
+                uzVideoView.metadataOutput.onMetadata(metadata);
         }
     }
 
@@ -572,9 +548,8 @@ abstract class IUizaPlayerManager implements PreviewLoader {
 
         @Override
         public void onCues(List<Cue> cues) {
-            if (uzVideo != null && uzVideo.textOutput != null) {
-                uzVideo.textOutput.onCues(cues);
-            }
+            if (uzVideoView != null && uzVideoView.textOutput != null)
+                uzVideoView.textOutput.onCues(cues);
         }
     }
 
@@ -584,10 +559,9 @@ abstract class IUizaPlayerManager implements PreviewLoader {
         //This is called when the current playlist changes
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-            if (uzVideo == null) return;
-            if (uzVideo.eventListener != null) {
-                uzVideo.eventListener.onTimelineChanged(timeline, manifest, reason);
-            }
+            if (uzVideoView == null) return;
+            if (uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onTimelineChanged(timeline, manifest, reason);
             if (manifest instanceof HlsManifest) {
                 HlsMediaPlaylist playlist = ((HlsManifest) manifest).mediaPlaylist;
                 // From the current playing frame to end time of chunk
@@ -595,7 +569,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                 long extProgramDateTime = getProgramDateTimeValue(playlist, timeToEndChunk);
 
                 if (extProgramDateTime == INVALID_PROGRAM_DATE_TIME) {
-                    uzVideo.hideTextLiveStreamLatency();
+                    uzVideoView.hideTextLiveStreamLatency();
                     return;
                 }
 
@@ -603,16 +577,14 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                 long currentTime = LocalData.getLastServerTime() + elapsedTime;
 
                 long latency = currentTime - extProgramDateTime;
-                uzVideo.updateLiveStreamLatency(latency);
-            } else {
-                uzVideo.hideTextLiveStreamLatency();
-            }
+                uzVideoView.updateLiveStreamLatency(latency);
+            } else
+                uzVideoView.hideTextLiveStreamLatency();
         }
 
         private long getProgramDateTimeValue(HlsMediaPlaylist playlist, long timeToEndChunk) {
-            if (playlist == null || ListUtils.isEmpty(playlist.tags)) {
+            if (playlist == null || ListUtils.isEmpty(playlist.tags))
                 return INVALID_PROGRAM_DATE_TIME;
-            }
             final String emptyStr = "";
             final int tagSize = playlist.tags.size();
 
@@ -660,17 +632,15 @@ abstract class IUizaPlayerManager implements PreviewLoader {
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             notifyUpdateButtonVisibility();
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onTracksChanged(trackGroups, trackSelections);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onTracksChanged(trackGroups, trackSelections);
         }
 
         //This is called when ExoPlayer starts or stops loading sources(TS files, fMP4 files…)
         @Override
         public void onLoadingChanged(boolean isLoading) {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onLoadingChanged(isLoading);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onLoadingChanged(isLoading);
         }
 
         //This is called when either playWhenReady or playbackState changes
@@ -679,7 +649,7 @@ abstract class IUizaPlayerManager implements PreviewLoader {
             switch (playbackState) {
                 case Player.STATE_BUFFERING:
                     showProgress();
-                    if (uzVideo != null) {
+                    if (uzVideoView != null) {
                         if (playWhenReady) {
                             TmpParamData.getInstance()
                                     .setViewRebufferDuration(
@@ -692,8 +662,8 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                     }
                     break;
                 case Player.STATE_ENDED:
-                    if (uzVideo != null) {
-                        uzVideo.onPlayerEnded();
+                    if (uzVideoView != null) {
+                        uzVideoView.onPlayerEnded();
                     }
                     hideProgress();
                     break;
@@ -704,13 +674,12 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                     hideProgress();
                     if (playWhenReady) {
                         // media actually playing
-                        if (uzVideo != null) {
-                            uzVideo.hideLayoutMsg();
-                            uzVideo.resetCountTryLinkPlayError();
+                        if (uzVideoView != null) {
+                            uzVideoView.hideLayoutMsg();
+                            uzVideoView.resetCountTryLinkPlayError();
                         }
-                        if (uzTimebar != null) {
-                            uzTimebar.hidePreview();
-                        }
+                        if (uzTimeBar != null)
+                            uzTimeBar.hidePreview();
                     }
                     if (!isFirstStateReady) {
                         onFirstStateReady();
@@ -719,82 +688,71 @@ abstract class IUizaPlayerManager implements PreviewLoader {
                     break;
             }
             notifyUpdateButtonVisibility();
-            if (progressListener != null) {
+            if (progressListener != null)
                 progressListener.onPlayerStateChanged(playWhenReady, playbackState);
-            }
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onPlayerStateChanged(playWhenReady, playbackState);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onPlayerStateChanged(playWhenReady, playbackState);
         }
 
         @Override
         public void onRepeatModeChanged(int repeatMode) {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onRepeatModeChanged(repeatMode);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onRepeatModeChanged(repeatMode);
         }
 
         @Override
         public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onShuffleModeEnabledChanged(shuffleModeEnabled);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onShuffleModeEnabledChanged(shuffleModeEnabled);
         }
 
         //This is called then a error happens
         @Override
         public void onPlayerError(ExoPlaybackException error) {
-            if (error == null) {
+            if (error == null)
                 return;
-            }
             Timber.e(error, "onPlayerError ");
-            if (error.type == ExoPlaybackException.TYPE_SOURCE) {
+            if (error.type == ExoPlaybackException.TYPE_SOURCE)
                 Timber.e("onPlayerError TYPE_SOURCE");
-            } else if (error.type == ExoPlaybackException.TYPE_RENDERER) {
+            else if (error.type == ExoPlaybackException.TYPE_RENDERER)
                 Timber.e("onPlayerError TYPE_RENDERER");
-            } else if (error.type == ExoPlaybackException.TYPE_UNEXPECTED) {
+            else if (error.type == ExoPlaybackException.TYPE_UNEXPECTED)
                 Timber.e("onPlayerError TYPE_UNEXPECTED");
-            }
+
             error.printStackTrace();
             exoPlaybackException = error;
             notifyUpdateButtonVisibility();
-            if (uzVideo == null) {
+            if (uzVideoView == null)
                 return;
-            }
-            uzVideo.handleError(ErrorUtils.exceptionPlayback());
+            uzVideoView.handleError(ErrorUtils.exceptionPlayback());
             //LLog.d(TAG, "onPlayerError isConnected: " + ConnectivityUtils.isConnected(context));
-            if (ConnectivityUtils.isConnected(context)) {
-                uzVideo.tryNextLinkPlay();
-            } else {
-                uzVideo.pause();
-            }
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onPlayerError(error);
-            }
+            if (ConnectivityUtils.isConnected(context))
+                uzVideoView.tryNextLinkPlay();
+            else
+                uzVideoView.pause();
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onPlayerError(error);
         }
 
         //This is called when a position discontinuity occurs without a change to the timeline
         @Override
         public void onPositionDiscontinuity(int reason) {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onPositionDiscontinuity(reason);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onPositionDiscontinuity(reason);
         }
 
         //This is called when the current playback parameters change
         @Override
         public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onPlaybackParametersChanged(playbackParameters);
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onPlaybackParametersChanged(playbackParameters);
         }
 
         //This is called when seek finishes
         @Override
         public void onSeekProcessed() {
-            if (uzVideo != null && uzVideo.eventListener != null) {
-                uzVideo.eventListener.onSeekProcessed();
-            }
+            if (uzVideoView != null && uzVideoView.eventListener != null)
+                uzVideoView.eventListener.onSeekProcessed();
         }
     }
 }

@@ -56,31 +56,27 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
     public void onVisibilityChange(int visibility) {
         controllerVisible = visibility == View.VISIBLE;
         //LLog.d(TAG, "onVisibilityChange visibility controllerVisible " + controllerVisible);
-        if (controllerStateCallback != null) {
+        if (controllerStateCallback != null)
             controllerStateCallback.onVisibilityChange(controllerVisible);
-        }
     }
 
     public void toggleShowHideController() {
-        if (controllerVisible) {
+        if (controllerVisible)
             hideController();
-        } else {
+        else
             showController();
-        }
     }
 
     @Override
     public void showController() {
-        if (!UZData.getInstance().isSettingPlayer()) {
+        if (!UZData.getInstance().isSettingPlayer())
             super.showController();
-        }
     }
 
     @Override
     public void hideController() {
-        if (!UZData.getInstance().isSettingPlayer()) {
+        if (!UZData.getInstance().isSettingPlayer())
             super.hideController();
-        }
     }
 
     public void setOnTouchEvent(OnTouchEvent onTouchEvent) {
@@ -89,28 +85,25 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (UZData.getInstance().isUseWithVDHView()) {
+        if (UZData.getInstance().isUseWithVDHView())
             return false;
-        } else {
-            mDetector.onTouchEvent(ev);
-            return true;
+        else {
+            return mDetector.onTouchEvent(ev);
         }
     }
 
     public PlayerControlView getPlayerControlView() {
         for (int i = 0; i < this.getChildCount(); i++) {
-            if (this.getChildAt(i) instanceof PlayerControlView) {
+            if (this.getChildAt(i) instanceof PlayerControlView)
                 return (PlayerControlView) getChildAt(i);
-            }
         }
         return null;
     }
 
     public View[] getAllChild() {
         PlayerControlView playerControlView = getPlayerControlView();
-        if (playerControlView == null) {
+        if (playerControlView == null)
             return null;
-        }
         List<View> viewList = UZViewUtils.getAllChildren(playerControlView);
         return viewList.toArray(new View[viewList.size()]);
     }

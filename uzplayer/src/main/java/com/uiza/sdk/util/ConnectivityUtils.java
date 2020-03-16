@@ -43,7 +43,7 @@ public final class ConnectivityUtils {
             Network network = cm.getActiveNetwork();
             if (network != null) {
                 NetworkCapabilities ncs = cm.getNetworkCapabilities(network);
-                return ncs.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || ncs.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+                return ncs != null && (ncs.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || ncs.hasTransport(NetworkCapabilities.TRANSPORT_WIFI));
             }
             return false;
         } else {
@@ -56,16 +56,37 @@ public final class ConnectivityUtils {
      * Check if there is any connectivity to a Wifi network
      */
     public static boolean isConnectedWifi(@NonNull Context context) {
-        NetworkInfo info = getConnectivityManager(context).getActiveNetworkInfo();
-        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+        ConnectivityManager cm = getConnectivityManager(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network network = cm.getActiveNetwork();
+            if (network != null) {
+                NetworkCapabilities ncs = cm.getNetworkCapabilities(network);
+                return ncs != null && ncs.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+            }
+            return false;
+        } else {
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_WIFI);
+        }
     }
 
     /**
      * Check if there is any connectivity to a mobile network
      */
     public static boolean isConnectedMobile(@NonNull Context context) {
-        NetworkInfo info = getConnectivityManager(context).getActiveNetworkInfo();
-        return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
+
+        ConnectivityManager cm = getConnectivityManager(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network network = cm.getActiveNetwork();
+            if (network != null) {
+                NetworkCapabilities ncs = cm.getNetworkCapabilities(network);
+                return ncs != null && ncs.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+            }
+            return false;
+        } else {
+            NetworkInfo info = cm.getActiveNetworkInfo();
+            return info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE;
+        }
     }
 
     /**

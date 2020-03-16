@@ -53,17 +53,15 @@ public class VDHView extends LinearLayout {
         @Override
         public void onViewPositionChanged(@NonNull View changedView, int left, int top, int dx, int dy) {
             super.onViewPositionChanged(changedView, left, top, dx, dy);
-            if (mDragOffset == (float) top / mDragRange) {
-                return;
-            } else {
+            if (mDragOffset == (float) top / mDragRange) return;
+            else
                 mDragOffset = (float) top / mDragRange;
-            }
             if (mDragOffset >= 1) {
                 mDragOffset = 1;
                 if (isMaximizeView) {
                     isMaximizeView = false;
                     if (callback != null) {
-                        callback.onViewSizeChange(isMaximizeView);
+                        callback.onViewSizeChange(false);
                     }
                 }
             }
@@ -71,14 +69,12 @@ public class VDHView extends LinearLayout {
                 mDragOffset = 0;
                 if (!isMaximizeView && isEnableRevertMaxSize) {
                     isMaximizeView = true;
-                    if (callback != null) {
-                        callback.onViewSizeChange(isMaximizeView);
-                    }
+                    if (callback != null)
+                        callback.onViewSizeChange(true);
                 }
             }
-            if (callback != null) {
+            if (callback != null)
                 callback.onViewPositionChanged(left, top, mDragOffset);
-            }
 
             int x = 0;
             int y = headerView.getHeight() + top;
@@ -104,48 +100,21 @@ public class VDHView extends LinearLayout {
 
             mCenterX = left + sizeWHeaderViewOriginal / 2;
             mCenterY = top + newSizeHHeaderView / 2 + sizeHHeaderViewOriginal - newSizeHHeaderView;
-
-            if (mDragOffset == 0) {
+            int halfHeaderWidth = headerView.getWidth() / 2;
+            if (mDragOffset == 0)
                 //top_left, top, top_right
-                if (left <= -headerView.getWidth() / 2) {
-                    changeState(State.TOP_LEFT);
-                } else if (left >= headerView.getWidth() / 2) {
-                    changeState(State.TOP_RIGHT);
-                } else {
-                    changeState(State.TOP);
-                }
-            } else if (mDragOffset == 1) {
+                changeState(left <= -halfHeaderWidth ? State.TOP_LEFT : left >= halfHeaderWidth ? State.TOP_RIGHT : State.TOP);
+            else if (mDragOffset == 1) {
                 //bottom_left, bottom, bottom_right
-                if (left <= -headerView.getWidth() / 2) {
-                    changeState(State.BOTTOM_LEFT);
-                } else if (left >= headerView.getWidth() / 2) {
-                    changeState(State.BOTTOM_RIGHT);
-                } else {
-                    changeState(State.BOTTOM);
-                }
+                changeState(left <= -halfHeaderWidth ? State.BOTTOM_LEFT : left >= halfHeaderWidth ? State.BOTTOM_RIGHT : State.BOTTOM);
                 isMinimizedAtLeastOneTime = true;
-            } else {
+            } else
                 //mid_left, mid, mid_right
-                if (left <= -headerView.getWidth() / 2) {
-                    changeState(State.MID_LEFT);
-                } else if (left >= headerView.getWidth() / 2) {
-                    changeState(State.MID_RIGHT);
-                } else {
-                    changeState(State.MID);
-                }
-            }
+                changeState(left <= -halfHeaderWidth ? State.MID_LEFT : left >= halfHeaderWidth ? State.MID_RIGHT : State.MID);
             if (mCenterY < screenH / 2) {
-                if (mCenterX < screenW / 2) {
-                    changePart(Part.TOP_LEFT);
-                } else {
-                    changePart(Part.TOP_RIGHT);
-                }
+                changePart(mCenterX < screenW / 2 ? Part.TOP_LEFT : Part.TOP_RIGHT);
             } else {
-                if (mCenterX < screenW / 2) {
-                    changePart(Part.BOTTOM_LEFT);
-                } else {
-                    changePart(Part.BOTTOM_RIGHT);
-                }
+                changePart(mCenterX < screenW / 2 ? Part.BOTTOM_LEFT : Part.BOTTOM_RIGHT);
             }
         }
 
@@ -156,34 +125,22 @@ public class VDHView extends LinearLayout {
 
         @Override
         public int clampViewPositionVertical(@NonNull View child, int top, int dy) {
-            int minY;
-            if (isEnableRevertMaxSize) {
-                minY = -child.getHeight() / 2;
-            } else {
-                minY = -sizeHHeaderViewMin * 3 / 2;
-            }
+            int minY = isEnableRevertMaxSize ? -child.getHeight() / 2 : -sizeHHeaderViewMin * 3 / 2;
             float scaledY = child.getScaleY();
             int sizeHScaled = (int) (scaledY * child.getHeight());
             int maxY = getHeight() - sizeHScaled * 3 / 2;
-            if (top <= minY) {
+            if (top <= minY)
                 return minY;
-            } else if (top > maxY) {
-                return maxY;
-            } else {
-                return top;
-            }
+            else return Math.min(top, maxY);
         }
 
         @Override
         public int clampViewPositionHorizontal(@NonNull View child, int left, int dx) {
             int minX = -child.getWidth() / 2;
-            int maxX = getWidth() - child.getWidth() / 2;
+            int maxX = child.getWidth() / 2;
             if (left <= minX)
                 return minX;
-            else if (left > maxX)
-                return maxX;
-            else
-                return left;
+            else return Math.min(left, maxX);
         }
 
         @Override
@@ -209,17 +166,22 @@ public class VDHView extends LinearLayout {
 
     public VDHView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView();
     }
 
     public void setCallback(Callback callback) {
         this.callback = callback;
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        initView();
+    }
+
     private void initView() {
         mViewDragHelper = ViewDragHelper.create(this, 1.0f, mCallback);
         mViewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
-        mDetector = new GestureDetector(getContext(), new UizaGestureListener());
+        mDetector = new GestureDetector(getContext(), new UZGestureListener());
     }
 
     @Override
@@ -438,12 +400,12 @@ public class VDHView extends LinearLayout {
         }
     }
 
-    public void dissappear() {
+    public void disappear() {
         headerView.setVisibility(GONE);
         setVisibilityBodyView(GONE);
         isAppear = false;
         if (callback != null)
-            callback.onAppear(isAppear);
+            callback.onAppear(false);
     }
 
     public boolean isAppear() {
@@ -460,7 +422,7 @@ public class VDHView extends LinearLayout {
         }
         isAppear = true;
         if (callback != null)
-            callback.onAppear(isAppear);
+            callback.onAppear(true);
     }
 
     //private State stateBeforeDissappear;
@@ -517,7 +479,7 @@ public class VDHView extends LinearLayout {
         void onAppear(boolean isAppear);
     }
 
-    private class UizaGestureListener extends GestureDetector.SimpleOnGestureListener {
+    private class UZGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
@@ -563,26 +525,20 @@ public class VDHView extends LinearLayout {
                 float diffX = e2.getX() - e1.getX();
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffX > 0) {
-                            if (onTouchEvent != null) {
+                        if (onTouchEvent != null) {
+                            if (diffX > 0)
                                 onTouchEvent.onSwipeRight();
-                            }
-                        } else {
-                            if (onTouchEvent != null) {
+                            else
                                 onTouchEvent.onSwipeLeft();
-                            }
                         }
                     }
                 } else {
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
-                        if (diffY > 0) {
-                            if (onTouchEvent != null) {
+                        if (onTouchEvent != null) {
+                            if (diffY > 0)
                                 onTouchEvent.onSwipeBottom();
-                            }
-                        } else {
-                            if (onTouchEvent != null) {
+                            else
                                 onTouchEvent.onSwipeTop();
-                            }
                         }
                     }
                 }

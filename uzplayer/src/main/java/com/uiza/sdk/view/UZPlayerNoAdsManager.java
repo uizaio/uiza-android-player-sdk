@@ -8,7 +8,7 @@ import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.MediaSource;
 
-public final class UZPlayerNoAdsManager extends IUizaPlayerManager {
+public final class UZPlayerNoAdsManager extends IUZPlayerManager {
 
     public UZPlayerNoAdsManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
         super(uzVideo, linkPlay, thumbnailsUrl);
@@ -19,12 +19,11 @@ public final class UZPlayerNoAdsManager extends IUizaPlayerManager {
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideo == null || uzVideo.getUzPlayerView() == null)
+            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null)
                 return;
             handleVideoProgress();
-            if (handler != null && runnable != null) {
+            if (handler != null && runnable != null)
                 handler.postDelayed(runnable, 1000);
-            }
         };
         handler.postDelayed(runnable, 0);
     }
@@ -36,19 +35,19 @@ public final class UZPlayerNoAdsManager extends IUizaPlayerManager {
 
         player = buildPlayer(drmSessionManager);
         playerHelper = new UZPlayerHelper(player);
-        uzVideo.getUzPlayerView().setPlayer(player);
+        uzVideoView.getUzPlayerView().setPlayer(player);
 
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // Prepare the player with the source.
         addPlayerListener();
 
         player.prepare(mediaSourceVideo);
-        setPlayWhenReady(uzVideo.isAutoStart());
-        if (uzVideo.isLivestream()) {
+        setPlayWhenReady(uzVideoView.isAutoStart());
+        if (uzVideoView.isLiveStream())
             playerHelper.seekToDefaultPosition();
-        } else {
+        else
             seekTo(contentPosition);
-        }
+
         notifyUpdateButtonVisibility();
     }
 }
