@@ -18,7 +18,9 @@ import androidx.annotation.NonNull;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.uiza.sdk.R;
-
+/**
+ * Created by namnd.bka@gmail.com on 1/3/2020.
+ */
 public class AnimationUtils {
     private AnimationUtils() {
 

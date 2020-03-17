@@ -25,7 +25,6 @@ public class UZPlayer {
     }
 
     /**
-     * InitSDK
      *
      * @param context      see {@link Context}
      * @param skinLayoutId Skin of player
@@ -54,7 +53,7 @@ public class UZPlayer {
     }
 
     /**
-     * set Player Id
+     * set Player Skin layout_id
      *
      * @param resLayoutMain: id of layout xml
      */

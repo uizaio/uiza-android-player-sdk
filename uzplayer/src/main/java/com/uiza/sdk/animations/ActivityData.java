@@ -1,9 +1,8 @@
 package com.uiza.sdk.animations;
 
 /**
- * Created by www.muathu@gmail.com on 1/4/2018.
+ * Created by namnd.bka@gmail.com on 1/3/2020.
  */
-
 public class ActivityData {
 
     private TransitionType type = TransitionType.TYPE_ACTIVITY_TRANSITION_SYSTEM_DEFAULT;
@@ -35,7 +34,6 @@ public class ActivityData {
         TYPE_ACTIVITY_TRANSITION_WINDMILL(7),
         TYPE_ACTIVITY_TRANSITION_DIAGONAL(8),
         TYPE_ACTIVITY_TRANSITION_SPIN(9);
-
         private int value;
 
         private TransitionType(int value) {

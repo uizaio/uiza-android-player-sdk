@@ -29,7 +29,7 @@ import com.uiza.sdk.glide.GlideThumbnailTransformationPB;
 
 
 /**
- * Created by namdinh@com.uiza.io on 11/12/2019.
+ * Created by namnd.bka@gmail.com on 11/12/2019.
  */
 
 public final class ImageUtils {
