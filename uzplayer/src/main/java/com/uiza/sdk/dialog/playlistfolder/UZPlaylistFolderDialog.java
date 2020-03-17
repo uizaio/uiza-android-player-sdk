@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.daimajia.androidanimations.library.Techniques;
 import com.uiza.sdk.R;
 import com.uiza.sdk.animations.AnimationUtils;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.UZData;
 import com.uiza.sdk.widget.recyclerview.SnapType;
 import com.uiza.sdk.widget.recyclerview.SnappyLinearLayoutManager;
@@ -33,11 +33,11 @@ public class UZPlaylistFolderDialog extends Dialog {
     private boolean isLandscape;
     private RecyclerView recyclerView;
     private AdapterPlaylistFolder adapterPlaylistFolder;
-    private List<UZPlaybackInfo> playList;
+    private List<UZPlayback> playList;
     private int currentPositionOfDataList;
     private CallbackPlaylistFolder callbackPlaylistFolder;
 
-    public UZPlaylistFolderDialog(@NonNull Context context, boolean isLandscape, List<UZPlaybackInfo> playList, int currentPositionOfDataList, CallbackPlaylistFolder callbackPlaylistFolder) {
+    public UZPlaylistFolderDialog(@NonNull Context context, boolean isLandscape, List<UZPlayback> playList, int currentPositionOfDataList, CallbackPlaylistFolder callbackPlaylistFolder) {
         super(context);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.context = context;
@@ -74,7 +74,7 @@ public class UZPlaylistFolderDialog extends Dialog {
         recyclerView.setLayoutManager(layoutManager);
         adapterPlaylistFolder = new AdapterPlaylistFolder(context, playList, currentPositionOfDataList, new CallbackPlaylistFolder() {
             @Override
-            public void onClickItem(UZPlaybackInfo data, int position) {
+            public void onClickItem(UZPlayback data, int position) {
                 if (UZData.getInstance().isSettingPlayer()) {
                     return;
                 }
@@ -85,7 +85,7 @@ public class UZPlaylistFolderDialog extends Dialog {
             }
 
             @Override
-            public void onFocusChange(UZPlaybackInfo data, int position) {
+            public void onFocusChange(UZPlayback data, int position) {
                 if (recyclerView != null) {
                     recyclerView.smoothScrollToPosition(position);
                 }

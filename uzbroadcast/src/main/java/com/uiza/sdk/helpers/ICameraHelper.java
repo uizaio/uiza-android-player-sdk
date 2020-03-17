@@ -2,14 +2,17 @@ package com.uiza.sdk.helpers;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+
 import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.video.CameraHelper;
 import com.pedro.rtplibrary.base.Camera2Base;
-import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
-import com.uiza.sdk.interfaces.UZRecordListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
-import com.uiza.sdk.view.UZSize;
+import com.uiza.sdk.interfaces.UZRecordListener;
+import com.uiza.sdk.profile.AudioAttributes;
+import com.uiza.sdk.profile.VideoAttributes;
+import com.uiza.sdk.profile.VideoSize;
 
 import java.io.IOException;
 import java.util.List;
@@ -88,24 +91,13 @@ public interface ICameraHelper {
     boolean isAudioMuted();
 
     /**
-     * Same to call: prepareAudio(64 * 1024, 32000, true, false, false);
+     * Call this method before use @startStream. If not you will do a stream without audio.
      *
+     * @param attrs {@link AudioAttributes}
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a AAC encoder).
      */
-    boolean prepareAudio();
-
-    /**
-     * Same to call: prepareAudio(64 * 1024, 32000, true, false, false);
-     *
-     * @param bitrate    AAC in kb.
-     * @param sampleRate of audio in hz. Can be 8000, 16000, 22500, 32000, 44100.
-     * @param isStereo   true if you want Stereo audio (2 audio channels), false if you want Mono audio
-     *                   (1 audio channel).
-     * @return true if success, false if you get a error (Normally because the encoder selected
-     * doesn't support any configuration seated or your device hasn't a AAC encoder).
-     */
-    boolean prepareAudio(int bitrate, int sampleRate, boolean isStereo);
+    boolean prepareAudio(@NonNull AudioAttributes attrs);
 
     /**
      * Get video camera state
@@ -115,27 +107,27 @@ public interface ICameraHelper {
     boolean isVideoEnabled();
 
     /**
-     * Use profle
-     * prepareVideo(profile, 24, 2, 90);
+     * Use {@link VideoAttributes} and portrait
      *
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a H264 encoder).
      */
 
-    boolean prepareVideo(ProfileVideoEncoder profile);
+    boolean prepareVideo(@NonNull VideoAttributes attrs);
 
     /**
+     * @param attrs    {@link VideoAttributes}
      * @param rotation could be 90, 180, 270 or 0 (Normally 0 if you are streaming in landscape or 90
      *                 if you are streaming in Portrait). This only affect to stream result. NOTE: Rotation with
      *                 encoder is silence ignored in some devices.
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a H264 encoder).
      */
-    boolean prepareVideo(ProfileVideoEncoder profile,
+    boolean prepareVideo(@NonNull VideoAttributes attrs,
                          int rotation
     );
 
-    List<UZSize> getSupportedResolutions();
+    List<VideoSize> getSupportedResolutions();
 
     /**
      * Need be called after @prepareVideo or/and @prepareAudio. This method override resolution of

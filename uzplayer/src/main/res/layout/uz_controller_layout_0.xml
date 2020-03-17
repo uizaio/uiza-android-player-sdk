@@ -2,15 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:background="@drawable/background_player_controller"
-    android:elevation="4dp"
-    android:layoutDirection="ltr">
+    android:layoutDirection="ltr"
+    app:elevation="4dp">
 
     <LinearLayout
         android:id="@id/ll_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -32,13 +33,29 @@
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
-        <!--<com.uiza.sdk.widget.autosize.UZImageButton
+        <com.uiza.sdk.widget.autosize.UZImageButton
             android:id="@id/exo_picture_in_picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/transparent"
+            android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_picture_in_picture_alt_white_48" />-->
+            android:src="@drawable/ic_picture_in_picture_alt_white_48" />
+
+        <com.uiza.sdk.widget.autosize.UZImageButton
+            android:id="@id/exo_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_directions_run_white_48" />
+
+        <com.uiza.sdk.widget.autosize.UZImageButton
+            android:id="@id/exo_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_volume_up_white_48" />
 
         <com.uiza.sdk.widget.autosize.UZImageButton
             android:id="@id/exo_fullscreen_toggle_icon"
@@ -53,14 +70,12 @@
         android:id="@id/rl_live_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/ll_top"
-        android:visibility="visible">
+        android:layout_below="@id/ll_top">
 
         <com.uiza.sdk.widget.autosize.UZTextView
             android:id="@id/tv_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:background="@drawable/background_live"
             android:gravity="center"
             android:paddingLeft="@dimen/padding_5"
@@ -72,7 +87,6 @@
             android:id="@id/iv_live_time"
             android:layout_width="@dimen/w_15"
             android:layout_height="@dimen/w_15"
-            android:layout_centerVertical="true"
             android:layout_toStartOf="@id/tv_live_time"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
@@ -82,7 +96,6 @@
             android:id="@id/tv_live_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/margin_5"
             android:layout_toStartOf="@id/iv_live_view"
             android:textColor="@android:color/white" />
@@ -91,7 +104,6 @@
             android:id="@id/iv_live_view"
             android:layout_width="@dimen/w_15"
             android:layout_height="@dimen/w_15"
-            android:layout_centerVertical="true"
             android:layout_toStartOf="@id/tv_live_view"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
@@ -102,7 +114,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
             android:textColor="@android:color/white" />
     </RelativeLayout>
 
@@ -116,20 +127,20 @@
         <RelativeLayout
             android:id="@id/rl_time_bar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_5">
 
             <FrameLayout
                 android:id="@id/preview_frame_layout"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/video_frame"
-                android:padding="@dimen/video_frame_width">
+                android:background="@drawable/video_frame">
 
                 <ImageView
-                    android:id="@id/image_view_thumnail"
+                    android:id="@id/image_view_thumbnail"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop" />
+                    android:layout_height="match_parent" />
+
             </FrameLayout>
 
             <com.uiza.sdk.widget.autosize.UZTextView
@@ -148,6 +159,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/preview_frame_layout"
                 android:layout_alignParentEnd="true"
+                android:layout_gravity="bottom"
                 android:layout_marginEnd="@dimen/margin_5"
                 android:includeFontPadding="false"
                 android:textColor="@android:color/white"
@@ -170,7 +182,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <com.uiza.sdk.widget.autosize.UZImageButton
@@ -210,10 +222,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:contentDescription="@string/app_name"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_10_white_48"
-                android:tint="@android:color/white" />
+                android:src="@drawable/ic_forward_10_white_48" />
 
             <com.uiza.sdk.widget.autosize.UZImageButton
                 android:id="@id/exo_skip_previous"
@@ -231,11 +241,6 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_skip_next_white_48" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1" />
-
             <com.uiza.sdk.widget.autosize.UZImageButton
                 android:id="@id/exo_playlist_folder"
                 android:layout_width="wrap_content"
@@ -244,21 +249,10 @@
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_playlist_play_white_48" />
 
-            <com.uiza.sdk.widget.autosize.UZImageButton
-                android:id="@id/exo_speed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_directions_run_white_48" />
-
-            <com.uiza.sdk.widget.autosize.UZImageButton
-                android:id="@id/exo_volume"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_volume_up_white_48" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/w_1"
+                android:layout_weight="1" />
 
             <com.uiza.sdk.widget.autosize.UZImageButton
                 android:id="@id/exo_cc"

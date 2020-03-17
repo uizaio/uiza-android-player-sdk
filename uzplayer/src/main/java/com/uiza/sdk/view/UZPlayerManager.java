@@ -62,9 +62,8 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null) {
+            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null)
                 return;
-            }
             if (uzVideoAdPlayerListener.isEnded())
                 onAdEnded();
             if (isPlayingAd())

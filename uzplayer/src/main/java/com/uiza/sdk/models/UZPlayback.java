@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.SerializedName;
+import com.uiza.sdk.util.ListUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,17 +16,17 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class UZPlaybackInfo implements Parcelable {
+public class UZPlayback implements Parcelable {
 
-    public static final Creator<UZPlaybackInfo> CREATOR = new Creator<UZPlaybackInfo>() {
+    public static final Creator<UZPlayback> CREATOR = new Creator<UZPlayback>() {
         @Override
-        public UZPlaybackInfo createFromParcel(Parcel in) {
-            return new UZPlaybackInfo(in);
+        public UZPlayback createFromParcel(Parcel in) {
+            return new UZPlayback(in);
         }
 
         @Override
-        public UZPlaybackInfo[] newArray(int size) {
-            return new UZPlaybackInfo[size];
+        public UZPlayback[] newArray(int size) {
+            return new UZPlayback[size];
         }
     };
     @SerializedName("id")
@@ -53,11 +54,11 @@ public class UZPlaybackInfo implements Parcelable {
     @SerializedName("is_live")
     boolean live;
 
-    public UZPlaybackInfo() {
+    public UZPlayback() {
         this.live = false;
     }
 
-    protected UZPlaybackInfo(Parcel in) {
+    protected UZPlayback(Parcel in) {
         id = in.readString();
         name = in.readString();
         description = in.readString();
@@ -87,17 +88,6 @@ public class UZPlaybackInfo implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public List<String> getUrls() {
-        List<String> urls = new ArrayList<>();
-        if (!TextUtils.isEmpty(this.hls))
-            urls.add(this.hls);
-        if (!TextUtils.isEmpty(this.hlsTs))
-            urls.add(this.hlsTs);
-        if (!TextUtils.isEmpty(this.mpd))
-            urls.add(this.mpd);
-        return urls;
     }
 
     public void setHlsTs(String hlsTs) {
@@ -160,6 +150,29 @@ public class UZPlaybackInfo implements Parcelable {
         return !TextUtils.isEmpty(hls) || !TextUtils.isEmpty(hlsTs) || !TextUtils.isEmpty(mpd);
     }
 
+    public List<String> getUrls() {
+        List<String> urls = new ArrayList<>();
+        if (!TextUtils.isEmpty(this.hls))
+            urls.add(this.hls);
+        if (!TextUtils.isEmpty(this.hlsTs))
+            urls.add(this.hlsTs);
+        if (!TextUtils.isEmpty(this.mpd))
+            urls.add(this.mpd);
+        return urls;
+    }
+
+    public List<String> getLinkPlays() {
+        if (live) {
+            //Bat buoc dung linkplay m3u8 cho nay, do bug cua system
+            return ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8));
+        } else {
+            List<String> listLinkPlay = new ArrayList<>();
+            listLinkPlay.addAll(ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.MPD)));
+            listLinkPlay.addAll(ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8)));
+            return listLinkPlay;
+        }
+    }
+
     public String getLinkPlay() {
         if (!TextUtils.isEmpty(hls)) {
             return hls;
@@ -170,7 +183,7 @@ public class UZPlaybackInfo implements Parcelable {
         }
     }
 
-    public URL getLinkPlayUrl() {
+    public URL getPlayUrl() {
         try {
             return new URL(getLinkPlay());
         } catch (MalformedURLException e) {

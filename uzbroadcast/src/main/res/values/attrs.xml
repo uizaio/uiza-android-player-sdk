@@ -2,9 +2,6 @@
 <resources>
     <declare-styleable name="UZBroadCastView">
         <attr name="useCamera2" format="boolean" />
-        <attr name="audioStereo" format="boolean" />
-        <attr name="audioBitrate" format="integer" />
-        <attr name="audioSampleRate" format="integer" />
         <attr name="AAEnabled" format="boolean" />
         <attr name="numFilters" format="integer" />
         <attr name="keepAspectRatio" format="boolean" />

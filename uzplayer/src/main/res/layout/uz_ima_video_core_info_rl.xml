@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_10"
                 android:orientation="horizontal"
-                android:paddingLeft="@dimen/padding_10"
+                android:paddingStart="@dimen/padding_10"
                 android:paddingEnd="@dimen/padding_10">
 
                 <TextView

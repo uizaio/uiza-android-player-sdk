@@ -5,4 +5,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
-    app:controller_layout_id="@layout/uz_controller_skin_tv_0" />
+    app:auto_show="false"
+    app:controller_layout_id="@layout/uz_controller_layout_3" />

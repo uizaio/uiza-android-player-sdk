@@ -24,7 +24,7 @@
     <color name="grey_desc">#eeeeee</color>
     <color name="info_video_gray">#999999</color>
     <color name="info_video_description">#888888</color>
-
+    <color name="green">#00ff00</color>
     <color name="fbutton_color_wet_asphalt">#34495e</color>
     <color name="df_buffered_color">#55ffffff</color>
     <color name="df_played_color">#097cff</color>

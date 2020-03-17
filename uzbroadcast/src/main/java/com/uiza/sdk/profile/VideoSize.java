@@ -1,26 +1,45 @@
-package com.uiza.sdk.view;
+package com.uiza.sdk.profile;
 
 import android.annotation.TargetApi;
 import android.hardware.Camera;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Size;
 
-public class UZSize {
+public class VideoSize implements Parcelable {
+    public static final Creator<VideoSize> CREATOR = new Creator<VideoSize>() {
+        @Override
+        public VideoSize createFromParcel(Parcel in) {
+            return new VideoSize(in);
+        }
+
+        @Override
+        public VideoSize[] newArray(int size) {
+            return new VideoSize[size];
+        }
+    };
     private int mWidth;
     private int mHeight;
 
-    private UZSize(int w, int h) {
+
+    private VideoSize(int w, int h) {
         this.mWidth = w;
         this.mHeight = h;
     }
 
-    public static UZSize fromSize(Camera.Size size) {
-        return new UZSize(size.width, size.height);
+    private VideoSize(Parcel in) {
+        this.mWidth = in.readInt();
+        this.mHeight = in.readInt();
+    }
+
+    public static VideoSize fromSize(Camera.Size size) {
+        return new VideoSize(size.width, size.height);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static UZSize fromSize(Size size) {
-        return new UZSize(size.getWidth(), size.getHeight());
+    public static VideoSize fromSize(Size size) {
+        return new VideoSize(size.getWidth(), size.getHeight());
     }
 
     private static NumberFormatException invalidSize(String s) {
@@ -55,7 +74,7 @@ public class UZSize {
      *                               as a size value.
      * @throws NullPointerException  if {@code string} was {@code null}
      */
-    public static UZSize parseSize(String string)
+    public static VideoSize parseSize(String string)
             throws NumberFormatException {
         int sep_ix = string.indexOf('*');
         if (sep_ix < 0) {
@@ -65,11 +84,41 @@ public class UZSize {
             throw invalidSize(string);
         }
         try {
-            return new UZSize(Integer.parseInt(string.substring(0, sep_ix)),
+            return new VideoSize(Integer.parseInt(string.substring(0, sep_ix)),
                     Integer.parseInt(string.substring(sep_ix + 1)));
         } catch (NumberFormatException e) {
             throw invalidSize(string);
         }
+    }
+
+    /**
+     * ------------ Some Special Size ----------
+     */
+    public static VideoSize FHD_1080p() {
+        return new VideoSize(1920, 1080);
+    }
+
+    public static VideoSize HD_720p() {
+        return new VideoSize(1280, 720);
+    }
+
+    public static VideoSize SD_480p() {
+        return new VideoSize(854, 480);
+    }
+
+    public static VideoSize SD_360p() {
+        return new VideoSize(640, 360);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(mWidth);
+        dest.writeInt(mHeight);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     /**
@@ -92,8 +141,8 @@ public class UZSize {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof UZSize) {
-            UZSize other = (UZSize) obj;
+        if (obj instanceof VideoSize) {
+            VideoSize other = (VideoSize) obj;
             return mWidth == other.mWidth && mHeight == other.mHeight;
         }
         return false;
@@ -115,5 +164,13 @@ public class UZSize {
 
     public int getWidth() {
         return mWidth;
+    }
+
+    public boolean isValid() {
+        return mWidth <= 1920 && mWidth >= 0 && mHeight <= 1080 && mHeight >= 0;
+    }
+
+    public boolean isHighResolution() {
+        return Math.min(mWidth, mHeight) >= 720;
     }
 }

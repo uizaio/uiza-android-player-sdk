@@ -1,6 +1,7 @@
 package com.uiza.samplebroadcast;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -21,8 +22,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.preference.PreferenceManager;
 
-import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.enums.FilterRender;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.enums.Translate;
@@ -30,6 +31,8 @@ import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
 import com.uiza.sdk.interfaces.UZRecordListener;
+import com.uiza.sdk.profile.AudioAttributes;
+import com.uiza.sdk.profile.VideoAttributes;
 import com.uiza.sdk.view.UZBroadCastView;
 import com.uiza.widget.UZMediaButton;
 
@@ -43,10 +46,25 @@ import timber.log.Timber;
 
 public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener,
         View.OnClickListener, UZRecordListener, UZCameraChangeListener {
+    private static final String PREF_CAMERA_PROFILE = "camera_profile_key";
+    private static final String PREF_VIDEO_BITRATE = "video_bitrate_key";
+    private static final String PREF_FPS = "fps_key";
+    private static final String PREF_FRAME_INTERVAL = "frame_interval_key";
+    private static final String PREF_AUDIO_BITRATE = "audio_bitrate_key";
+    private static final String PREF_SAMPLE_RATE = "sample_rate_key";
+    private static final String PREF_AUDIO_STEREO = "audio_stereo_key";
+    private static final String DEFAULT_CAMERA_PROFILE = "720";
+    private static final String DEFAULT_MAX_BITRATE = "4000000";
+    private static final String DEFAULT_FPS = "30";
+    private static final String DEFAULT_FRAME_INTERVAL = "2";
+    private static final String DEFAULT_AUDIO_BITRATE = "128";
+    private static final String DEFAULT_SAMPLE_RATE = "44100";
+    private static final boolean DEFAULT_AUDIO_STEREO = true;
 
-    private static final String RECORD_FOLDER = "com.uiza-live";
+    private static final String RECORD_FOLDER = "uzbroadcast";
     int beforeRotation;
     PopupMenu popupMenu;
+    SharedPreferences preferences;
     private UZMediaButton startButton, recordButton, audioButton, menuButton;
     private String liveStreamUrl;
     private String currentDateAndTime = "";
@@ -59,6 +77,7 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
         setContentView(R.layout.activity_broad_cast);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         findViewById(R.id.btn_back).setOnClickListener(this);
         broadCastView = findViewById(R.id.uiza_live_view);
         broadCastView.setUZBroadcastListener(this);
@@ -81,15 +100,26 @@ public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCas
         if (TextUtils.isEmpty(liveStreamUrl)) {
             liveStreamUrl = SampleLiveApplication.getLiveEndpoint();
         }
-        int profile = getIntent().getIntExtra(SampleLiveApplication.EXTRA_STREAM_PROFILE, 720);
+        int profile = Integer.parseInt(preferences.getString(PREF_CAMERA_PROFILE, DEFAULT_CAMERA_PROFILE));
+        int maxBitrate = Integer.parseInt(preferences.getString(PREF_VIDEO_BITRATE, DEFAULT_MAX_BITRATE));
+        int fps = Integer.parseInt(preferences.getString(PREF_FPS, DEFAULT_FPS));
+        int frameInterval = Integer.parseInt(preferences.getString(PREF_FRAME_INTERVAL, DEFAULT_FRAME_INTERVAL));
+        int audioBitrate = Integer.parseInt(preferences.getString(PREF_AUDIO_BITRATE, DEFAULT_AUDIO_BITRATE));
+        int audioSampleRate = Integer.parseInt(preferences.getString(PREF_SAMPLE_RATE, DEFAULT_SAMPLE_RATE));
+        boolean stereo = preferences.getBoolean(PREF_AUDIO_STEREO, DEFAULT_AUDIO_STEREO);
+        VideoAttributes videoAttributes;
         if (profile == 1080)
-            broadCastView.setProfile(ProfileVideoEncoder.create1080p(30, 5500000));
-        else if (profile == 720)
-            broadCastView.setProfile(ProfileVideoEncoder.create720p(30, 2800000));
+            videoAttributes = VideoAttributes.FHD_1080p(fps, maxBitrate, frameInterval);
         else if (profile == 480)
-            broadCastView.setProfile(ProfileVideoEncoder.create480p(30, 2100000));
+            videoAttributes = VideoAttributes.SD_480p(fps, maxBitrate, frameInterval);
+        else if (profile == 360)
+            videoAttributes = VideoAttributes.SD_360p(fps, maxBitrate, frameInterval);
         else
-            broadCastView.setProfile(ProfileVideoEncoder.create360p(30, 1400000));
+            videoAttributes = VideoAttributes.HD_720p(fps, maxBitrate, frameInterval);
+        AudioAttributes audioAttributes = AudioAttributes.create(audioBitrate, audioSampleRate, stereo);
+        // set audio and video profile
+        broadCastView.setVideoAttributes(videoAttributes);
+        broadCastView.setAudioAttributes(audioAttributes);
         broadCastView.setBackgroundAllowedDuration(10000);
     }
 

@@ -1,8 +1,5 @@
 package com.uiza.sdk.helpers;
 
-import android.media.MediaCodecInfo;
-import android.media.audiofx.AcousticEchoCanceler;
-import android.media.audiofx.NoiseSuppressor;
 import android.os.Build;
 import android.util.Size;
 import android.view.MotionEvent;
@@ -14,12 +11,13 @@ import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.video.CameraHelper;
 import com.pedro.encoder.input.video.CameraOpenException;
 import com.pedro.rtplibrary.rtmp.RtmpCamera2;
-import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.enums.RecordStatus;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZCameraOpenException;
 import com.uiza.sdk.interfaces.UZRecordListener;
-import com.uiza.sdk.view.UZSize;
+import com.uiza.sdk.profile.AudioAttributes;
+import com.uiza.sdk.profile.VideoAttributes;
+import com.uiza.sdk.profile.VideoSize;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,10 +101,6 @@ public class Camera2Helper implements ICameraHelper {
         return rtmpCamera2.getStreamHeight();
     }
 
-    public boolean prepareAudio() {
-        return rtmpCamera2.prepareAudio();
-    }
-
     @Override
     public void enableAudio() {
         rtmpCamera2.enableAudio();
@@ -123,8 +117,14 @@ public class Camera2Helper implements ICameraHelper {
     }
 
     @Override
-    public boolean prepareAudio(int bitrate, int sampleRate, boolean isStereo) {
-        return rtmpCamera2.prepareAudio(bitrate, sampleRate, isStereo, AcousticEchoCanceler.isAvailable(), NoiseSuppressor.isAvailable());
+    public boolean prepareAudio(@NonNull AudioAttributes attrs) {
+        return rtmpCamera2.prepareAudio(
+                attrs.getBitRate(),
+                attrs.getSampleRate(),
+                attrs.isStereo(),
+                attrs.isEchoCanceler(),
+                attrs.isNoiseSuppressor()
+        );
     }
 
     @Override
@@ -133,22 +133,23 @@ public class Camera2Helper implements ICameraHelper {
     }
 
     @Override
-    public boolean prepareVideo(@NonNull ProfileVideoEncoder profile) {
+    public boolean prepareVideo(@NonNull VideoAttributes profile) {
         return prepareVideo(profile, 90);
     }
 
     @Override
-    public boolean prepareVideo(@NonNull ProfileVideoEncoder profile,int rotation) {
+    public boolean prepareVideo(@NonNull VideoAttributes attrs, int rotation) {
         return rtmpCamera2.prepareVideo(
-                profile.getWidth(),
-                profile.getHeight(),
-                profile.getFps(),
-                profile.getBitrate(),
+                attrs.getSize().getWidth(),
+                attrs.getSize().getHeight(),
+                attrs.getFrameRate(),
+                attrs.getBitRate(),
                 false,
-                profile.getFrameInterval(),
+                attrs.getFrameInterval(),
                 rotation,
-                MediaCodecInfo.CodecProfileLevel.AVCProfileHigh,
-                MediaCodecInfo.CodecProfileLevel.AVCLevel4);
+                attrs.getAVCProfile(),
+                attrs.getAVCProfileLevel()
+        );
 
     }
 
@@ -184,16 +185,16 @@ public class Camera2Helper implements ICameraHelper {
     }
 
     @Override
-    public List<UZSize> getSupportedResolutions() {
+    public List<VideoSize> getSupportedResolutions() {
         List<Size> sizes;
         if (rtmpCamera2.isFrontCamera()) {
             sizes = rtmpCamera2.getResolutionsFront();
         } else {
             sizes = rtmpCamera2.getResolutionsBack();
         }
-        List<UZSize> usizes = new ArrayList<>();
+        List<VideoSize> usizes = new ArrayList<>();
         for (Size s : sizes) {
-            usizes.add(UZSize.fromSize(s));
+            usizes.add(VideoSize.fromSize(s));
         }
         return usizes;
     }

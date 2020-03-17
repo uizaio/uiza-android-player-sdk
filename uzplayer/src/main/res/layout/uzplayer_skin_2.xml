@@ -6,4 +6,4 @@
     android:layout_height="match_parent"
     android:keepScreenOn="true"
     app:auto_show="false"
-    app:controller_layout_id="@layout/uz_controller_skin_0" />
+    app:controller_layout_id="@layout/uz_controller_layout_2" />

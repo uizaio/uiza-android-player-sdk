@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.Player;
 import com.uiza.sdk.R;
 import com.uiza.sdk.animations.AnimationUtils;
 import com.uiza.sdk.exceptions.UZException;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.ConnectivityUtils;
 import com.uiza.sdk.util.Constants;
 import com.uiza.sdk.util.LocalData;
@@ -57,11 +57,11 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     private ImageView btFullScreen;
     private ImageView btPlayPause;
     private TextView tvMsg;
-    private UZFloatVideoView fuzVideo;
+    private UZFloatVideoView uzFLVideo;
     private ViewStub controlStub;
     private WindowManager.LayoutParams params;
     private String linkPlay;
-    private boolean isLivestream;
+    private boolean isLiveStream;
     private long contentPosition;
     private int screenWidth;
     private int screenHeight;
@@ -79,8 +79,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     private int marginR;
     private int marginB;
     private int progressBarColor;
-    //    private ResultGetLinkPlay mResultGetLinkPlay;
-    private UZPlaybackInfo mPlaybackInfo;
     private int positionBeforeDisappearX = -1;
     private int positionBeforeDisappearY = -1;
     private CountDownTimer countDownTimer;
@@ -104,17 +102,15 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         int pipControlSkin = intent.getIntExtra(Constants.FLOAT_CONTROL_SKIN_ID, 0);
         if (controlStub != null && rlControl == null) {
             // this means control is not inflated yet
-            if (pipControlSkin != 0) {
+            if (pipControlSkin != 0)
                 controlStub.setLayoutResource(pipControlSkin);
-            }
             inflateControls();
         }
-        if (UZData.getInstance().getPlaybackInfo() == null) {
+        if (UZData.getInstance().getPlayback() == null)
             return START_NOT_STICKY;
-        }
         if (intent.getExtras() != null) {
             linkPlay = intent.getStringExtra(Constants.FLOAT_LINK_PLAY);
-            isLivestream = intent.getBooleanExtra(Constants.FLOAT_IS_LIVESTREAM, false);
+            isLiveStream = intent.getBooleanExtra(Constants.FLOAT_IS_LIVESTREAM, false);
             Timber.d("onStartCommand contentPosition: %d,linkPlay: %s", contentPosition, linkPlay);
             setupVideo();
         }
@@ -123,7 +119,7 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
 
     private void findViews() {
         moveView = mFloatingView.findViewById(R.id.move_view);
-        fuzVideo = mFloatingView.findViewById(R.id.uiza_video);
+        uzFLVideo = mFloatingView.findViewById(R.id.uz_flvideo_view);
         controlStub = mFloatingView.findViewById(R.id.control_stub);
 
         tvMsg = mFloatingView.findViewById(R.id.tv_msg);
@@ -177,10 +173,8 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     public void onCreate() {
         super.onCreate();
         EventBus.getDefault().register(this);
-        mPlaybackInfo = UZData.getInstance().getPlaybackInfo();
-        if (mPlaybackInfo == null) {
-            stopSelf();
-        }
+        UZPlayback mPlaybackInfo = UZData.getInstance().getPlayback();
+        if (mPlaybackInfo == null) stopSelf();
         videoW = LocalData.getVideoWidth();
         videoH = LocalData.getVideoHeight();
         screenWidth = UZViewUtils.getScreenWidth();
@@ -190,15 +184,15 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         marginT = LocalData.getMiniPlayerMarginT();
         marginR = LocalData.getMiniPlayerMarginR();
         marginB = LocalData.getMiniPlayerMarginB();
-        mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_uiza_video, null, false);
+        mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_uz_floating_video, null, false);
         findViews();
         //Add the view to the window.
         int LAYOUT_FLAG;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        } else {
+        else
             LAYOUT_FLAG = WindowManager.LayoutParams.TYPE_PHONE;
-        }
+
         //OPTION 1: floatview se neo vao 1 goc cua device
         /*params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -215,7 +209,7 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                 | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
 
-        setSizeMoveView(true, false);
+        setSizeMoveView(true);
 
         //Specify the view position
         //OPTION 1
@@ -248,82 +242,64 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     }
 
     private void setControlsClickListener() {
-        if (btExit != null) {
+        if (btExit != null)
             btExit.setOnClickListener(v -> stopSelf());
-        }
-        if (btFullScreen != null) {
+        if (btFullScreen != null)
             btFullScreen.setOnClickListener(v -> openApp());
-        }
-        if (btPlayPause != null) {
+        if (btPlayPause != null)
             btPlayPause.setOnClickListener(v -> toggleResumePause());
-        }
-
     }
 
     //==================================================================================================START CONFIG
     private void toggleResumePause() {
-        if (fuzVideo == null || btPlayPause == null) {
-            return;
-        }
-        boolean isToggleResume = fuzVideo.togglePauseResume();
-        if (isToggleResume) {
-            btPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_48);
-        } else {
-            btPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_48);
-        }
+        btPlayPause.setImageResource(uzFLVideo.togglePauseResume()
+                ? R.drawable.ic_pause_circle_outline_white_48
+                : R.drawable.ic_play_circle_outline_white_48);
     }
 
     private void pauseVideo() {
-        if (fuzVideo == null || btPlayPause == null) {
-            return;
-        }
-        fuzVideo.pause();
+        if (uzFLVideo == null || btPlayPause == null) return;
+        uzFLVideo.pause();
         btPlayPause.setImageResource(R.drawable.ic_play_circle_outline_white_48);
     }
 
     private void resumeVideo() {
-        if (fuzVideo == null || btPlayPause == null) {
-            return;
-        }
-        fuzVideo.resume();
+        if (uzFLVideo == null || btPlayPause == null) return;
+        uzFLVideo.resume();
         btPlayPause.setImageResource(R.drawable.ic_pause_circle_outline_white_48);
     }
 
     private void disappear() {
-        if (fuzVideo == null) {
-            return;
-        }
+        if (uzFLVideo == null) return;
         positionBeforeDisappearX = params.x;
         positionBeforeDisappearY = params.y;
         updateUISlide(screenWidth, screenHeight);
     }
 
     private void appear() {
-        if (positionBeforeDisappearX == -1 || positionBeforeDisappearY == -1) {
+        if (positionBeforeDisappearX == -1 || positionBeforeDisappearY == -1)
             return;
-        }
         updateUISlide(positionBeforeDisappearX, positionBeforeDisappearY);
         positionBeforeDisappearX = -1;
         positionBeforeDisappearY = -1;
     }
 
     private void openApp() {
-        if (fuzVideo == null || fuzVideo.getPlayer() == null) {
+        if (uzFLVideo == null || uzFLVideo.getPlayer() == null) {
             Timber.d("fuzVideo == null || fuzVideo.getPlayer() == null");
             return;
         }
         //stop video
         if (!isEnableSmoothSwitch)
-            fuzVideo.getPlayer().setPlayWhenReady(false);
-
+            uzFLVideo.getPlayer().setPlayWhenReady(false);
         //moveView.setOnTouchListener(null);//disabled move view
         LocalData.setClickedPip(true);
-        if (UZData.getInstance().getPlaybackInfo() == null) {
-            Timber.d("getPlaybackInfo == null");
+        if (UZData.getInstance().getPlayback() == null) {
+            Timber.d("getPlayback == null");
             return;
         }
         CommunicateMng.MsgFromServiceOpenApp msgFromServiceOpenApp = new CommunicateMng.MsgFromServiceOpenApp(null);
-        msgFromServiceOpenApp.setPositionMiniPlayer(fuzVideo.getCurrentPosition());
+        msgFromServiceOpenApp.setPositionMiniPlayer(uzFLVideo.getCurrentPosition());
         CommunicateMng.postFromService(msgFromServiceOpenApp);
     }
 
@@ -335,7 +311,7 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         if (rlControl == null) return;
         if (!isControllerShowing()) {
             rlControl.setVisibility(View.VISIBLE);
-            setSizeMoveView(false, true);
+            setSizeMoveView(false);
         }
     }
 
@@ -343,16 +319,15 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         if (rlControl == null) return;
         if (isControllerShowing()) {
             rlControl.setVisibility(View.GONE);
-            setSizeMoveView(false, false);
+            setSizeMoveView(false);
         }
     }
 
     private void toggleController() {
-        if (isControllerShowing()) {
+        if (isControllerShowing())
             hideController();
-        } else {
+        else
             showController();
-        }
     }
 
     private int getMoveViewWidth() {
@@ -364,11 +339,11 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     }
 
     private int getVideoW() {
-        return (fuzVideo == null) ? 0 : fuzVideo.getVideoWidth();
+        return (uzFLVideo == null) ? 0 : uzFLVideo.getVideoWidth();
     }
 
     private int getVideoH() {
-        return (fuzVideo == null) ? 0 : fuzVideo.getVideoHeight();
+        return (uzFLVideo == null) ? 0 : uzFLVideo.getVideoHeight();
     }
 
     //==================================================================================================END CONFIG
@@ -399,20 +374,18 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         final int mGoToPosY;
         int videoW = getVideoW();
         int videoH = getVideoH();
-        if (goToPosX <= 0) {
+        if (goToPosX <= 0)
             mGoToPosX = marginL;
-        } else if (goToPosX >= screenWidth - videoW) {
+        else if (goToPosX >= screenWidth - videoW)
             mGoToPosX = goToPosX - marginR;
-        } else {
+        else
             mGoToPosX = goToPosX;
-        }
-        if (goToPosY <= 0) {
+        if (goToPosY <= 0)
             mGoToPosY = marginT;
-        } else if (goToPosY >= screenHeight - videoH) {
+        else if (goToPosY >= screenHeight - videoH)
             mGoToPosY = goToPosY - marginB;
-        } else {
+        else
             mGoToPosY = goToPosY;
-        }
         final int a = Math.abs(mGoToPosX - currentPosX);
         final int b = Math.abs(mGoToPosY - currentPosY);
         countDownTimer = new CountDownTimer(300, 3) {
@@ -471,7 +444,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                         //remember the initial position.
                         initialX = params.x;
                         initialY = params.y;
-
                         //get the touch location
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
@@ -483,7 +455,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                         //Calculate the X and Y coordinates of the view.
                         params.x = initialX + (int) (event.getRawX() - initialTouchX);
                         params.y = initialY + (int) (event.getRawY() - initialTouchY);
-
                         //Update the layout with new X & Y coordinate
                         mWindowManager.updateViewLayout(mFloatingView, params);
                         getLocationOnScreen(mFloatingView);
@@ -494,7 +465,7 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         });
     }
 
-    private void notiPos(POS tmpPos) {
+    private void notifyPos(POS tmpPos) {
         if (pos != tmpPos) {
             pos = tmpPos;
             if (isEZDestroy) {
@@ -507,15 +478,13 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                     case CENTER_RIGHT:
                     case CENTER_TOP:
                     case CENTER_BOTTOM:
-                        if (isEnableVibration) {
+                        if (isEnableVibration)
                             UZAppUtils.vibrate(getBaseContext());
-                        }
                         viewDestroy.setVisibility(View.VISIBLE);
                         break;
                     default:
-                        if (viewDestroy.getVisibility() != View.GONE) {
+                        if (viewDestroy.getVisibility() != View.GONE)
                             viewDestroy.setVisibility(View.GONE);
-                        }
                         break;
                 }
             } else {
@@ -524,15 +493,13 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                     case TOP_RIGHT:
                     case BOTTOM_LEFT:
                     case BOTTOM_RIGHT:
-                        if (isEnableVibration) {
+                        if (isEnableVibration)
                             UZAppUtils.vibrate(getBaseContext());
-                        }
                         viewDestroy.setVisibility(View.VISIBLE);
                         break;
                     default:
-                        if (viewDestroy.getVisibility() != View.GONE) {
+                        if (viewDestroy.getVisibility() != View.GONE)
                             viewDestroy.setVisibility(View.GONE);
-                        }
                         break;
                 }
             }
@@ -548,219 +515,126 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         int posBottom = posTop + view.getHeight();
         int centerX = (posLeft + posRight) / 2;
         int centerY = (posTop + posBottom) / 2;
-        if (centerX < 0) {
+        if (centerX < 0)
+            notifyPos(centerY < 0 ? POS.TOP_LEFT : centerY > screenHeight ? POS.BOTTOM_LEFT : POS.CENTER_LEFT);
+        else if (centerX > screenWidth)
+            notifyPos(centerY < 0 ? POS.TOP_RIGHT : centerY > screenHeight ? POS.BOTTOM_RIGHT : POS.CENTER_RIGHT);
+        else {
             if (centerY < 0) {
-                notiPos(POS.TOP_LEFT);
+                notifyPos(POS.CENTER_TOP);
             } else if (centerY > screenHeight) {
-                notiPos(POS.BOTTOM_LEFT);
-            } else {
-                notiPos(POS.CENTER_LEFT);
-            }
-        } else if (centerX > screenWidth) {
-            if (centerY < 0) {
-                notiPos(POS.TOP_RIGHT);
-            } else if (centerY > screenHeight) {
-                notiPos(POS.BOTTOM_RIGHT);
-            } else {
-                notiPos(POS.CENTER_RIGHT);
-            }
-        } else {
-            if (centerY < 0) {
-                notiPos(POS.CENTER_TOP);
-            } else if (centerY > screenHeight) {
-                notiPos(POS.CENTER_BOTTOM);
+                notifyPos(POS.CENTER_BOTTOM);
             } else {
                 if (posLeft < 0) {
-                    notiPos(POS.LEFT);
+                    notifyPos(POS.LEFT);
                 } else if (posRight > screenWidth) {
-                    notiPos(POS.RIGHT);
+                    notifyPos(POS.RIGHT);
                 } else {
-                    if (posTop < 0) {
-                        notiPos(POS.TOP);
-                    } else if (posBottom > screenHeight) {
-                        notiPos(POS.BOTTOM);
-                    } else {
-                        notiPos(POS.CENTER);
-                    }
+                    notifyPos(posTop < 0 ? POS.TOP : posBottom > screenHeight ? POS.BOTTOM : POS.CENTER);
                 }
             }
         }
-
     }
 
     private void onMoveUp() {
-        if (pos == null) {
-            return;
-        }
+        if (pos == null) return;
         int posX;
         int posY;
         int centerPosX;
         int centerPosY;
-        if (isEZDestroy) {
-            switch (pos) {
-                case TOP_LEFT:
-                case TOP_RIGHT:
-                case BOTTOM_LEFT:
-                case BOTTOM_RIGHT:
-                case CENTER_LEFT:
-                case CENTER_RIGHT:
-                case CENTER_TOP:
-                case CENTER_BOTTOM:
+        switch (pos) {
+            case TOP_LEFT:
+            case TOP_RIGHT:
+            case BOTTOM_LEFT:
+            case BOTTOM_RIGHT:
+                stopSelf();
+                break;
+            case CENTER:
+                posX = params.x;
+                posY = params.y;
+                centerPosX = posX + getMoveViewWidth() / 2;
+                centerPosY = posY + getMoveViewHeight() / 2;
+                slideToPosition((centerPosX < screenWidth / 2) ? 0 : (screenWidth - getMoveViewWidth()),
+                        (centerPosY < screenHeight / 2) ? 0 : (screenHeight - getMoveViewHeight() - pipTopPosition));
+                break;
+            case TOP:
+            case CENTER_TOP:
+                if (isEZDestroy && pos == POS.CENTER_TOP)
                     stopSelf();
-                    break;
-                case TOP:
+                else
                     slideToTop();
-                    break;
-                case BOTTOM:
-                    slideToBottom();
-                    break;
-                case LEFT:
-                    slideToLeft();
-                    break;
-                case RIGHT:
-                    slideToRight();
-                    break;
-                case CENTER:
-                    posX = params.x;
-                    posY = params.y;
-                    centerPosX = posX + getMoveViewWidth() / 2;
-                    centerPosY = posY + getMoveViewHeight() / 2;
-                    if (centerPosX < screenWidth / 2) {
-                        if (centerPosY < screenHeight / 2) {
-                            //LLog.d(TAG, "top left part");
-                            slideToPosition(0, 0);
-                        } else {
-                            //LLog.d(TAG, "bottom left part");
-                            slideToPosition(0, screenHeight - getMoveViewHeight() - pipTopPosition);
-                        }
-                    } else {
-                        if (centerPosY < screenHeight / 2) {
-                            //LLog.d(TAG, "top right part");
-                            slideToPosition(screenWidth - getMoveViewWidth(), 0);
-                        } else {
-                            //LLog.d(TAG, "bottom right part");
-                            slideToPosition(screenWidth - getMoveViewWidth(), screenHeight - getMoveViewHeight() - pipTopPosition);
-                        }
-                    }
-                    break;
-            }
-        } else {
-            switch (pos) {
-                case TOP_LEFT:
-                case TOP_RIGHT:
-                case BOTTOM_LEFT:
-                case BOTTOM_RIGHT:
+                break;
+            case BOTTOM:
+            case CENTER_BOTTOM:
+                if (isEZDestroy && pos == POS.CENTER_BOTTOM)
                     stopSelf();
-                    break;
-                case TOP:
-                case CENTER_TOP:
-                    slideToTop();
-                    break;
-                case BOTTOM:
-                case CENTER_BOTTOM:
+                else
                     slideToBottom();
-                    break;
-                case LEFT:
-                case CENTER_LEFT:
+                break;
+            case LEFT:
+            case CENTER_LEFT:
+                if (isEZDestroy && pos == POS.CENTER_LEFT)
+                    stopSelf();
+                else
                     slideToLeft();
-                    break;
-                case RIGHT:
-                case CENTER_RIGHT:
+                break;
+            case RIGHT:
+            case CENTER_RIGHT:
+                if (isEZDestroy && pos == POS.CENTER_RIGHT)
+                    stopSelf();
+                else
                     slideToRight();
-                    break;
-                case CENTER:
-                    posX = params.x;
-                    posY = params.y;
-                    centerPosX = posX + getMoveViewWidth() / 2;
-                    centerPosY = posY + getMoveViewHeight() / 2;
-                    if (centerPosX < screenWidth / 2) {
-                        if (centerPosY < screenHeight / 2) {
-                            //LLog.d(TAG, "top left part");
-                            slideToPosition(0, 0);
-                        } else {
-                            //LLog.d(TAG, "bottom left part");
-                            slideToPosition(0, screenHeight - getMoveViewHeight() - pipTopPosition);
-                        }
-                    } else {
-                        if (centerPosY < screenHeight / 2) {
-                            //LLog.d(TAG, "top right part");
-                            slideToPosition(screenWidth - getMoveViewWidth(), 0);
-                        } else {
-                            //LLog.d(TAG, "bottom right part");
-                            slideToPosition(screenWidth - getMoveViewWidth(), screenHeight - getMoveViewHeight() - pipTopPosition);
-                        }
-                    }
-                    break;
-            }
+                break;
         }
     }
 
     private void slideToTop() {
         int posX = params.x;
         int centerPosX = posX + getMoveViewWidth() / 2;
-        if (centerPosX < screenWidth / 2) {
-            slideToPosition(0, 0);
-        } else {
-            slideToPosition(screenWidth - getMoveViewWidth(), 0);
-        }
+        slideToPosition((centerPosX < screenWidth / 2) ? 0 : (screenWidth - getMoveViewWidth()), 0);
     }
 
     private void slideToBottom() {
         int posX = params.x;
         int centerPosX = posX + getMoveViewWidth() / 2;
-        if (centerPosX < screenWidth / 2) {
-            slideToPosition(0, screenHeight - getMoveViewHeight() - pipTopPosition);
-        } else {
-            slideToPosition(screenWidth - getMoveViewWidth(), screenHeight - getMoveViewHeight() - pipTopPosition);
-        }
+        slideToPosition((centerPosX < screenWidth / 2) ? 0 : (screenWidth - getMoveViewWidth()),
+                screenHeight - getMoveViewHeight() - pipTopPosition);
     }
 
     private void slideToLeft() {
         int posY = params.y;
         int centerPosY = posY + getMoveViewHeight() / 2;
-        if (centerPosY < screenHeight / 2) {
-            slideToPosition(0, 0);
-        } else {
-            slideToPosition(0, screenHeight - getMoveViewHeight() - pipTopPosition);
-        }
+        slideToPosition(0, (centerPosY < screenHeight / 2) ? 0 : (screenHeight - getMoveViewHeight() - pipTopPosition));
     }
 
     private void slideToRight() {
         int posY = params.y;
         int centerPosY = posY + getMoveViewHeight() / 2;
-        if (centerPosY < screenHeight / 2) {
-            slideToPosition(screenWidth - getMoveViewWidth(), 0);
-        } else {
-            slideToPosition(screenWidth - getMoveViewWidth(), screenHeight - getMoveViewHeight() - pipTopPosition);
-        }
+        slideToPosition(screenWidth - getMoveViewWidth(),
+                (centerPosY < screenHeight / 2) ? 0 : (screenHeight - getMoveViewHeight() - pipTopPosition));
     }
 
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
-        if (mFloatingView != null) {
+        if (mFloatingView != null)
             mWindowManager.removeView(mFloatingView);
-        }
-        if (fuzVideo != null) {
-            fuzVideo.onDestroy();
-        }
-        if (countDownTimer != null) {
+        if (uzFLVideo != null)
+            uzFLVideo.onDestroy();
+        if (countDownTimer != null)
             countDownTimer.cancel();
-        }
         LocalData.setClickedPip(false);
         super.onDestroy();
     }
 
     @Override
     public void isInitResult(boolean isInitSuccess) {
-        if (isInitSuccess && fuzVideo != null) {
-            if (mFloatingView == null) {
-                return;
-            }
+        if (isInitSuccess && uzFLVideo != null) {
+            if (mFloatingView == null) return;
             Timber.d("miniplayer STEP 2 isInitResult true");
             editSizeOfMoveView();
             //sau khi da play thanh cong thi chuyen mini player ben ngoai screen vao trong screen
-            updateUIVideoSizeOneTime(fuzVideo.getVideoWidth(), fuzVideo.getVideoHeight());
+            updateUIVideoSizeOneTime(uzFLVideo.getVideoWidth(), uzFLVideo.getVideoHeight());
             if (!isSendMsgToActivity) {
                 //LLog.d(TAG, "state finish loading PIP -> send msg to UZVideo");
                 CommunicateMng.MsgFromServiceIsInitSuccess msgFromServiceIsInitSuccess = new CommunicateMng.MsgFromServiceIsInitSuccess(null);
@@ -786,11 +660,12 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
 
     private void onStateEnded() {
         if (UZData.getInstance().isPlayWithPlaylistFolder()) {
-            if (fuzVideo == null) return;
+            if (uzFLVideo == null) return;
             Timber.d("Dang play o che do playlist/folder -> play next item");
-            fuzVideo.getLinkPlayOfNextItem(playback -> {
+            uzFLVideo.getLinkPlayOfNextItem(playback -> {
                 if (playback == null || !playback.canPlay()) {
                     stopSelf();
+                    return;
                 }
                 linkPlay = playback.getLinkPlay();
                 contentPosition = 0;
@@ -818,43 +693,26 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
             stopSelf();
             return;
         }
-        Timber.d("setupVideo linkPlay: %s, isLivestream: %s", linkPlay, isLivestream);
+        Timber.d("setupVideo linkPlay: %s, isLivestream: %s", linkPlay, isLiveStream);
         if (ConnectivityUtils.isConnected(this)) {
-            fuzVideo.init(linkPlay, isLivestream, contentPosition, progressBarColor, this);
+            uzFLVideo.init(linkPlay, isLiveStream, contentPosition, progressBarColor, this);
             tvMsg.setVisibility(View.GONE);
-        } else {
+        } else
             tvMsg.setVisibility(View.VISIBLE);
-        }
     }
 
     //click vo se larger, click lan nua de smaller
-    private void setSizeMoveView(boolean isFirstSizeInit, boolean isLarger) {
-        if (moveView == null) {
-            return;
-        }
+    private void setSizeMoveView(boolean isFirstSizeInit) {
+        if (moveView == null) return;
         int w = 0;
         int h = 0;
         if (isFirstSizeInit) {
             w = screenWidth / 2;
-            if (videoW == 0) {
-                //fixed java.lang.ArithmeticException: divide by zero
+            if (videoW == 0)
                 h = w * 9 / 16;
-            } else {
+            else
                 h = w * videoH / videoW;
-            }
-        } else {
-            //works fine
-            //OPTION 1: isLarger->mini player se to hon 1 chut
-            //!isLarger->ve trang thai ban dau
-            /*if (isLarger) {
-                w = getMoveViewWidth() * 120 / 100;
-                h = getMoveViewHeight() * 120 / 100;
-            } else {
-                int videoW = fuzVideo.getVideoW();
-                int videoH = fuzVideo.getVideoH();
-                w = screenWidth / 2;
-                h = w * videoH / videoW;
-            }*/
+
         }
         if (w != 0 && h != 0) {
             moveView.getLayoutParams().width = w;
@@ -864,11 +722,9 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     }
 
     private void editSizeOfMoveView() {
-        if (fuzVideo == null || moveView == null || videoW == 0) {
-            return;
-        }
-        int videoW = fuzVideo.getVideoWidth();
-        int videoH = fuzVideo.getVideoHeight();
+        if (uzFLVideo == null || moveView == null || videoW == 0) return;
+        int videoW = uzFLVideo.getVideoWidth();
+        int videoH = uzFLVideo.getVideoHeight();
         int moveW;
         int moveH;
         if (isAutoSize) {
@@ -888,9 +744,8 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     //listen msg from UZVideo
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(CommunicateMng.MsgFromActivity msgFromActivity) {
-        if (msgFromActivity == null || fuzVideo == null) {
+        if (msgFromActivity == null || uzFLVideo == null)
             return;
-        }
         if (msgFromActivity instanceof CommunicateMng.MsgFromActivityPosition) {
             //LLog.d(TAG, "Nhan duoc content position moi cua UZVideo va tien hanh seek toi day");
             if (isEnableSmoothSwitch) {
@@ -898,21 +753,15 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
                 Timber.d("miniplayer STEP 4 MsgFromActivityPosition -> isEnableSmoothSwitch true -> do nothing");
             } else {
                 long contentPosition = ((CommunicateMng.MsgFromActivityPosition) msgFromActivity).getPosition();
-                long contentBufferedPosition = fuzVideo.getContentBufferedPosition();
+                long contentBufferedPosition = uzFLVideo.getContentBufferedPosition();
                 Timber.d("miniplayer STEP 4 MsgFromActivityPosition -> isEnableSmoothSwitch false -> contentBufferedPosition: %d, position: %d", contentBufferedPosition, contentPosition);
-                if (contentPosition >= contentBufferedPosition) {
-                    fuzVideo.seekTo(contentBufferedPosition);
-                } else {
-                    fuzVideo.seekTo(contentPosition);
-                }
+                uzFLVideo.seekTo(Math.min(contentPosition, contentBufferedPosition));
             }
         } else if (msgFromActivity instanceof CommunicateMng.MsgFromActivityIsInitSuccess) {
             Timber.d("miniplayer STEP 7 MsgFromActivityIsInitSuccess isInitSuccess: %b", ((CommunicateMng.MsgFromActivityIsInitSuccess) msgFromActivity).isInitSuccess());
             stopSelf();
         }
-        if (msgFromActivity.getMsg() == null) {
-            return;
-        }
+        if (msgFromActivity.getMsg() == null) return;
         handleMsgFromActivity(msgFromActivity);
     }
 
@@ -949,7 +798,21 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         }
     }
 
-    private enum POS {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, CENTER_LEFT, CENTER_RIGHT, CENTER_TOP, CENTER_BOTTOM, LEFT, RIGHT, TOP, BOTTOM, CENTER}
+    private enum POS {
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT,
+        CENTER_LEFT,
+        CENTER_RIGHT,
+        CENTER_TOP,
+        CENTER_BOTTOM,
+        LEFT,
+        RIGHT,
+        TOP,
+        BOTTOM,
+        CENTER
+    }
 
     private class GestureTap extends GestureDetector.SimpleOnGestureListener {
         @Override
@@ -961,11 +824,10 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         public boolean onSingleTapConfirmed(MotionEvent e) {
             boolean isTapToFullPlayer = LocalData.getMiniPlayerTapToFullPlayer();
             if (isTapToFullPlayer) {
-                setSizeMoveView(false, true);//remove this line make animation switch from mini-player to full-player incorrectly
+                setSizeMoveView(false);//remove this line make animation switch from mini-player to full-player incorrectly
                 openApp();
-            } else {
+            } else
                 toggleController();
-            }
             return true;
         }
     }

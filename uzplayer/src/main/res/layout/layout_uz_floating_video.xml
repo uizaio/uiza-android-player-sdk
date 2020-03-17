@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         tools:ignore="UselessParent">
 
-        <com.com.uiza.com.com.uiza.sdk.floatview.FloatUizaVideoView
-            android:id="@+id/uiza_video"
+        <com.uiza.sdk.floatview.UZFloatVideoView
+            android:id="@+id/uz_flvideo_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

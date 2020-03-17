@@ -23,6 +23,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -37,13 +39,14 @@ import com.pedro.rtplibrary.view.OpenGlView;
 import com.uiza.sdk.R;
 import com.uiza.sdk.enums.AspectRatio;
 import com.uiza.sdk.enums.FilterRender;
-import com.uiza.sdk.ProfileVideoEncoder;
 import com.uiza.sdk.helpers.Camera1Helper;
 import com.uiza.sdk.helpers.Camera2Helper;
 import com.uiza.sdk.helpers.ICameraHelper;
 import com.uiza.sdk.interfaces.UZBroadCastListener;
 import com.uiza.sdk.interfaces.UZCameraChangeListener;
 import com.uiza.sdk.interfaces.UZRecordListener;
+import com.uiza.sdk.profile.AudioAttributes;
+import com.uiza.sdk.profile.VideoAttributes;
 import com.uiza.sdk.util.ViewUtil;
 
 import net.ossrs.rtmp.ConnectCheckerRtmp;
@@ -66,21 +69,14 @@ public class UZBroadCastView extends RelativeLayout {
     private String mainStreamUrl;
     private ICameraHelper cameraHelper;
     /**
-     * ProfileEncoder default 360p
+     * VideoAttributes
      */
-    private ProfileVideoEncoder profile;
+    private VideoAttributes videoAttributes;
     /**
-     * Audio Stereo: default true
+     * AudioAttributes
      */
-    private boolean audioStereo;
-    /**
-     * Audio Bitrate: default 64 Kbps
-     */
-    private int audioBitrate;
-    /**
-     * Audio SampleRate: default 32 KHz
-     */
-    private int audioSampleRate;
+    private AudioAttributes audioAttributes;
+
     private ProgressBar progressBar;
     private TextView tvLiveStatus;
     private boolean useCamera2;
@@ -141,7 +137,7 @@ public class UZBroadCastView extends RelativeLayout {
         }
 
         @Override
-        public void onConnectionFailedRtmp(final String reason) {
+        public void onConnectionFailedRtmp(@NonNull String reason) {
             ((Activity) getContext()).runOnUiThread(() -> {
                 //Wait 5s and retry connect stream
                 if (cameraHelper.reTry(5000, reason)) {
@@ -230,9 +226,6 @@ public class UZBroadCastView extends RelativeLayout {
             try {
                 boolean hasLollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
                 useCamera2 = a.getBoolean(R.styleable.UZBroadCastView_useCamera2, hasLollipop);
-                audioStereo = a.getBoolean(R.styleable.UZBroadCastView_audioStereo, true);
-                audioBitrate = a.getInt(R.styleable.UZBroadCastView_audioBitrate, 64) * 1024; //64 Kbps
-                audioSampleRate = a.getInt(R.styleable.UZBroadCastView_audioSampleRate, 32000); // 32 KHz
                 // for openGL
                 keepAspectRatio = a.getBoolean(R.styleable.UZBroadCastView_keepAspectRatio, true);
                 AAEnabled = a.getBoolean(R.styleable.UZBroadCastView_AAEnabled, false);
@@ -244,9 +237,6 @@ public class UZBroadCastView extends RelativeLayout {
             }
         } else {
             useCamera2 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-            audioStereo = true;
-            audioBitrate = 64 * 1024; //64 Kbps
-            audioSampleRate = 32000; // 32 KHz
             // for OpenGL
             keepAspectRatio = true;
             AAEnabled = false;
@@ -361,7 +351,7 @@ public class UZBroadCastView extends RelativeLayout {
 
 
     /**
-     * @param uzBroadCastListener
+     * @param uzBroadCastListener {@link UZBroadCastListener}
      */
     public void setUZBroadcastListener(UZBroadCastListener uzBroadCastListener) {
         this.uzBroadCastListener = uzBroadCastListener;
@@ -436,7 +426,7 @@ public class UZBroadCastView extends RelativeLayout {
     /**
      * you must call in onInit()
      *
-     * @param uzCameraChangeListener : camera witch listener
+     * @param uzCameraChangeListener : {@link UZCameraChangeListener} camera witch listener
      */
     public void setUZCameraChangeListener(UZCameraChangeListener uzCameraChangeListener) {
         cameraHelper.setUZCameraChangeListener(uzCameraChangeListener);
@@ -445,7 +435,7 @@ public class UZBroadCastView extends RelativeLayout {
     /**
      * you must call in oInit()
      *
-     * @param recordListener : record status listener
+     * @param recordListener : record status listener {@link UZRecordListener}
      */
     public void setUZRecordListener(UZRecordListener recordListener) {
         cameraHelper.setUZRecordListener(recordListener);
@@ -466,8 +456,8 @@ public class UZBroadCastView extends RelativeLayout {
         ViewUtil.blinking(tvLiveStatus);
     }
 
-    public ProfileVideoEncoder getProfile() {
-        return profile;
+    public VideoAttributes getVideoAttributes() {
+        return videoAttributes;
     }
 
     /**
@@ -479,10 +469,18 @@ public class UZBroadCastView extends RelativeLayout {
      * If you do not set the video encoder configuration after joining the channel,
      * you can call this method before calling the enableVideo method to reduce the render time of the first video frame.
      *
-     * @param profile The local video encoder configuration
+     * @param attributes The local video encoder configuration
      */
-    public void setProfile(ProfileVideoEncoder profile) {
-        this.profile = profile;
+    public void setVideoAttributes(VideoAttributes attributes) {
+        this.videoAttributes = attributes;
+    }
+
+    public AudioAttributes getAudioAttributes() {
+        return audioAttributes;
+    }
+
+    public void setAudioAttributes(AudioAttributes audioAttributes) {
+        this.audioAttributes = audioAttributes;
     }
 
     public void startPreview() {
@@ -534,7 +532,8 @@ public class UZBroadCastView extends RelativeLayout {
      * * doesn't support any configuration seated or your device hasn't a AAC encoder).
      */
     public boolean prepareStream() {
-        return prepareAudio() && prepareVideo(isLandscape);
+        int rotation = CameraHelper.getCameraOrientation(getContext());
+        return prepareStream(rotation == 0 || rotation == 180);
     }
 
     /**
@@ -545,23 +544,53 @@ public class UZBroadCastView extends RelativeLayout {
      * * doesn't support any configuration seated or your device hasn't a AAC encoder).
      */
     public boolean prepareStream(boolean isLandscape) {
-        return prepareAudio() && prepareVideo(isLandscape);
+        if (audioAttributes == null) {
+            Timber.e("Please set audioAttributes");
+            return false;
+        }
+        if (videoAttributes == null) {
+            Timber.e("Please set videoAttributes");
+            return false;
+        }
+        return prepareStream(audioAttributes, videoAttributes, isLandscape);
     }
 
     /**
+     * @param audioAttributes {@link AudioAttributes}
+     * @param videoAttributes {@link VideoAttributes}
+     * @param isLandscape:    true if broadcast landing
+     * @return true if success, false if you get a error (Normally because the encoder selected
+     * doesn't support any configuration seated or your device hasn't a AAC encoder).
+     */
+    public boolean prepareStream(@NonNull AudioAttributes audioAttributes, @NonNull VideoAttributes videoAttributes, boolean isLandscape) {
+        return prepareAudio(audioAttributes) && prepareVideo(videoAttributes, isLandscape);
+    }
+
+
+    /**
      * Call this method before use @startStream. If not you will do a stream without audio.
-     * audio bitrate is dynamic
-     * sampleRate of audio in hz: 44100
-     * isStereo true if you want Stereo audio (2 audio channels), false if you want Mono audio
-     * (1 audio channel).
-     * echoCanceler: check from AcousticEchoCanceler.isAvailable()
-     * noiseSuppressor: check from NoiseSuppressor.isAvailable()
      *
      * @return true if success, false if you get a error (Normally because the encoder selected
      * doesn't support any configuration seated or your device hasn't a AAC encoder).
      */
     public boolean prepareAudio() {
-        return cameraHelper.prepareAudio(audioBitrate, audioSampleRate, audioStereo);
+        if (audioAttributes == null) {
+            Timber.e("Please set audioAttributes");
+            return false;
+        }
+        return prepareAudio(audioAttributes);
+    }
+
+    /**
+     * Call this method before use @startStream. If not you will do a stream without audio.
+     *
+     * @param attrs {@link AudioAttributes}
+     * @return true if success, false if you get a error (Normally because the encoder selected
+     * doesn't support any configuration seated or your device hasn't a AAC encoder).
+     */
+    public boolean prepareAudio(@NonNull AudioAttributes attrs) {
+        this.audioAttributes = attrs;
+        return cameraHelper.prepareAudio(audioAttributes);
     }
 
     /**
@@ -570,14 +599,31 @@ public class UZBroadCastView extends RelativeLayout {
      * @return true if success, false if otherwise
      */
     public boolean prepareVideo() {
-        int rotation = CameraHelper.getCameraOrientation(getContext());
-        isLandscape = rotation == 0 || rotation == 180;
-        return cameraHelper.prepareVideo(profile, rotation);
+        if (videoAttributes == null) {
+            Timber.e("Please set videoAttributes");
+            return false;
+        }
+        return prepareVideo(videoAttributes);
     }
 
     public boolean prepareVideo(boolean isLandscape) {
+        if (videoAttributes == null) {
+            Timber.e("Please set videoAttributes");
+            return false;
+        }
+        return prepareVideo(videoAttributes, isLandscape);
+    }
+
+    public boolean prepareVideo(VideoAttributes attrs) {
+        int rotation = CameraHelper.getCameraOrientation(getContext());
+        isLandscape = rotation == 0 || rotation == 180;
+        return prepareVideo(attrs, isLandscape);
+    }
+
+    public boolean prepareVideo(@NonNull VideoAttributes attrs, boolean isLandscape) {
+        this.videoAttributes = attrs;
         this.isLandscape = isLandscape;
-        return cameraHelper.prepareVideo(profile, isLandscape ? 0 : 90);
+        return cameraHelper.prepareVideo(videoAttributes, isLandscape ? 0 : 90);
     }
 
     public void enableAA(boolean enable) {
@@ -604,18 +650,6 @@ public class UZBroadCastView extends RelativeLayout {
 
     public int getStreamHeight() {
         return cameraHelper.getStreamHeight();
-    }
-
-    public void setAudioStereo(boolean audioStereo) {
-        this.audioStereo = audioStereo;
-    }
-
-    public void setAudioBitrate(int audioBitrate) {
-        this.audioBitrate = audioBitrate * 1024;
-    }
-
-    public void setAudioSampleRate(int audioSampleRate) {
-        this.audioSampleRate = audioSampleRate;
     }
 
     public void setVideoBitrateOnFly(int bitrate) {

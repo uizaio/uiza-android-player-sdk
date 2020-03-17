@@ -71,7 +71,7 @@ import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.observers.SensorOrientationChangeNotifier;
 import com.uiza.sdk.observers.UZConnectifyService;
 import com.uiza.sdk.util.ConnectivityUtils;
@@ -164,7 +164,7 @@ public class UZVideoView extends VideoViewBase
     //========================================================================END CONFIG
     /*
      **Change skin via skin id resources
-     * changeSkin(R.layout.uz_player_skin_1);
+     * changeSkin(R.layout.uzplayer_skin_1);
      */
     //TODO improve this func
     private boolean isRefreshFromChangeSkin;
@@ -192,7 +192,6 @@ public class UZVideoView extends VideoViewBase
     private boolean isCastPlayerPlayingFirst;
     private StatsForNerdsView statsForNerdsView;
     private UZAdPlayerCallback videoAdPlayerCallback;
-    private boolean isClickedSkipNextOrSkipPrevious;
 
     public UZVideoView(Context context) {
         super(context);
@@ -386,17 +385,12 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void notifyError(UZException exception) {
-        if (uzCallback != null) {
+        if (uzCallback != null)
             uzCallback.onError(exception);
-        }
     }
 
     private void handlePlayPlayListFolderUI() {
-        if (isPlayPlaylistFolder()) {
-            setVisibilityOfPlaylistFolderController(VISIBLE);
-        } else {
-            setVisibilityOfPlaylistFolderController(GONE);
-        }
+        setVisibilityOfPlaylistFolderController(isPlayPlaylistFolder() ? VISIBLE : GONE);
     }
 
     @Override
@@ -406,9 +400,8 @@ public class UZVideoView extends VideoViewBase
 
     @Override
     public void seekTo(long positionMs) {
-        if (uzPlayerManager != null) {
+        if (uzPlayerManager != null)
             uzPlayerManager.seekTo(positionMs);
-        }
     }
 
     /**
@@ -418,7 +411,7 @@ public class UZVideoView extends VideoViewBase
      */
     @Override
     public boolean play() {
-        if (UZData.getInstance().getPlaybackInfo() == null) {
+        if (UZData.getInstance().getPlayback() == null) {
             Timber.e(ErrorConstant.ERR_14);
             return false;
         }
@@ -427,23 +420,23 @@ public class UZVideoView extends VideoViewBase
             Timber.e(ErrorConstant.ERR_0);
             return false;
         }
-        UZPlaybackInfo playbackInfo = UZData.getInstance().getPlaybackInfo();
+        UZPlayback playbackInfo = UZData.getInstance().getPlayback();
         if (!LocalData.getClickedPip()) {
             UZAppUtils.stopMiniPlayer(context);
         }
-        initPlayback(playbackInfo.getLinkPlay(), playbackInfo.isLive(), true);
+        initPlayback(playbackInfo, true);
         LocalData.setIsInitPlaylistFolder(false);
         return true;
     }
 
     /**
-     * Play with {@link UZPlaybackInfo}
+     * Play with {@link UZPlayback}
      *
      * @param playback PlaybackInfo nonnull
      * @return true if not error
      */
     @Override
-    public boolean play(@NonNull UZPlaybackInfo playback) {
+    public boolean play(@NonNull UZPlayback playback) {
         Context context = getContext();
         LocalData.setClickedPip(false);
         if (!ConnectivityUtils.isConnected(context)) {
@@ -453,21 +446,21 @@ public class UZVideoView extends VideoViewBase
         UZAppUtils.stopMiniPlayer(context);
         UZData.getInstance().setSettingPlayer(false);
         //
-        UZData.getInstance().setPlaybackInfo(playback);
-        post(() -> initPlayback(playback.getLinkPlay(), playback.isLive(), true));
+        UZData.getInstance().setPlayback(playback);
+        post(() -> initPlayback(playback, true));
         LocalData.setIsInitPlaylistFolder(false);
         UZData.getInstance().clear();
         return true;
     }
 
     /**
-     * Play with {@link UZPlaybackInfo}
+     * Play with {@link UZPlayback}
      *
      * @param playlist List of PlaybackInfo
      * @return true if not error
      */
     @Override
-    public boolean play(List<UZPlaybackInfo> playlist) {
+    public boolean play(List<UZPlayback> playlist) {
         // TODO: Check how to get subtitle of a custom link play, because we have no idea about entityId or appId
         if (!ConnectivityUtils.isConnected(getContext())) {
             notifyError(ErrorUtils.exceptionNoConnection());
@@ -479,7 +472,6 @@ public class UZVideoView extends VideoViewBase
         } else {
             Timber.d("initPlaylist called from PIP: %b", isGetClickedPip);
             UZData.getInstance().clearDataForPlaylistFolder();
-            isClickedSkipNextOrSkipPrevious = false;
             LocalData.setIsInitPlaylistFolder(true);
             UZData.getInstance().setPlayList(playlist);
             playPlaylistPosition(UZData.getInstance().getCurrentPositionOfPlayList());
@@ -534,8 +526,7 @@ public class UZVideoView extends VideoViewBase
         return (uzPlayerManager == null) ? 0 : uzPlayerManager.getVideoHeight();
     }
 
-    private void initPlayback(@NonNull String linkPlay, boolean isLiveStream, boolean isClearDataPlaylistFolder) {
-        Timber.d("init linkPlay %s", linkPlay);
+    private void initPlayback(@NonNull UZPlayback playback, boolean isClearDataPlaylistFolder) {
         if (isClearDataPlaylistFolder) {
             UZData.getInstance().clearDataForPlaylistFolder();
         }
@@ -548,7 +539,7 @@ public class UZVideoView extends VideoViewBase
         isOnPlayerEnded = false;
         updateUIEndScreen();
         isHasError = false;
-        this.isLiveStream = isLiveStream;
+        this.isLiveStream = playback.isLive();
         if (isLiveStream)
             startTime = -1;
         if (uzPlayerManager != null) {
@@ -557,9 +548,9 @@ public class UZVideoView extends VideoViewBase
             showProgress();
         }
         updateUIDependOnLivestream();
-        initDataSource(linkPlay, UZData.getInstance().getUrlIMAAd(), UZData.getInstance().getThumbnail(), UZAppUtils.isAdsDependencyAvailable());
+        initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail(), UZAppUtils.isAdsDependencyAvailable());
         if (uzCallback != null)
-            uzCallback.isInitResult(false, UZData.getInstance().getPlaybackInfo());
+            uzCallback.isInitResult(false, UZData.getInstance().getPlayback());
         initUizaPlayerManager();
     }
 
@@ -847,7 +838,7 @@ public class UZVideoView extends VideoViewBase
             AnimationUtils.play(v, Techniques.Pulse);
         else if (v == ivLogo) {
             AnimationUtils.play(v, Techniques.Pulse);
-            UZPlaybackInfo info = UZData.getInstance().getPlaybackInfo();
+            UZPlayback info = UZData.getInstance().getPlayback();
             if (info == null || TextUtils.isEmpty(info.getThumbnail()))
                 return;
             UZAppUtils.openUrlInBrowser(getContext(), info.getThumbnail());
@@ -980,14 +971,12 @@ public class UZVideoView extends VideoViewBase
         setClickableForViews(false, ibSkipPreviousIcon, ibSkipNextIcon);
         //end update UI for skip next and skip previous button
         UZData.getInstance().setCurrentPositionOfPlayList(position);
-        UZPlaybackInfo playback = UZData.getInstance().getPlaybackInfo();
+        UZPlayback playback = UZData.getInstance().getPlayback();
         if (playback == null || !playback.canPlay()) {
             Timber.e("playPlaylistPosition error: playlist is null or can not play");
             return;
         }
-        UZPlaybackInfo info = UZData.getInstance().getDataWithPositionOfPlayList(position);
-        if (info != null)
-            initPlayback(info.getLinkPlay(), info.isLive(), false);
+        initPlayback(playback, false);
     }
 
     private void setSrcDrawableEnabledForViews(UZImageButton... views) {
@@ -1030,12 +1019,12 @@ public class UZVideoView extends VideoViewBase
     private void handleClickPlaylistFolder() {
         UZPlaylistFolderDialog uizaPlaylistFolderDlg = new UZPlaylistFolderDialog(getContext(), isLandscape, UZData.getInstance().getPlayList(), UZData.getInstance().getCurrentPositionOfPlayList(), new CallbackPlaylistFolder() {
             @Override
-            public void onClickItem(UZPlaybackInfo playback, int position) {
+            public void onClickItem(UZPlayback playback, int position) {
                 playPlaylistPosition(position);
             }
 
             @Override
-            public void onFocusChange(UZPlaybackInfo playback, int position) {
+            public void onFocusChange(UZPlayback playback, int position) {
             }
 
             @Override
@@ -1046,14 +1035,12 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void handleClickSkipNext() {
-        isClickedSkipNextOrSkipPrevious = true;
         isOnPlayerEnded = false;
         updateUIEndScreen();
         autoSwitchNextVideo();
     }
 
     private void handleClickSkipPrevious() {
-        isClickedSkipNextOrSkipPrevious = true;
         isOnPlayerEnded = false;
         updateUIEndScreen();
         autoSwitchPreviousLinkVideo();
@@ -1458,7 +1445,7 @@ public class UZVideoView extends VideoViewBase
             uzTimebar.setOnFocusChangeListener(this);
         } else
             uzPlayerView.setVisibility(VISIBLE);
-        ivThumbnail = uzPlayerView.findViewById(R.id.image_view_thumnail);
+        ivThumbnail = uzPlayerView.findViewById(R.id.image_view_thumbnail);
         tvPosition = uzPlayerView.findViewById(R.id.uz_position);
         if (tvPosition != null) {
             tvPosition.setText(StringUtils.convertMlsecondsToHMmSs(0));
@@ -1582,7 +1569,7 @@ public class UZVideoView extends VideoViewBase
             ivVideoCover.setVisibility(VISIBLE);
             ivVideoCover.invalidate();
             String urlCover;
-            UZPlaybackInfo info = UZData.getInstance().getPlaybackInfo();
+            UZPlayback info = UZData.getInstance().getPlayback();
             if (info == null || TextUtils.isEmpty(info.getThumbnail()))
                 urlCover = Constants.URL_IMG_THUMBNAIL_BLACK;
             else
@@ -1610,8 +1597,8 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void updateUIEachSkin() {
-        int currentPlayerId = UZData.getInstance().getCurrentPlayerId();
-        if (currentPlayerId == R.layout.uz_player_skin_2 || currentPlayerId == R.layout.uz_player_skin_3) {
+        int curSkinLayoutId = UZData.getInstance().getUZPlayerSkinLayoutId();
+        if (curSkinLayoutId == R.layout.uzplayer_skin_2 || curSkinLayoutId == R.layout.uzplayer_skin_3) {
             if (ibPlayIcon != null) {
                 ibPlayIcon.setRatioLand(7);
                 ibPlayIcon.setRatioPort(5);
@@ -1639,7 +1626,7 @@ public class UZVideoView extends VideoViewBase
 
     private void addPlayerView() {
         uzPlayerView = null;
-        int skinId = UZData.getInstance().getCurrentPlayerId();
+        int skinId = UZData.getInstance().getUZPlayerSkinLayoutId();
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         if (inflater != null) {
             uzPlayerView = (UZPlayerView) inflater.inflate(skinId, null);
@@ -1659,15 +1646,14 @@ public class UZVideoView extends VideoViewBase
      * return true if success
      */
     public boolean changeSkin(@LayoutRes int skinId) {
-        if (uzPlayerManager == null)
-            return false;
-        if (UZData.getInstance().isUseWithVDHView())
-            throw new IllegalArgumentException(getContext().getString(R.string.error_change_skin_with_vdhview));
+        if (uzPlayerManager == null) return false;
+        if (UZData.getInstance().isUseUZDragView())
+            throw new IllegalArgumentException(getContext().getString(R.string.error_change_skin_with_uzdragview));
         if (uzPlayerManager.isPlayingAd()) {
             notifyError(ErrorUtils.exceptionChangeSkin());
             return false;
         }
-        UZData.getInstance().setCurrentPlayerId(skinId);
+        UZData.getInstance().setUZPlayerSkinLayoutId(skinId);
         isRefreshFromChangeSkin = true;
         isCalledFromChangeSkin = true;
         rootView.removeView(uzPlayerView);
@@ -1864,10 +1850,8 @@ public class UZVideoView extends VideoViewBase
 
     protected void updateUIButtonVisibilities() {
         if (getContext() == null) return;
-        if (debugRootView != null)
-            debugRootView.removeAllViews();
-        if (getPlayer() == null)
-            return;
+        if (debugRootView != null) debugRootView.removeAllViews();
+        if (getPlayer() == null) return;
         MappingTrackSelector.MappedTrackInfo mappedTrackInfo = uzPlayerManager.getTrackSelector().getCurrentMappedTrackInfo();
         if (mappedTrackInfo == null)
             return;
@@ -1909,8 +1893,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void updateLiveInfoTimeStartLive() {
-        if (!isLiveStream || getContext() == null)
-            return;
+        if (!isLiveStream || getContext() == null) return;
         long now = System.currentTimeMillis();
         long duration = now - startTime;
         String s = StringUtils.convertMlsecondsToHMmSs(duration);
@@ -2045,7 +2028,7 @@ public class UZVideoView extends VideoViewBase
 
     private void updateUIPlayerInfo() {
         if (uzPlayerView == null) return;
-        UZPlaybackInfo info = UZData.getInstance().getPlaybackInfo();
+        UZPlayback info = UZData.getInstance().getPlayback();
         if (info == null) return;
         if (TextUtils.isEmpty(info.getThumbnail()))
             return;
@@ -2123,13 +2106,14 @@ public class UZVideoView extends VideoViewBase
     private void checkData() {
         UZData.getInstance().setSettingPlayer(true);
         isHasError = false;
-        if (UZData.getInstance().getEntityId() == null || UZData.getInstance().getEntityId().isEmpty()) {
-            Timber.e("checkData getEntityId null or empty -> return");
-            handleError(ErrorUtils.exceptionEntityId());
+        UZPlayback playback = UZData.getInstance().getPlayback();
+        if (playback == null || !playback.canPlay()) {
+            Timber.e("checkData playback null or link play invalid");
+            handleError(ErrorUtils.exceptionTryAllLinkPlay());
             UZData.getInstance().setSettingPlayer(false);
             return;
         }
-        isLiveStream = UZData.getInstance().isLiveStream();
+        isLiveStream = playback.isLive();
         isGetClickedPip = LocalData.getClickedPip();
         Timber.d("checkData isLivestream: %b, isGetClickedPip: %b", isLiveStream, isGetClickedPip);
         if (uzPlayerManager != null) {
@@ -2141,26 +2125,9 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void checkToSetUpResource() {
-        UZPlaybackInfo info = UZData.getInstance().getPlaybackInfo();
-        if (info != null) {
-            List<String> listLinkPlay = new ArrayList<>();
-            List<String> urlList = info.getUrls();
-            if (isLiveStream) {
-                //Bat buoc dung linkplay m3u8 cho nay, do bug cua system
-                for (String url : urlList) {
-                    if (url.toLowerCase().endsWith(M3U8_EXTENSION))
-                        listLinkPlay.add(url);
-                }
-            } else {
-                for (String url : urlList) {
-                    if (url.toLowerCase().endsWith(MPD_EXTENSION))
-                        listLinkPlay.add(url);
-                }
-                for (String url : urlList) {
-                    if (url.toLowerCase().endsWith(M3U8_EXTENSION))
-                        listLinkPlay.add(url);
-                }
-            }
+        UZPlayback playbackInfo = UZData.getInstance().getPlayback();
+        if (playbackInfo != null) {
+            List<String> listLinkPlay = playbackInfo.getLinkPlays();
             if (listLinkPlay.isEmpty()) {
                 handleErrorNoData();
                 return;
@@ -2173,15 +2140,12 @@ public class UZVideoView extends VideoViewBase
                 return;
             }
             String linkPlay = listLinkPlay.get(countTryLinkPlayError);
-            boolean isAdsDevendency = UZAppUtils.isAdsDependencyAvailable();
-            if (isCalledFromChangeSkin)
-                //if called from func changeSkin(), dont initDataSource with uilIMA Ad.
-                initDataSource(linkPlay, null, UZData.getInstance().getThumbnail(), isAdsDevendency);
-            else
-                initDataSource(linkPlay, UZData.getInstance().getUrlIMAAd(), UZData.getInstance().getThumbnail(), isAdsDevendency);
-
+            initDataSource(linkPlay,
+                    isCalledFromChangeSkin ? null : UZData.getInstance().getUrlIMAAd(),
+                    playbackInfo.getThumbnail(),
+                    UZAppUtils.isAdsDependencyAvailable());
             if (uzCallback != null)
-                uzCallback.isInitResult(false, UZData.getInstance().getPlaybackInfo());
+                uzCallback.isInitResult(false, playbackInfo);
             initUizaPlayerManager();
         } else
             handleError(ErrorUtils.exceptionSetup());
@@ -2193,7 +2157,6 @@ public class UZVideoView extends VideoViewBase
         timestampInitDataSource = System.currentTimeMillis();
         Timber.d("-------------------->initDataSource linkPlay %s", linkPlay);
         TmpParamData.getInstance().setEntitySourceUrl(linkPlay);
-        TmpParamData.getInstance().setTimeFromInitEntityIdToAllApiCalledSuccess(System.currentTimeMillis() - timestampBeforeInitNewSession);
         if (includeAds) {
             uzPlayerManager = new UZPlayerManager(this, linkPlay, urlIMAAd, urlThumbnailsPreviewSeekBar);
             ((UZPlayerManager) uzPlayerManager).addAdPlayerCallback(new UZAdPlayerCallback() {
@@ -2307,7 +2270,7 @@ public class UZVideoView extends VideoViewBase
         }
         if (uzCallback != null) {
             Timber.d("onStateReadyFirst ===> isInitResult");
-            uzCallback.isInitResult(true, UZData.getInstance().getPlaybackInfo());
+            uzCallback.isInitResult(true, UZData.getInstance().getPlayback());
         }
         if (isCastingChromecast)
             replayChromeCast();
@@ -2437,7 +2400,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void playChromecast() {
-        if (UZData.getInstance().getPlaybackInfo() == null || uzPlayerManager == null || uzPlayerManager.getPlayer() == null) {
+        if (UZData.getInstance().getPlayback() == null || uzPlayerManager == null || uzPlayerManager.getPlayer() == null) {
             return;
         }
         showProgress();

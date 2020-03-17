@@ -51,20 +51,11 @@
             android:hint="Stream Key"
             android:maxLines="5" />
 
-        <androidx.appcompat.widget.AppCompatSpinner
-            android:id="@+id/sp_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/edt_stream_key"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:entries="@array/profile_entries" />
-
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btn_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/sp_profile"
+            android:layout_below="@+id/edt_stream_key"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="16dp"
             android:ellipsize="end"

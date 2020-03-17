@@ -145,12 +145,12 @@ In your `activity` or `fragment`
     ```java
     uzVideo = (UZVideoView) findViewById(R.id.uiza_video);
     uzVideo.setUZCallback(this);
-    uzVideo.play(UZPlaybackInfo playback);
+    uzVideo.play(UZPlayback playback);
     // or 
-    UZPlayer.setCurrentPlaybackInfo(UZPlaybackInfo playback);
+    UZPlayer.setCurrentPlayback(UZPlayback playback);
     uzVideo.play();
     // or playlist
-    uzVideo.play(List<UZPlaybackInfo> playlist);
+    uzVideo.play(List<UZPlayback> playlist);
     ```
 
 Don't forget to add in activity life cycle event:
@@ -185,12 +185,12 @@ Don't forget to add in activity life cycle event:
 Only 3 steps, you can customize everything about player skin.
 
 **Step 1:**
-Create layout ***uiza_controller_skin_custom_main.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uiza_controller_skin_custom_main.xml):
+Create layout ***uzplayer_skin_custom.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uzplayer_skin_custom.xml):
 
-Please note *`app:controller_layout_id="@layout/uiza_controller_skin_custom_detail"`*
+Please note *`app:controller_layout_id="@layout/uz_controller_custom_layout"`*
 
 **Step 2:**
-Create layout ***uiza_controller_skin_custom_detail.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uiza_controller_skin_custom_detail.xml):
+Create layout ***uz_controller_custom_layout.xml*** like [THIS](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/src/main/res/layout/uz_controller_custom_layout.xml):
 - In this xml file, you can edit anything you like: position, color, drawable resouces...
 - You can add more view (TextView, Button, ImageView...).
 - You can remove any component which you dont like.
@@ -200,13 +200,13 @@ Create layout ***uiza_controller_skin_custom_detail.xml*** like [THIS](https://g
 On function `onCreate()` of `Activity`, put this code:
 
 ```java
-    UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+    UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
 ```
 Ex:
 ```java
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
-		UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+		UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
         super.onCreate(savedState);
     }
 ```
@@ -215,7 +215,7 @@ Ex:
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
         UZPlayer.setCasty(this);
-        UZPlayer.setCurrentPlayerId(R.layout.uiza_controller_skin_custom_main);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
         super.onCreate(savedState);
     }
 ```
@@ -230,17 +230,15 @@ That's enough! This code above will change the player's skin quickly. You can bu
 But if you wanna change the player's skin when the player is playing, please you this function:
 
 ```java
-    uzVideo.changeSkin(R.layout.uiza_controller_skin_custom_main);
+    uzVideo.changeSkin(R.layout.uzplayer_skin_custom);
 ```
-
-This sample help you know how to customize player's skin, please refer to  [THIS](https://github.com/uizaio/uiza-android-sdk/tree/master/sampleplayer/src/main/java/com/uiza/sampleplayer/customskin)
 
 ***Note:***
 - You should not change the id of the view.
 Ex: `android:id="@id/player_view"`
 Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_0"` ...
 
-## How to broadcast with UizaSDK?:
+## How to broadcast with UZBroadCast?:
 It's very easy, plz follow these steps below to implement:
 
 XML:
@@ -264,7 +262,7 @@ In `onCreate()`:
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
     uzBroadCast = (UZBroadCastView) findViewById(R.id.uz_broadcast);
-    uzBroadCast.setUzLivestreamCallback(this);
+    uzBroadCast.setUZBroadcastListener(this);
 ```
 
 In `onResume()`:
@@ -276,16 +274,25 @@ In `onResume()`:
         super.onResume();
     }
 ```
-Start a livestream:
+Start a Stream: see [`VideoAttributes`]() and [`AudioAttributes`]()
 
 ```java
-	uzBroadCast.setProfile(ProfileVideoEncoder profile);
+    uzBroadCast.setVideoAttributes(VideoAttributes videoAttrs);
+    uzBroadCast.setAudioAttributes(AudioAttributes audioAttrs);
     if (uzBroadCast.prepareStream()) {
         uzBroadCast.startStream("streamUrl");
     }
 ```
 
-Stop streaming (It auto saves mp4 file in your gallery if you start a livestream with option save local file)
+or
+
+```java
+    if (uzBroadCast.prepareStream(AudioAttributes audioAttrs, VideoAttributes videoAttrs, boolean isLandscape)) {
+        uzBroadCast.startStream("streamUrl");
+    }
+```
+
+Stop streaming (It auto saves mp4 file in your gallery if you start a broadcast with option save local file)
 
 ```java
     uzBroadCast.stopStream();
@@ -342,7 +349,7 @@ For a given use case, we aim to support UizaSDK on all Android devices that sati
 **Note:** Some Android emulators do not properly implement components of Android’s media stack, and as a result do not support UizaSDK. This is an issue with the emulator, not with UizaSDK. Android’s official emulator (“Virtual Devices” in Android Studio) supports UizaSDK provided the system image has an API level of at least 23. System images with earlier API levels do not support UizaSDK. The level of support provided by third party emulators varies. Issues running UizaSDK on third party emulators should be reported to the developer of the emulator rather than to the UizaSDK team. Where possible, we recommend testing media applications on physical devices rather than emulators.
 
 ## Error message
-Check this [class](https://github.com/uizaio/uiza-android-sdk/blob/master/uzplayer/src/main/java/com/uiza/sdk/exceptions/UZException.java) you can know error code and error message when use UizaSDK.
+Check this [class](https://github.com/uizaio/uiza-android-sdk/blob/master/uzplayer/src/main/java/com/uiza/sdk/exceptions/ErrorConstant.java) you can know error code and error message when use UZPlayer.
 
 ## Support
 

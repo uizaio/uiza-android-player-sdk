@@ -24,6 +24,7 @@
     <dimen name="w_25">25dp</dimen>
     <dimen name="w_30">30dp</dimen>
     <dimen name="w_40">40dp</dimen>
+    <dimen name="w_50">50dp</dimen>
     <dimen name="w_100">100dp</dimen>
     <dimen name="w_113">113dp</dimen>
     <dimen name="w_200">200dp</dimen>

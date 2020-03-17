@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.chromecast.Casty;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 
 import java.net.URL;
 import java.util.List;
@@ -22,14 +22,14 @@ public class UZData {
     private static final String SUBTITLE = "subtitle";
     //
     @LayoutRes
-    private int currentPlayerId = R.layout.uz_player_skin_1;//id of layout xml
+    private int uzPlayerSkinLayoutId = R.layout.uzplayer_skin_1;//id of layout xml
     private Casty casty;
-    private UZPlaybackInfo playbackInfo;
+    private UZPlayback playback;
     private String urlIMAAd = "";
     //start singleton data if play playlist folder
-    private List<UZPlaybackInfo> playList;
+    private List<UZPlayback> playList;
     private int currentPositionOfPlayList = 0;
-    private boolean isUseWithVDHView;
+    private boolean useUZDragView;
     //dialog share
     private List<ResolveInfo> resolveInfoList;
     private boolean isSettingPlayer;
@@ -41,19 +41,18 @@ public class UZData {
         return UDataHelper.INSTANCE;
     }
 
-    @LayoutRes
-    public int getCurrentPlayerId() {
-        return currentPlayerId;
+    public int getUZPlayerSkinLayoutId() {
+        return uzPlayerSkinLayoutId;
     }
 
-    public void setCurrentPlayerId(@LayoutRes int currentPlayerId) {
-        this.currentPlayerId = currentPlayerId;
+    public void setUZPlayerSkinLayoutId(@LayoutRes int uzPlayerSkinLayoutId) {
+        this.uzPlayerSkinLayoutId = uzPlayerSkinLayoutId;
     }
 
     @Nullable
     public Casty getCasty() {
         if (casty == null) {
-            Timber.e("You must init Casty with activity before using Chromecast. Tips: put 'UizaCoreSDK.setCasty(this);' to your onStart() or onCreate()");
+            Timber.e("You must init Casty with activity before using Chromecast. Tips: put 'UZPlayer.setCasty(this);' to your onStart() or onCreate()");
         }
         return casty;
     }
@@ -62,12 +61,12 @@ public class UZData {
         this.casty = casty;
     }
 
-    public UZPlaybackInfo getPlaybackInfo() {
-        return playbackInfo;
+    public UZPlayback getPlayback() {
+        return playback;
     }
 
-    public void setPlaybackInfo(UZPlaybackInfo playbackInfo) {
-        this.playbackInfo = playbackInfo;
+    public void setPlayback(UZPlayback playback) {
+        this.playback = playback;
     }
 
     public String getUrlIMAAd() {
@@ -80,37 +79,24 @@ public class UZData {
 
 
     public void clear() {
-        this.playbackInfo = null;
+        this.playback = null;
         this.urlIMAAd = null;
     }
 
     @Nullable
     public String getEntityId() {
-        return (playbackInfo == null) ? null : playbackInfo.getId();
-    }
-
-    public boolean isLiveStream() {
-        return (playbackInfo != null) && playbackInfo.isLive();
+        return (playback == null) ? null : playback.getId();
     }
 
     @Nullable
     public String getEntityName() {
-        return (playbackInfo == null) ? null : playbackInfo.getName();
+        return (playback == null) ? null : playback.getName();
     }
 
     @Nullable
-    public String getThumbnail() {
-        return (playbackInfo == null) ? null : playbackInfo.getThumbnail();
-    }
-
-    @Nullable
-    public String getChannelName() {
-        return (playbackInfo == null) ? null : playbackInfo.getChannelName();
-    }
-
     public String getHost() {
-        if (playbackInfo == null) return null;
-        URL url = playbackInfo.getLinkPlayUrl();
+        if (playback == null) return null;
+        URL url = playback.getPlayUrl();
         if (url == null) return null;
         return url.getHost();
     }
@@ -123,11 +109,11 @@ public class UZData {
         return playList != null;
     }
 
-    public List<UZPlaybackInfo> getPlayList() {
+    public List<UZPlayback> getPlayList() {
         return playList;
     }
 
-    public void setPlayList(List<UZPlaybackInfo> playlist) {
+    public void setPlayList(List<UZPlayback> playlist) {
         this.playList = playlist;
     }
 
@@ -137,14 +123,9 @@ public class UZData {
 
     public void setCurrentPositionOfPlayList(int currentPositionOfPlayList) {
         this.currentPositionOfPlayList = currentPositionOfPlayList;
-        UZPlaybackInfo currentInfo = playList.get(currentPositionOfPlayList);
-        if (currentInfo != null) this.playbackInfo = currentInfo;
+        UZPlayback currentInfo = playList.get(currentPositionOfPlayList);
+        if (currentInfo != null) this.playback = currentInfo;
 
-    }
-    //end singleton data if play playlist folder
-
-    public UZPlaybackInfo getDataWithPositionOfPlayList(int position) {
-        return ListUtils.isEmpty(playList) ? null : playList.get(position);
     }
 
     public void clearDataForPlaylistFolder() {
@@ -152,12 +133,12 @@ public class UZData {
         currentPositionOfPlayList = 0;
     }
 
-    public boolean isUseWithVDHView() {
-        return isUseWithVDHView;
+    public boolean isUseUZDragView() {
+        return useUZDragView;
     }
 
-    public void setUseWithVDHView(boolean isUseWithVDHView) {
-        this.isUseWithVDHView = isUseWithVDHView;
+    public void setUseWithUZDragView(boolean useUZDragView) {
+        this.useUZDragView = useUZDragView;
     }
 
     public List<ResolveInfo> getResolveInfoList() {

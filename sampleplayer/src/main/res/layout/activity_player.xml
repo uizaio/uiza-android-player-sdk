@@ -5,26 +5,26 @@
     android:background="@color/white_smoke"
     android:orientation="vertical">
 
-    <com.uiza.sdk.view.VDHView
+    <com.uiza.sdk.view.UZDragView
         android:id="@+id/vdhv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/header_view"
+            android:id="@id/header_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/black">
 
             <com.uiza.sdk.view.UZVideoView
-                android:id="@id/uiza_video"
+                android:id="@+id/uz_video_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
         </FrameLayout>
 
         <ScrollView
-            android:id="@+id/body_view"
+            android:id="@id/body_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/white">
@@ -113,5 +113,5 @@
                     android:textSize="@dimen/txt_18" />
             </LinearLayout>
         </ScrollView>
-    </com.uiza.sdk.view.VDHView>
+    </com.uiza.sdk.view.UZDragView>
 </LinearLayout>

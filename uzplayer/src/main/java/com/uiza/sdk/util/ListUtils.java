@@ -6,7 +6,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,11 +41,11 @@ public final class ListUtils {
         }
     }
 
-    public static <T> List<UZPlaybackInfo> map(List<T> list, Pre<T, UZPlaybackInfo> pre) {
+    public static <T> List<UZPlayback> map(List<T> list, Pre<T, UZPlayback> pre) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return list.stream().map(pre::get).collect(Collectors.toList());
         } else {
-            List<UZPlaybackInfo> cols = new ArrayList<>();
+            List<UZPlayback> cols = new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
                 cols.add(pre.get(list.get(i)));
             }

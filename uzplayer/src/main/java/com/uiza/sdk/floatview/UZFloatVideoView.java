@@ -19,7 +19,7 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.sdk.R;
 import com.uiza.sdk.exceptions.UZException;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.TmpParamData;
 import com.uiza.sdk.util.UZAppUtils;
 import com.uiza.sdk.util.UZData;
@@ -64,7 +64,7 @@ public class UZFloatVideoView extends VideoViewBase {
 
     @Override
     public void onCreateView() {
-        inflate(getContext(), R.layout.float_uiza_video, this);
+        inflate(getContext(), R.layout.uz_float_video_view, this);
         progressBar = findViewById(R.id.pb);
         UZViewUtils.setColorProgressBar(progressBar, progressBarColor);
         playerView = findViewById(R.id.player_view);
@@ -103,16 +103,14 @@ public class UZFloatVideoView extends VideoViewBase {
 
     @Override
     public void pause() {
-        if (fuzUizaPlayerManager != null) {
+        if (fuzUizaPlayerManager != null)
             fuzUizaPlayerManager.pauseVideo();
-        }
     }
 
     @Override
     public void resume() {
-        if (fuzUizaPlayerManager != null) {
+        if (fuzUizaPlayerManager != null)
             fuzUizaPlayerManager.resumeVideo();
-        }
     }
 
     @Override
@@ -137,7 +135,7 @@ public class UZFloatVideoView extends VideoViewBase {
 
     @Override
     public boolean play() {
-        UZPlaybackInfo playback = UZData.getInstance().getPlaybackInfo();
+        UZPlayback playback = UZData.getInstance().getPlayback();
         if (playback != null) {
             init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
             return true;
@@ -146,13 +144,13 @@ public class UZFloatVideoView extends VideoViewBase {
     }
 
     @Override
-    public boolean play(@NonNull UZPlaybackInfo playback) {
+    public boolean play(@NonNull UZPlayback playback) {
         init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
         return true;
     }
 
     @Override
-    public boolean play(List<UZPlaybackInfo> playlist) {
+    public boolean play(List<UZPlayback> playlist) {
         return false;
     }
 
@@ -198,7 +196,6 @@ public class UZFloatVideoView extends VideoViewBase {
         this.callback = callback;
         releasePlayerManager();
         checkToSetUp();
-
     }
 
     private void checkToSetUp() {
@@ -329,12 +326,12 @@ public class UZFloatVideoView extends VideoViewBase {
             return;
         }
         UZData.getInstance().setCurrentPositionOfPlayList(position);
-        callback.onSuccess(UZData.getInstance().getPlaybackInfo());
+        callback.onSuccess(UZData.getInstance().getPlayback());
     }
 
 
     public interface CallbackGetNextPlayback {
-        void onSuccess(UZPlaybackInfo playback);
+        void onSuccess(UZPlayback playback);
     }
 
     public interface Callback {

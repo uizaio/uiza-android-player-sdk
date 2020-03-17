@@ -15,12 +15,12 @@ import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.view.UZDragView;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
-import com.uiza.sdk.view.VDHView;
 import com.uiza.sdk.widget.UZToast;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.List;
  * Created by loitp on 9/1/2019.
  */
 
-public class PlayerActivity extends AppCompatActivity implements UZCallback, VDHView.Callback, UZPlayerView.OnTouchEvent, UZVideoViewItemClick,
+public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZPlayerView.OnTouchEvent, UZVideoViewItemClick,
         UZPlayerView.ControllerStateCallback {
     private static final String[] urls = new String[]{
             "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
@@ -39,10 +39,10 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
             "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
     HorizontalScrollView llBottom;
     private UZVideoView uzVideo;
-    private VDHView vdhv;
+    private UZDragView uzDragView;
     private EditText etLinkPlay;
     private Button btPlaylist;
-    private List<UZPlaybackInfo> playlist;
+    private List<UZPlayback> playlist;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
@@ -52,24 +52,26 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        UZPlayer.setUseWithVDHView(true);
-//        UizaCoreSDK.setCasty(this);
+        UZPlayer.setUseWithUZDragView(true);
+//        UZPlayer.setCasty(this);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
-        uzVideo = findViewById(R.id.uiza_video);
-        vdhv = findViewById(R.id.vdhv);
+        uzVideo = findViewById(R.id.uz_video_view);
+        uzDragView = findViewById(R.id.vdhv);
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
         btPlaylist = findViewById(R.id.bt_playlist);
-        vdhv.setCallback(this);
-        vdhv.setOnTouchEvent(this);
-        vdhv.setScreenRotate(false);
+        uzDragView.setCallback(this);
+        uzDragView.setOnTouchEvent(this);
+        uzDragView.setScreenRotate(false);
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
         uzVideo.setControllerStateCallback(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
-        UZPlaybackInfo playbackInfo = null;
+        UZPlayback playbackInfo = null;
         if (getIntent() != null) {
             playbackInfo = getIntent().getParcelableExtra("extra_playback_info");
             if (playbackInfo != null) {
@@ -111,9 +113,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
             uzVideo.play(playlist);
         });
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
-            if (uzVideo != null) {
+            if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
-            }
         });
         if (playbackInfo != null) {
             boolean isInitSuccess = uzVideo.play(playbackInfo);
@@ -127,17 +128,17 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     private void initPlaylist() {
         playlist = new ArrayList<>();
         for (String url : urls) {
-            UZPlaybackInfo playback = new UZPlaybackInfo();
+            UZPlayback playback = new UZPlayback();
             playback.setHls(url);
             playlist.add(playback);
         }
     }
 
     private void onPlay(boolean live) {
-        final UZPlaybackInfo playback = new UZPlaybackInfo();
+        final UZPlayback playback = new UZPlayback();
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
-        UZPlayer.setCurrentPlaybackInfo(playback);
+        UZPlayer.setCurrentPlayback(playback);
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");
@@ -145,8 +146,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     }
 
     @Override
-    public void isInitResult(boolean isInitSuccess, UZPlaybackInfo data) {
-        vdhv.setInitResult(isInitSuccess);
+    public void isInitResult(boolean isInitSuccess, UZPlayback data) {
+        uzDragView.setInitResult(isInitSuccess);
     }
 
     @Override
@@ -178,7 +179,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
             uzVideo.setFreeSize(false);
             uzVideo.setSize(w, h);
         }
-        vdhv.setScreenRotate(isLandscape);
+        uzDragView.setScreenRotate(isLandscape);
     }
 
     @Override
@@ -189,7 +190,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     public void onDestroy() {
         super.onDestroy();
         uzVideo.onDestroyView();
-        UZPlayer.setUseWithVDHView(false);
+        UZPlayer.setUseWithUZDragView(false);
     }
 
     @Override
@@ -201,7 +202,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     @Override
     public void onPause() {
         super.onPause();
-        vdhv.onPause();
+        uzDragView.onPause();
         uzVideo.onPauseView();
     }
 
@@ -221,7 +222,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     }
 
     private void updateUIRevertMaxChange(boolean isEnableRevertMaxSize) {
-        if (isEnableRevertMaxSize && vdhv.isAppear()) {
+        if (isEnableRevertMaxSize && uzDragView.isAppear()) {
             // todo
         }
     }
@@ -232,12 +233,12 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     }
 
     @Override
-    public void onStateChange(VDHView.State state) {
+    public void onStateChange(UZDragView.State state) {
 
     }
 
     @Override
-    public void onPartChange(VDHView.Part part) {
+    public void onPartChange(UZDragView.Part part) {
 
     }
 
@@ -247,9 +248,9 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
     }
 
     @Override
-    public void onOverScroll(VDHView.State state, VDHView.Part part) {
+    public void onOverScroll(UZDragView.State state, UZDragView.Part part) {
         uzVideo.pause();
-        vdhv.disappear();
+        uzDragView.disappear();
     }
 
     @Override
@@ -259,7 +260,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
 
     @Override
     public void onAppear(boolean isAppear) {
-        updateUIRevertMaxChange(vdhv.isEnableRevertMaxSize());
+        updateUIRevertMaxChange(uzDragView.isEnableRevertMaxSize());
     }
 
     @Override
@@ -299,6 +300,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, VDH
 
     @Override
     public void onVisibilityChange(boolean isShow) {
-        vdhv.setVisibilityChange(isShow);
+        uzDragView.setVisibilityChange(isShow);
     }
 }

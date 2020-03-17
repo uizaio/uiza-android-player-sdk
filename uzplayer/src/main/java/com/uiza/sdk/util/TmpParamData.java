@@ -47,7 +47,6 @@ public class TmpParamData {
     private long viewStart = 0;
     private long viewWatchTime = 0;
     private long viewTimeToFirstFrame = 0;
-    private long timeFromInitEntityIdToAllApiCalledSuccess = 0;
     private int viewSeekCount = 0;
     private long viewSeekDuration = 0;
     private long viewMaxSeekTime = 0;
@@ -87,7 +86,6 @@ public class TmpParamData {
         viewStart = 0;
         viewWatchTime = 0;
         viewTimeToFirstFrame = 0;
-        timeFromInitEntityIdToAllApiCalledSuccess = 0;
         viewSeekCount = 0;
         viewSeekDuration = 0;
         viewMaxSeekTime = 0;
@@ -437,14 +435,6 @@ public class TmpParamData {
 
     public void setViewTimeToFirstFrame(long viewTimeToFirstFrame) {
         this.viewTimeToFirstFrame = viewTimeToFirstFrame;
-    }
-
-    public long getTimeFromInitEntityIdToAllApiCalledSuccess() {
-        return timeFromInitEntityIdToAllApiCalledSuccess;
-    }
-
-    public void setTimeFromInitEntityIdToAllApiCalledSuccess(long timeFromInitEntityIdToAllApiCalledSuccess) {
-        this.timeFromInitEntityIdToAllApiCalledSuccess = timeFromInitEntityIdToAllApiCalledSuccess;
     }
 
     public int getViewSeekCount() {

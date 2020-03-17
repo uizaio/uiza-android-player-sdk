@@ -15,14 +15,9 @@ public class ErrorActivity extends AppCompatActivity {
         setContentView(R.layout.activity_error);
         TextView tvErr = findViewById(R.id.tv_err);
         String s = ErrorConstant.ERR_CODE_0 + " - " + ErrorConstant.ERR_0 + "\n"
-                + ErrorConstant.ERR_CODE_1 + " - " + ErrorConstant.ERR_1 + "\n"
-                + ErrorConstant.ERR_CODE_2 + " - " + ErrorConstant.ERR_2 + "\n"
-                + ErrorConstant.ERR_CODE_3 + " - " + ErrorConstant.ERR_3 + "\n"
-                + ErrorConstant.ERR_CODE_4 + " - " + ErrorConstant.ERR_4 + "\n"
                 + ErrorConstant.ERR_CODE_5 + " - " + ErrorConstant.ERR_5 + "\n"
                 + ErrorConstant.ERR_CODE_6 + " - " + ErrorConstant.ERR_6 + "\n"
                 + ErrorConstant.ERR_CODE_7 + " - " + ErrorConstant.ERR_7 + "\n"
-                + ErrorConstant.ERR_CODE_8 + " - " + ErrorConstant.ERR_8 + "\n"
                 + ErrorConstant.ERR_CODE_9 + " - " + ErrorConstant.ERR_9 + "\n"
                 + ErrorConstant.ERR_CODE_10 + " - " + ErrorConstant.ERR_10 + "\n"
                 + ErrorConstant.ERR_CODE_11 + " - " + ErrorConstant.ERR_11 + "\n"
@@ -35,7 +30,6 @@ public class ErrorActivity extends AppCompatActivity {
                 + ErrorConstant.ERR_CODE_18 + " - " + ErrorConstant.ERR_18 + "\n"
                 + ErrorConstant.ERR_CODE_19 + " - " + ErrorConstant.ERR_19 + "\n"
                 + ErrorConstant.ERR_CODE_20 + " - " + ErrorConstant.ERR_20 + "\n"
-                + ErrorConstant.ERR_CODE_21 + " - " + ErrorConstant.ERR_21 + "\n"
                 + ErrorConstant.ERR_CODE_22 + " - " + ErrorConstant.ERR_22 + "\n"
                 + ErrorConstant.ERR_CODE_23 + " - " + ErrorConstant.ERR_23 + "\n"
                 + ErrorConstant.ERR_CODE_24 + " - " + ErrorConstant.ERR_24 + "\n"

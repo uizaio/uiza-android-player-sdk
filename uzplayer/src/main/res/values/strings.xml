@@ -4,7 +4,7 @@
     <string name="drm_license_url">https://wv.service.expressplay.com/hms/wv/rights/?ExpressPlayToken=BAAaXbkVKbEAAABg_0gifyfSLlqtjYGc9boiYUIudGi445e5xHzay2CzEazC0uj6GWg79k_yexpv7t2GmjWF10ehecUV2kqV5MBWM-7kURuaQcSJ368ocXFpcoT4l2EXQO8_9R67vZC3Y9lDqLE-9_FTTIqg7C-oWLoXZgWAmJQ</string>
     <string name="use_bottom_uz_timebar">use_bottom_uz_timebar</string>
     <string name="speed">Speed</string>
-    <string name="error_change_skin_with_vdhview">You cannot change skin because you use UZVideoView with VDHView.</string>
+    <string name="error_change_skin_with_uzdragview">You cannot change skin because you use UZVideoView with UZDragView.</string>
     <string name="error_speed_live_content">Error UZSpeed: You cannot set speed with live content.</string>
     <string name="error_speed_illegal">Error UZSpeed: Please set speed with the value between -3 and 3.</string>
     <string name="tks_4_watching">Thanks for your watching</string>

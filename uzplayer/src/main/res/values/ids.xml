@@ -7,7 +7,7 @@
     <item name="exo_cast" type="id" />
     <item name="exo_picture_in_picture" type="id" />
     <item name="preview_frame_layout" type="id" />
-    <item name="image_view_thumnail" type="id" />
+    <item name="image_view_thumbnail" type="id" />
     <item name="exo_volume" type="id" />
     <item name="exo_play_uiza" type="id" />
     <item name="exo_pause_uiza" type="id" />

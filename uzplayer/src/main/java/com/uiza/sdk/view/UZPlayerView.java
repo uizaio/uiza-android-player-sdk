@@ -85,7 +85,7 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        if (UZData.getInstance().isUseWithVDHView())
+        if (UZData.getInstance().isUseUZDragView())
             return false;
         else {
             return mDetector.onTouchEvent(ev);

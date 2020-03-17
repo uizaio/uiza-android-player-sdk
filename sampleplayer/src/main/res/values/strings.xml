@@ -1,17 +1,11 @@
 <resources>
-    <string name="app_name">Sample UizaV5</string>
+    <string name="app_name">UZPlayer</string>
     <string name="tab_live">LIVE</string>
     <string name="tab_vod">VOD</string>
-    <string name="live_playback">Uiza Live Playback</string>
-    <string name="vod_playback">Uiza VOD Playback</string>
     <string name="video_info">This is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\nThis is a video`s information\n</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="source_title">Source</string>
-    <string name="api_token_title">AppId</string>
-    <string name="region_title">Region</string>
     <string name="general_title">General</string>
     <string name="version_title">Build Number</string>
-    <string name="api_base_title">API URL</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.daimajia.androidanimations.library.Techniques;
 import com.uiza.sdk.R;
 import com.uiza.sdk.animations.AnimationUtils;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.ImageUtils;
 import com.uiza.sdk.util.UZViewUtils;
 
@@ -29,14 +29,14 @@ import timber.log.Timber;
 
 public class AdapterPlaylistFolder extends RecyclerView.Adapter<AdapterPlaylistFolder.PlayListHolder> {
     private final String TAG = getClass().getSimpleName();
-    private List<UZPlaybackInfo> playList;
+    private List<UZPlayback> playList;
     private int currentPositionOfDataList;
     private Context context;
     private CallbackPlaylistFolder callbackPlaylistFolder;
     //private int sizeW;
     //private int sizeH;
 
-    public AdapterPlaylistFolder(@NonNull Context context, List<UZPlaybackInfo> playList, int currentPositionOfDataList, CallbackPlaylistFolder callbackPlaylistFolder) {
+    public AdapterPlaylistFolder(@NonNull Context context, List<UZPlayback> playList, int currentPositionOfDataList, CallbackPlaylistFolder callbackPlaylistFolder) {
         this.context = context;
         this.playList = playList;
         this.currentPositionOfDataList = currentPositionOfDataList;
@@ -52,7 +52,7 @@ public class AdapterPlaylistFolder extends RecyclerView.Adapter<AdapterPlaylistF
 
     @Override
     public void onBindViewHolder(@NonNull final PlayListHolder playListHolder, final int position) {
-        final UZPlaybackInfo data = playList.get(position);
+        final UZPlayback data = playList.get(position);
         UZViewUtils.setTextDuration(playListHolder.tvDuration, String.valueOf(data.getDuration()));
         playListHolder.tvName.setText(data.getName());
 

@@ -7,7 +7,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
 import com.uiza.sdk.chromecast.Casty;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.UZAppUtils;
 import com.uiza.sdk.util.UZData;
@@ -21,22 +21,22 @@ public class UZPlayer {
      * @param context see {@link Context}
      */
     public static void init(@NonNull Context context) {
-        init(context, R.layout.uz_player_skin_1);
+        init(context, R.layout.uzplayer_skin_1);
     }
 
     /**
      * InitSDK
      *
-     * @param context         see {@link Context}
-     * @param currentPlayerId Skin of player
+     * @param context      see {@link Context}
+     * @param skinLayoutId Skin of player
      */
     public static void init(@NonNull Context context,
-                            @LayoutRes int currentPlayerId) {
+                            @LayoutRes int skinLayoutId) {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
         LocalData.init(context);
-        setCurrentPlayerId(currentPlayerId);
+        setUZPlayerSkinLayoutId(skinLayoutId);
     }
 
     /**
@@ -58,25 +58,25 @@ public class UZPlayer {
      *
      * @param resLayoutMain: id of layout xml
      */
-    public static void setCurrentPlayerId(@LayoutRes int resLayoutMain) {
-        UZData.getInstance().setCurrentPlayerId(resLayoutMain);
+    public static void setUZPlayerSkinLayoutId(@LayoutRes int resLayoutMain) {
+        UZData.getInstance().setUZPlayerSkinLayoutId(resLayoutMain);
     }
 
     /**
-     * user with VDHView
+     * user with UZDragView
      *
-     * @param isUseWithVDHView: boolean
+     * @param useUZDragView: boolean
      */
-    public static void setUseWithVDHView(boolean isUseWithVDHView) {
-        UZData.getInstance().setUseWithVDHView(isUseWithVDHView);
+    public static void setUseWithUZDragView(boolean useUZDragView) {
+        UZData.getInstance().setUseWithUZDragView(useUZDragView);
     }
 
     /**
-     * set current PlayBackInfo for Custom Link Play
+     * set current UZPlayBack for Custom Link Play
      *
-     * @param playback: {@link UZPlaybackInfo}
+     * @param playback: {@link UZPlayback}
      */
-    public static void setCurrentPlaybackInfo(UZPlaybackInfo playback) {
-        UZData.getInstance().setPlaybackInfo(playback);
+    public static void setCurrentPlayback(UZPlayback playback) {
+        UZData.getInstance().setPlayback(playback);
     }
 }

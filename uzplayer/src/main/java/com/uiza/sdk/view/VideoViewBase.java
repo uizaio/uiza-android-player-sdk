@@ -9,15 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.uiza.sdk.models.UZPlaybackInfo;
+import com.uiza.sdk.models.UZPlayback;
 
 import java.util.List;
 
 
 public abstract class VideoViewBase extends RelativeLayout {
-
-    public static final String M3U8_EXTENSION = ".m3u8";
-    public static final String MPD_EXTENSION = ".mpd";
 
     public VideoViewBase(Context context) {
         super(context);
@@ -60,14 +57,14 @@ public abstract class VideoViewBase extends RelativeLayout {
      * @param playback
      * @return true if success init
      */
-    public abstract boolean play(@NonNull UZPlaybackInfo playback);
+    public abstract boolean play(@NonNull UZPlayback playback);
 
     /**
      * play a playlist
      * @param playlist
      * @return true if success init
      */
-    public abstract boolean play(List<UZPlaybackInfo> playlist);
+    public abstract boolean play(List<UZPlayback> playlist);
 
     public abstract long getCurrentPosition();
 

@@ -19,32 +19,6 @@
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
-        app:key="pref_source"
-        app:title="@string/source_title">
-        <ListPreference
-            app:defaultValue="development-api.uizadev.io"
-            app:entries="@array/api_base_arrays"
-            app:entryValues="@array/api_base_values"
-            app:iconSpaceReserved="false"
-            app:key="api_base_url_key"
-            app:title="@string/api_base_title"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            app:iconSpaceReserved="false"
-            app:key="app_id_key"
-            app:title="@string/api_token_title"
-            app:useSimpleSummaryProvider="true" />
-        <ListPreference
-            app:defaultValue="in-bangalore-1"
-            app:entries="@array/region_arrays"
-            app:entryValues="@array/region_arrays"
-            app:iconSpaceReserved="false"
-            app:key="region_key"
-            app:title="@string/region_title"
-            app:useSimpleSummaryProvider="true" />
-    </PreferenceCategory>
-    <PreferenceCategory
-        app:iconSpaceReserved="false"
         app:key="pref_general"
         app:title="@string/general_title">
         <Preference
