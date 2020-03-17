@@ -62,7 +62,7 @@ If you are using `uiza-android-sdk` (Version 1.0.0 and above), you will need to 
 
 **Note:**
 - The version of the ExoPlayer Extension IMA must match the version of the ExoPlayer library being used.
-- If you are using both ChromeCast and IMA Ads dependencies, we recommend using dependency `com.google.android.gms:play-services-cast-framework:$version` with version >= 18.1.0 to avoid dependency version conflicts
+- If you are using both ChromeCast and IMA Ads dependencies, we recommend using dependency `com.google.android.gms:play-services-cast-framework:$version` with `version >= 18.1.0` to avoid dependency version conflicts
 
 
 Check [example here](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/build.gradle).
@@ -274,7 +274,7 @@ In `onResume()`:
         super.onResume();
     }
 ```
-Start a Stream: see [`VideoAttributes`]() and [`AudioAttributes`]()
+Start a Stream: see [`VideoAttributes`](https://github.com/uizaio/uiza-android-sdk/blob/master/uzbroadcast/src/main/java/com/uiza/sdk/profile/VideoAttributes.java) and [`AudioAttributes`](https://github.com/uizaio/uiza-android-sdk/blob/master/uzbroadcast/src/main/java/com/uiza/sdk/profile/AudioAttributes.java)
 
 ```java
     uzBroadCast.setVideoAttributes(VideoAttributes videoAttrs);
