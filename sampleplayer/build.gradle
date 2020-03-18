@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.com.uiza.sampleplayer"
+        applicationId "com.uiza.sampleplayer"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 20031812
         versionName "1.0.0"
         multiDexEnabled true
