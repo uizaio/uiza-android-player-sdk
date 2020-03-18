@@ -1,5 +1,5 @@
 
-## Welcome to UIZA Android SDK
+## Welcome to UIZA Android Player SDK
 
 Simple Streaming at scale.
 
@@ -25,24 +25,12 @@ Read [CHANGELOG here](https://github.com/uizaio/uiza-android-sdk/blob/master/CHA
         multiDexEnabled  true
     }
     dependencies {
-        // for playing VOD, LIVE video
-        implementation 'com.uiza.uiza-android-sdk:uzplayer:[latest-release-number]'
-        // for broadcasting / live streaming
-        implementation 'com.uiza.uiza-android-sdk:uzbroadcast:[latest-release-number]'
+        implementation 'com.github.uizaio:uiza-android-player-sdk:1.x.x'
     }
 ```
 
-Get latest release number [HERE](https://github.com/uizaio/uiza-android-sdk/releases).
+Get latest release number [HERE](https://github.com/uizaio/uiza-android-player-sdk/releases).
 
-If you are using `uiza-android-sdk` (Version 1.0.0 and above), you will need to import dependencies:
-
-```xml
-    // for playing VOD, LIVE video
-    implementation 'com.uiza.uiza-android-sdk:uzplayer:1.x.x'
-    implementation 'com.google.android.exoplayer:exoplayer:2.10.8'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.8'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.8'
-```
 
 - Additionally, if you want to use the Chromecast feature, add the following dependencies to your project:
 
@@ -83,8 +71,7 @@ compileOptions {
 
 ## Init SDK
 
-1. appId : generate [HERE](http://id.com.uiza.io/register).
-2. apiUrl : default is `api.com.uiza.sh`
+1. Init UZPlayer
 
      ```java
      public class App extends MultiDexApplication {
@@ -238,85 +225,12 @@ But if you wanna change the player's skin when the player is playing, please you
 Ex: `android:id="@id/player_view"`
 Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_0"` ...
 
-## How to broadcast with UZBroadCast?:
-It's very easy, plz follow these steps below to implement:
-
-XML:
-
-```xml
-    <com.uiza.sdk.view.UZBroadCastView
-      android:id="@+id/uz_broadcast"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent" />
-```
-
-In class [`LivePortraitActivity`](https://github.com/uizaio/uiza-android-sdk/blob/master/samplebroadcast/src/main/java/com/uiza/samplebroadcast/UZBroadCastActivity.java):
-```java
-    public class UZBroadCastActivity extends AppCompatActivity implements UZBroadCastListener {
-        // ...
-    }
-```
-In `onCreate()`:
-
-```java
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED, WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
-    uzBroadCast = (UZBroadCastView) findViewById(R.id.uz_broadcast);
-    uzBroadCast.setUZBroadcastListener(this);
-```
-
-In `onResume()`:
-
-```java
-    @Override
-    protected void onResume() {
-        uzBroadCast.onResume();
-        super.onResume();
-    }
-```
-Start a Stream: see [`VideoAttributes`](https://github.com/uizaio/uiza-android-sdk/blob/master/uzbroadcast/src/main/java/com/uiza/sdk/profile/VideoAttributes.java) and [`AudioAttributes`](https://github.com/uizaio/uiza-android-sdk/blob/master/uzbroadcast/src/main/java/com/uiza/sdk/profile/AudioAttributes.java)
-
-```java
-    uzBroadCast.setVideoAttributes(VideoAttributes videoAttrs);
-    uzBroadCast.setAudioAttributes(AudioAttributes audioAttrs);
-    if (uzBroadCast.prepareStream()) {
-        uzBroadCast.startStream("streamUrl");
-    }
-```
-
-or
-
-```java
-    if (uzBroadCast.prepareStream(AudioAttributes audioAttrs, VideoAttributes videoAttrs, boolean isLandscape)) {
-        uzBroadCast.startStream("streamUrl");
-    }
-```
-
-Stop streaming (It auto saves mp4 file in your gallery if you start a broadcast with option save local file)
-
-```java
-    uzBroadCast.stopStream();
-```
-
-Switch camera:
-
-```java
-    uzBroadCast.switchCamera();
-```
-Allows streaming again after back from background:
-
-```java
-    uzBroadCast.setBackgroundAllowedDuration(YOUR_ALLOW_TIME); // default time is 2 minutes
-```
-
-This sample help you know how to use all Uiza SDK for livestream, please refer to  [THIS](https://github.com/uizaio/uiza-android-sdk/tree/master/samplebroadcast)
-
 ## For contributors
 
  Uiza Checkstyle configuration is based on the Google coding conventions from Google Java Style
  that can be found at [here](https://google.github.io/styleguide/javaguide.html).
 
- Your code must be followed the rules that defined in our [`uiza_style.xml` rules](https://github.com/uizaio/uiza-android-sdk/tree/master/configs/codestyle/uiza_style.xml)
+ Your code must be followed the rules that defined in our [`uiza_style.xml` rules](https://github.com/uizaio/uiza-android-player-sdk/tree/master/configs/codestyle/uiza_style.xml)
 
  You can setting the rules after import project to Android Studio follow below steps:
 
@@ -339,7 +253,7 @@ This sample help you know how to use all Uiza SDK for livestream, please refer t
 
 
 ## Docs
-[Docs](https://uizaio.github.io/uiza-android-sdk/)
+[Docs](https://uizaio.github.io/uiza-android-player-sdk/)
 
 ## Supported devices
 
@@ -353,16 +267,16 @@ Check this [class](https://github.com/uizaio/uiza-android-sdk/blob/master/uzplay
 
 ## Support
 
-If you've found an error in this sample, please file an [issue ](https://github.com/uizaio/uiza-android-sdk/issues)
+If you've found an error in this sample, please file an [issue ](https://github.com/uizaio/uiza-android-player-sdk/issues)
 
-Patches are encouraged, and may be submitted by forking this project and submitting a pull request through GitHub. Please feel free to contact me anytime: developer@com.uiza.io for more details.
+Patches are encouraged, and may be submitted by forking this project and submitting a pull request through GitHub. Please feel free to contact me anytime: developer@uiza.io for more details.
 
 Address: _33 Ubi Avenue 3 #08- 13, Vertex Tower B, Singapore 408868_
-Email: _developer@com.uiza.io_
-Website: _[com.uiza.io](http://com.uiza.io/)_
+Email: _developer@uiza.io_
+Website: _[uiza.io](https://uiza.io/)_
 
 ## License
 
-UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/uiza-android-sdk/blob/master/LICENSE)  for details.
+UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/uiza-android-player-sdk/blob/master/LICENSE)  for details.
 
 
