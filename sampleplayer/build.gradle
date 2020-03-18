@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.uiza.sampleplayer"
+        applicationId "com.uiza.module.sample"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 20031812
+        versionCode 20031818
         versionName "1.0.0"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true

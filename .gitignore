@@ -5,7 +5,7 @@
 .DS_Store
 /build
 /captures
-
+/release
 # built application files
 *.apk
 *.ap_
@@ -21,7 +21,7 @@ bin/
 gen/
 out/
 build/
-
+release/
 # Local configuration file (com.com.uiza.com.com.uiza.sdk path, etc)
 local.properties
 
