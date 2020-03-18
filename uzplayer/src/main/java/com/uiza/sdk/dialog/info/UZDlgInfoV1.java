@@ -39,10 +39,8 @@ public class UZDlgInfoV1 extends Dialog {
         setContentView(R.layout.dlg_info);
         progressBar = findViewById(R.id.pb);
         UZViewUtils.setColorProgressBar(progressBar, ContextCompat.getColor(getContext(), R.color.colorPrimary));
-
         TextView tvTitle = findViewById(R.id.tv_title);
         final TextView tvContent = findViewById(R.id.tv_content);
-
         tvTitle.setText(title);
         handler.postDelayed(() -> {
             tvContent.setText(msg);

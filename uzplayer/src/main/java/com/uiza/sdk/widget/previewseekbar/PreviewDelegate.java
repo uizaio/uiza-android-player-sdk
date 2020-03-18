@@ -44,29 +44,24 @@ public class PreviewDelegate implements PreviewView.OnPreviewChangeListener {
         if (!setup) {
             this.previewParent = previewParent;
             FrameLayout frameLayout = findFrameLayout(previewParent, frameLayoutId);
-            if (frameLayout != null) {
+            if (frameLayout != null)
                 attachPreviewFrameLayout(frameLayout);
-            }
         }
     }
 
     public void attachPreviewFrameLayout(FrameLayout frameLayout) {
-        if (setup) {
-            return;
-        }
+        if (setup) return;
         this.previewParent = (ViewGroup) frameLayout.getParent();
         inflateViews(frameLayout);
         morphView.setVisibility(View.INVISIBLE);
         frameLayout.setVisibility(View.INVISIBLE);
         previewFrameView.setVisibility(View.INVISIBLE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             animator = new PreviewAnimatorLollipopImpl(previewParent, previewView, morphView,
                     frameLayout, previewFrameView);
-        } else {
+        else
             animator = new PreviewAnimatorImpl(previewParent, previewView, morphView,
                     frameLayout, previewFrameView);
-        }
-
         setup = true;
     }
 
@@ -163,14 +158,12 @@ public class PreviewDelegate implements PreviewView.OnPreviewChangeListener {
 
     @Nullable
     private FrameLayout findFrameLayout(ViewGroup parent, int id) {
-        if (id == View.NO_ID || parent == null) {
+        if (id == View.NO_ID || parent == null)
             return null;
-        }
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
-            if (child.getId() == id && child instanceof FrameLayout) {
+            if (child.getId() == id && child instanceof FrameLayout)
                 return (FrameLayout) child;
-            }
         }
         return null;
     }

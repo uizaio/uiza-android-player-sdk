@@ -39,7 +39,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -164,21 +163,18 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
 
     private boolean onTouchEventUseViewRotation(MotionEvent event) {
         boolean handled = super.onTouchEvent(event);
-
         if (handled) {
             int action = event.getAction();
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
                     attemptClaimDrag(true);
                     break;
-
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     attemptClaimDrag(false);
                     break;
             }
         }
-
         return handled;
     }
 
@@ -186,13 +182,10 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         final int paddingLeft = super.getPaddingLeft();
         final int paddingRight = super.getPaddingRight();
         final int height = getHeight();
-
         final int available = height - paddingLeft - paddingRight;
         int y = (int) event.getY();
-
         final float scale;
         float value = 0;
-
         switch (mRotationAngle) {
             case ROTATION_ANGLE_CW_90:
                 value = y - paddingLeft;
@@ -201,7 +194,6 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
                 value = (height - paddingLeft) - y;
                 break;
         }
-
         if (value < 0 || available == 0) {
             scale = 0.0f;
         } else if (value > available) {
@@ -209,10 +201,8 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         } else {
             scale = value / (float) available;
         }
-
         final int max = getMax();
         final float progress = scale * max;
-
         _setProgressFromUser((int) progress, true);
     }
 
@@ -265,17 +255,13 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
                     handled = false;
                     break;
             }
-
             if (handled) {
                 final int keyProgressIncrement = getKeyProgressIncrement();
                 int progress = getProgress();
-
                 progress += (direction * keyProgressIncrement);
-
                 if (progress >= 0 && progress <= getMax()) {
                     _setProgressFromUser(progress, true);
                 }
-
                 return true;
             }
         }
@@ -306,16 +292,11 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         if (mMethodSetProgressFromUser != null) {
             try {
                 mMethodSetProgressFromUser.invoke(this, progress, fromUser);
-            } catch (IllegalArgumentException e1) {
-                Timber.e(e1);
-            } catch (IllegalAccessException e2) {
-                Timber.e(e2);
-            } catch (InvocationTargetException e3) {
-                Timber.e(e3);
+            } catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+                Timber.e(e);
             }
-        } else {
+        } else
             super.setProgress(progress);
-        }
         refreshThumb();
     }
 
@@ -325,24 +306,17 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
             super.onMeasure(heightMeasureSpec, widthMeasureSpec);
-
-            final ViewGroup.LayoutParams lp = getLayoutParams();
-
-            if (isInEditMode() && (lp != null) && (lp.height >= 0)) {
-                setMeasuredDimension(super.getMeasuredHeight(), lp.height);
-            } else {
-                setMeasuredDimension(super.getMeasuredHeight(), super.getMeasuredWidth());
-            }
+            ViewGroup.LayoutParams lp = getLayoutParams();
+            setMeasuredDimension(super.getMeasuredHeight(), isInEditMode() && (lp != null) && (lp.height >= 0) ? lp.height : super.getMeasuredWidth());
         }
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        if (useViewRotation()) {
+        if (useViewRotation())
             super.onSizeChanged(w, h, oldw, oldh);
-        } else {
+        else
             super.onSizeChanged(h, w, oldh, oldw);
-        }
     }
 
     @Override
@@ -359,7 +333,6 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
                     break;
             }
         }
-
         super.onDraw(canvas);
     }
 
@@ -368,24 +341,17 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
     }
 
     public void setRotationAngle(int angle) {
-        if (!isValidRotationAngle(angle)) {
+        if (!isValidRotationAngle(angle))
             throw new IllegalArgumentException("Invalid angle specified :" + angle);
-        }
 
-        if (mRotationAngle == angle) {
-            return;
-        }
-
+        if (mRotationAngle == angle) return;
         mRotationAngle = angle;
-
         if (useViewRotation()) {
             UZVerticalSeekBarWrapper wrapper = getWrapper();
-            if (wrapper != null) {
+            if (wrapper != null)
                 wrapper.applyViewRotation();
-            }
-        } else {
+        } else
             requestLayout();
-        }
     }
 
     // refresh thumb position
@@ -394,18 +360,14 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
     }
 
     /*package*/ boolean useViewRotation() {
-        final boolean isSupportedApiLevel = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-        final boolean inEditMode = isInEditMode();
-        return isSupportedApiLevel && !inEditMode;
+        return !isInEditMode();
     }
 
     private UZVerticalSeekBarWrapper getWrapper() {
         final ViewParent parent = getParent();
-
         if (parent instanceof UZVerticalSeekBarWrapper) {
             return (UZVerticalSeekBarWrapper) parent;
-        } else {
-            return null;
         }
+        return null;
     }
 }

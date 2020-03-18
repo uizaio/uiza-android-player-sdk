@@ -66,7 +66,7 @@ public class UZVerticalSeekBarWrapper extends FrameLayout {
                     MeasureSpec.makeMeasureSpec(Math.max(0, w - hPadding), MeasureSpec.AT_MOST),
                     MeasureSpec.makeMeasureSpec(Math.max(0, h - vPadding), MeasureSpec.EXACTLY));
 
-            lp.gravity = Gravity.TOP | Gravity.LEFT;
+            lp.gravity = Gravity.TOP | Gravity.START;
             lp.leftMargin = (Math.max(0, w - hPadding) - seekBarMeasuredWidth) / 2;
             seekBar.setLayoutParams(lp);
         }
@@ -115,8 +115,8 @@ public class UZVerticalSeekBarWrapper extends FrameLayout {
                 seekBarHeight = seekBar.getMeasuredHeight();
             }
 
-            final int measuredWidth = ViewCompat.resolveSizeAndState(seekBarWidth + hPadding, widthMeasureSpec, 0);
-            final int measuredHeight = ViewCompat.resolveSizeAndState(seekBarHeight + vPadding, heightMeasureSpec, 0);
+            final int measuredWidth = View.resolveSizeAndState(seekBarWidth + hPadding, widthMeasureSpec, 0);
+            final int measuredHeight = View.resolveSizeAndState(seekBarHeight + vPadding, heightMeasureSpec, 0);
 
             setMeasuredDimension(measuredWidth, measuredHeight);
         } else {
@@ -146,28 +146,28 @@ public class UZVerticalSeekBarWrapper extends FrameLayout {
 
             seekBar.setLayoutParams(lp);
 
-            ViewCompat.setPivotX(seekBar, (isLTR) ? 0 : Math.max(0, h - vPadding));
-            ViewCompat.setPivotY(seekBar, 0);
+            seekBar.setPivotX((isLTR) ? 0 : Math.max(0, h - vPadding));
+            seekBar.setPivotY(0);
 
             switch (rotationAngle) {
                 case UZVerticalSeekBar.ROTATION_ANGLE_CW_90:
-                    ViewCompat.setRotation(seekBar, 90);
+                    seekBar.setRotation(90);
                     if (isLTR) {
-                        ViewCompat.setTranslationX(seekBar, seekBarMeasuredHeight + hOffset);
-                        ViewCompat.setTranslationY(seekBar, 0);
+                        seekBar.setTranslationX(seekBarMeasuredHeight + hOffset);
+                        seekBar.setTranslationY(0);
                     } else {
-                        ViewCompat.setTranslationX(seekBar, -hOffset);
-                        ViewCompat.setTranslationY(seekBar, seekBarMeasuredWidth);
+                        seekBar.setTranslationX(-hOffset);
+                        seekBar.setTranslationY(seekBarMeasuredWidth);
                     }
                     break;
                 case UZVerticalSeekBar.ROTATION_ANGLE_CW_270:
-                    ViewCompat.setRotation(seekBar, 270);
+                    seekBar.setRotation(270);
                     if (isLTR) {
-                        ViewCompat.setTranslationX(seekBar, hOffset);
-                        ViewCompat.setTranslationY(seekBar, seekBarMeasuredWidth);
+                        seekBar.setTranslationX(hOffset);
+                        seekBar.setTranslationY(seekBarMeasuredWidth);
                     } else {
-                        ViewCompat.setTranslationX(seekBar, -(seekBarMeasuredHeight + hOffset));
-                        ViewCompat.setTranslationY(seekBar, 0);
+                        seekBar.setTranslationX(-(seekBarMeasuredHeight + hOffset));
+                        seekBar.setTranslationY(0);
                     }
                     break;
             }

@@ -23,12 +23,13 @@ Read [CHANGELOG here](https://github.com/uizaio/uiza-android-sdk/blob/master/CHA
 **Step 2. Add the dependency**
 
 ```xml
-    defaultConfig {
-        multiDexEnabled  true
-    }
-    dependencies {
-        implementation 'com.github.uizaio:uiza-android-player-sdk:1.x.x'
-    }
+    implementation 'com.github.uizaio:uiza-android-player-sdk:1.1.x'
+```
+
+For __Android Support Compat__ (Support until January 2021)
+
+```
+    implementation 'com.github.uizaio:uiza-android-player-sdk:1.0.x'
 ```
 
 Get latest release number [HERE](https://github.com/uizaio/uiza-android-player-sdk/releases).
@@ -41,18 +42,25 @@ Get latest release number [HERE](https://github.com/uizaio/uiza-android-player-s
         implementation 'androidx.mediarouter:mediarouter:1.0.0'
         implementation 'com.google.android.gms:play-services-cast-framework:18.1.0'
 ```
+if you use `android support compat`
+
+```xml
+        // for ChromeCast
+        implementation 'com.android.support:mediarouter-v7:28.0.0'
+        implementation 'com.google.android.gms:play-services-cast-framework:16.2.0' // from 17.x support androidx only
+```
 
 - If advertising support should be enabled, also add the following dependencies to your project:
 
 ```xml
         // for IMA Ads
-        implementation 'com.google.android.exoplayer:extension-ima:2.10.8'
-        implementation 'com.google.android.gms:play-services-ads:19.0.0'
+        implementation 'com.google.android.exoplayer:extension-ima:2.9.6'
+        implementation 'com.google.android.gms:play-services-ads:17.2.1' // from 18.x support androidx only
 ```
 
 **Note:**
 - The version of the ExoPlayer Extension IMA must match the version of the ExoPlayer library being used.
-- If you are using both ChromeCast and IMA Ads dependencies, we recommend using dependency `com.google.android.gms:play-services-cast-framework:$version` with `version >= 18.1.0` to avoid dependency version conflicts
+- If you are using both ChromeCast and IMA Ads dependencies, we recommend using dependency `com.google.android.gms:play-services-cast-framework:$version` with `version >= 18.1.0` or `version=16.2.0` (support compat) to avoid dependency version conflicts
 
 
 Check [example here](https://github.com/uizaio/uiza-android-sdk/blob/master/sampleplayer/build.gradle).
@@ -227,6 +235,24 @@ But if you wanna change the player's skin when the player is playing, please you
 Ex: `android:id="@id/player_view"`
 Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_0"` ...
 
+## R8 / ProGuard
+
+___Do not support R8___
+
+```xml
+    buildTypes {
+    release {
+        minifyEnabled true
+        shrinkResources true
+        useProguard true
+        proguardFiles = [
+            getDefaultProguardFile('proguard-android.txt'),
+            'proguard-rules.pro'
+        ]
+    }
+    }
+```
+
 ## For contributors
 
  Uiza Checkstyle configuration is based on the Google coding conventions from Google Java Style
@@ -280,5 +306,3 @@ Website: _[uiza.io](https://uiza.io/)_
 ## License
 
 UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/uiza-android-player-sdk/blob/master/LICENSE)  for details.
-
-

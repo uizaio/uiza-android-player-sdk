@@ -46,11 +46,7 @@ abstract class PreviewAnimator {
         // Don't move if we still haven't reached half of the width
         if (nextX < low) {
             return low;
-        } else if (nextX > high) {
-            return high;
-        } else {
-            return nextX;
-        }
+        } else return Math.min(nextX, high);
     }
 
     float getPreviewViewStartX() {

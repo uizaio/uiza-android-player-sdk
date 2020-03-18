@@ -131,9 +131,8 @@ public class UZSpeedDialog extends Dialog implements View.OnClickListener {
         ct6.setChecked(false);
         if (view instanceof CheckedTextView) {
             ((CheckedTextView) view).setChecked(!((CheckedTextView) view).isChecked());
-            if (callback != null) {
+            if (callback != null)
                 callback.onSelectItem((Speed) view.getTag());
-            }
         }
         handler.postDelayed(this::cancel, 200);
     }
@@ -142,7 +141,7 @@ public class UZSpeedDialog extends Dialog implements View.OnClickListener {
         void onSelectItem(Speed speed);
     }
 
-    public class Speed {
+    public static class Speed {
         private String name;
         private float value;
 

@@ -49,25 +49,17 @@ public class UZShareDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dlg_share);
-
         ll = findViewById(R.id.ll);
         ll.setChildSpacing(FlowLayout.SPACING_AUTO);
         ll.setChildSpacingForLastRow(FlowLayout.SPACING_ALIGN);
         ll.setRowSpacing(20f);
-
         findViewById(R.id.bt_exit).setOnClickListener(v -> dismiss());
-
         genUI();
     }
 
     private void genUI() {
         int screenW = UZViewUtils.getScreenWidth();
-        int sizeIv;
-        if (isLandscape) {
-            sizeIv = screenW / 12;
-        } else {
-            sizeIv = screenW / 7;
-        }
+        int sizeIv = isLandscape ? screenW / 12 : screenW / 7;
 
         List<ResolveInfo> resolveInfoList;
         if (UZData.getInstance().getResolveInfoList() == null) {
@@ -75,9 +67,8 @@ public class UZShareDialog extends Dialog {
             template.setType("text/plain");
             resolveInfoList = activity.getPackageManager().queryIntentActivities(template, 0);
             UZData.getInstance().setResolveInfoList(resolveInfoList);
-        } else {
+        } else
             resolveInfoList = UZData.getInstance().getResolveInfoList();
-        }
 
         for (final ResolveInfo resolveInfo : resolveInfoList) {
             ImageView imageView = new ImageView(activity);
@@ -96,8 +87,6 @@ public class UZShareDialog extends Dialog {
         String label = (String) resolveInfo.loadLabel(activity.getPackageManager());
         if (pkgName.equals(GOOGLE_DOCS_PACKAGE) && label.toLowerCase().contains(CLIPBOARD)) {
             WidgetUtils.setClipboard(activity, MESSAGE);
-        } else if (pkgName.equals(FACEBOOK_PACKAGE)) {
-            UZAppUtils.sharingToSocialMedia(activity, resolveInfo.activityInfo.packageName, SUBJECT, MESSAGE);
         } else {
             UZAppUtils.sharingToSocialMedia(activity, resolveInfo.activityInfo.packageName, SUBJECT, MESSAGE);
         }

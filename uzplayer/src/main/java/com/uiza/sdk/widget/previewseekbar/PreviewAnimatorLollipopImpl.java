@@ -154,7 +154,7 @@ public class PreviewAnimatorLollipopImpl extends PreviewAnimator {
     }
 
     private int getRadius(View view) {
-        return (int) Math.hypot(view.getWidth() / 2, view.getHeight() / 2);
+        return (int) Math.hypot((float) view.getWidth() / 2, (float) view.getHeight() / 2);
     }
 
     private int getCenterX(View view) {
@@ -171,9 +171,8 @@ public class PreviewAnimatorLollipopImpl extends PreviewAnimator {
     private float getMorphStartX() {
         float startX = getPreviewViewStartX() + previewView.getThumbOffset();
         float endX = getPreviewViewEndX() - previewView.getThumbOffset();
-        float nextX = (endX - startX) * getWidthOffset(previewView.getProgress())
+        return (endX - startX) * getWidthOffset(previewView.getProgress())
                 + startX - previewView.getThumbOffset();
-        return nextX;
     }
 
     private float getMorphEndX() {
