@@ -2,12 +2,11 @@ package com.uiza.sdk.widget.recyclerview;
 
 import android.content.Context;
 import android.graphics.PointF;
+import android.support.v7.widget.LinearSmoothScroller;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-
-import androidx.recyclerview.widget.LinearSmoothScroller;
-import androidx.recyclerview.widget.RecyclerView;
 
 public class SnappySmoothScroller extends LinearSmoothScroller {
 

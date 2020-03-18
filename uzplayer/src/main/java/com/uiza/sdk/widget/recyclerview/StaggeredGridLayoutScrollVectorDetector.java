@@ -1,9 +1,8 @@
 package com.uiza.sdk.widget.recyclerview;
 
 import android.graphics.PointF;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
-
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 public class StaggeredGridLayoutScrollVectorDetector implements SnappySmoothScroller.ScrollVectorDetector {
 

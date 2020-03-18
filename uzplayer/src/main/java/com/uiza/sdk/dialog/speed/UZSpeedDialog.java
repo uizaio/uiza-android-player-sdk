@@ -4,12 +4,11 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.Window;
 import android.widget.CheckedTextView;
 import android.widget.ScrollView;
-
-import androidx.annotation.NonNull;
 
 import com.uiza.sdk.R;
 

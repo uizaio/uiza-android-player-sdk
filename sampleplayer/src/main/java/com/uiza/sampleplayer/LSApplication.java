@@ -1,6 +1,7 @@
 package com.uiza.sampleplayer;
 
-import androidx.multidex.MultiDexApplication;
+import android.support.multidex.BuildConfig;
+import android.support.multidex.MultiDexApplication;
 
 import com.uiza.sdk.UZPlayer;
 

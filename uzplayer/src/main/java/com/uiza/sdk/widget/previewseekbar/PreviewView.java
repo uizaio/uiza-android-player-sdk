@@ -1,10 +1,10 @@
 package com.uiza.sdk.widget.previewseekbar;
 
+import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.Nullable;
 import android.widget.FrameLayout;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.ColorRes;
-import androidx.annotation.Nullable;
 
 public interface PreviewView {
 

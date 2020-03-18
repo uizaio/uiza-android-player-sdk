@@ -1,6 +1,6 @@
 package com.uiza.sdk.view;
 
-import androidx.annotation.Nullable;
+import android.support.annotation.Nullable;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;

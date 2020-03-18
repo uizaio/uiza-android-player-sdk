@@ -4,10 +4,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-
-import androidx.appcompat.widget.AppCompatTextView;
 
 import com.uiza.sdk.R;
 

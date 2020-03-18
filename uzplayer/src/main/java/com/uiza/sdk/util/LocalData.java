@@ -4,8 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.SystemClock;
-
-import androidx.core.content.ContextCompat;
+import android.support.v4.content.ContextCompat;
 
 import com.uiza.sdk.R;
 

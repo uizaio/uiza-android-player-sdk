@@ -6,11 +6,10 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
-
-import androidx.annotation.NonNull;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.util.UZAppUtils;

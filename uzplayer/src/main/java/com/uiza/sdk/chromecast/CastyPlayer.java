@@ -1,11 +1,10 @@
 package com.uiza.sdk.chromecast;
 
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
+import android.support.annotation.MainThread;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaLoadOptions;
-import com.google.android.gms.cast.MediaSeekOptions;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 
 public class CastyPlayer {
@@ -52,7 +51,7 @@ public class CastyPlayer {
     public void seek(long time) {
         if (remoteMediaClient != null) {
             if (remoteMediaClient.hasMediaSession()) {
-                remoteMediaClient.seek(new MediaSeekOptions.Builder().setPosition(time).build());
+                remoteMediaClient.seek(time);
             } else {
                 loadMediaAndPlayInBackground(currentMedia, true, time);
             }

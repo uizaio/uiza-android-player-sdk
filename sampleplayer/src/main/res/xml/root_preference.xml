@@ -25,7 +25,6 @@
             app:defaultValue="200101"
             app:iconSpaceReserved="false"
             app:key="version_key"
-            app:title="@string/version_title"
-            app:useSimpleSummaryProvider="true" />
+            app:title="@string/version_title" />
     </PreferenceCategory>
 </PreferenceScreen>

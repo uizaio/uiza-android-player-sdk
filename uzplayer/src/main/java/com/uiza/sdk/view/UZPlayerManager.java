@@ -2,9 +2,8 @@ package com.uiza.sdk.view;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
-
-import androidx.annotation.NonNull;
 
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;

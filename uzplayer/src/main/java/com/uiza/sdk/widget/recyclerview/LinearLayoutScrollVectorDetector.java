@@ -1,8 +1,7 @@
 package com.uiza.sdk.widget.recyclerview;
 
 import android.graphics.PointF;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 
 public class LinearLayoutScrollVectorDetector implements SnappySmoothScroller.ScrollVectorDetector {
 

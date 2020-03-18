@@ -1,11 +1,10 @@
 package com.uiza.sdk.widget.recyclerview;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.view.animation.Interpolator;
-
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 public class SnappyStaggeredGridLayoutManager extends StaggeredGridLayoutManager implements SnappyLayoutManager {
 

@@ -5,12 +5,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.uiza.sdk.util.ListUtils;
-
+import android.support.annotation.NonNull;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;

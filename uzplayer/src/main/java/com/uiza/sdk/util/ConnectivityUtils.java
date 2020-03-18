@@ -7,9 +7,8 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
-
-import androidx.annotation.NonNull;
 
 /**
  * before API 29

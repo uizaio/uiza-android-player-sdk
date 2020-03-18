@@ -15,7 +15,7 @@
         android:scrollbarSize="@dimen/w_1"
         android:scrollbarThumbVertical="@color/colorPrimary">
 
-        <com.com.uiza.com.com.uiza.sdk.widget.flowlayout.FlowLayout
+        <com.uiza.sdk.widget.flowlayout.FlowLayout
             android:id="@+id/ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

@@ -1,9 +1,8 @@
 package com.uiza.sdk.view;
 
 import android.content.Context;
+import android.support.annotation.UiThread;
 import android.view.View;
-
-import androidx.annotation.UiThread;
 
 import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;

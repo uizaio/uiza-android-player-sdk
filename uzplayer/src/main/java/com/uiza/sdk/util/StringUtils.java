@@ -1,11 +1,10 @@
 package com.uiza.sdk.util;
 
 
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
-
-import androidx.annotation.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;

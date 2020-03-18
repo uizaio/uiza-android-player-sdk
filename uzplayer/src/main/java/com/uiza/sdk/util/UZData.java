@@ -1,9 +1,8 @@
 package com.uiza.sdk.util;
 
 import android.content.pm.ResolveInfo;
-
-import androidx.annotation.LayoutRes;
-import androidx.annotation.Nullable;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.chromecast.Casty;

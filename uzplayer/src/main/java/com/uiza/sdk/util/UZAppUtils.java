@@ -12,8 +12,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Vibrator;
-
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.floatview.UZFloatVideoService;
@@ -33,7 +32,7 @@ public class UZAppUtils {
 
     public static boolean checkChromeCastAvailable() {
         return UZAppUtils.isDependencyAvailable("com.google.android.gms.cast.framework.OptionsProvider")
-                && UZAppUtils.isDependencyAvailable("androidx.mediarouter.app.MediaRouteButton");
+                && UZAppUtils.isDependencyAvailable("android.support.v7.app.MediaRouteButton");
     }
 
     public static boolean isAdsDependencyAvailable() {

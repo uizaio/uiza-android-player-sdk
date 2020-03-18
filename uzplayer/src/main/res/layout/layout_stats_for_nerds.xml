@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         tools:background="@color/black_65">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toStartOf="@+id/text_video_format"
@@ -19,7 +19,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Video Format" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_video_format"
@@ -30,7 +30,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Audio Format" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_audio_format"
@@ -41,7 +41,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Connection Speed" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_connection_speed"
@@ -52,7 +52,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Buffer Health" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_buffer_health"
@@ -63,7 +63,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Network Activity" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_network_activity"
@@ -74,7 +74,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Volume" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_volume"
@@ -85,7 +85,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Viewport / Frames" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_viewport_frame"
@@ -96,7 +96,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Current / Optimal Res" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_current_optimal_res"
@@ -107,7 +107,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Video Entity ID" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_entity_id"
@@ -118,7 +118,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Host" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_host"
@@ -129,7 +129,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="SDK / Player / API Version" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/text_versions"
@@ -140,7 +140,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Device Info" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_live_stream_latency_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -159,7 +159,7 @@
             android:layout_marginStart="150dp"
             android:background="@android:color/transparent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_video_format"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -171,7 +171,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="video/avc 1280x720@30" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_audio_format"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -184,7 +184,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="audio/mp4a-latm 48000Hz" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_connection_speed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -197,7 +197,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="44420 Kbps" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_buffer_health"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -210,7 +210,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="48.48 s" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_network_activity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -223,7 +223,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="0 KB" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_volume"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -236,7 +236,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="50%" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_viewport_frame"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -249,7 +249,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="806x453*2.00 / 0 dropped of 184" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_current_optimal_res"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -262,7 +262,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="806x453 / 1280x720" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_entity_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -278,7 +278,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="c62a5409-0e8a-4b11-8e0d-c58c43d81b60" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_host"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -291,7 +291,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="https://com.uiza.io" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_versions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -304,7 +304,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="--- / --- / --" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_device_info"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -318,7 +318,7 @@
             android:textSize="@dimen/txt_12"
             tools:text="Nexus 5 / Android 8.0" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_live_stream_latency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

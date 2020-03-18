@@ -2,10 +2,10 @@ package com.uiza.sdk.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.MediaRouteButton;
 import android.util.AttributeSet;
 
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.mediarouter.app.MediaRouteButton;
 
 import com.uiza.sdk.exceptions.ErrorConstant;
 import com.uiza.sdk.util.UZAppUtils;

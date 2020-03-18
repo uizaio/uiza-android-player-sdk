@@ -5,18 +5,17 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.widget.UZToast;
 
 /**
  * Created by LENOVO on 3/30/2018.
- * extend from {@link DialogFragment}
+ * extend from {@link android.support.v4.app.DialogFragment}
  */
 
 public class ImmersiveDialogFragment extends DialogFragment {

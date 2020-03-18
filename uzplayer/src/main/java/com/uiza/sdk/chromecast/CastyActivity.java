@@ -1,16 +1,15 @@
 package com.uiza.sdk.chromecast;
 
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
-
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.uiza.sdk.R;
 
 /**
- * Extensible {@link AppCompatActivity}, which helps with setting widgets
+ * Extensible {@link android.support.v7.app.AppCompatActivity}, which helps with setting widgets
  */
 public abstract class CastyActivity extends AppCompatActivity {
     protected Casty casty;

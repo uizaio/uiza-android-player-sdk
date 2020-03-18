@@ -1,8 +1,7 @@
 package com.uiza.sdk.view;
 
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;

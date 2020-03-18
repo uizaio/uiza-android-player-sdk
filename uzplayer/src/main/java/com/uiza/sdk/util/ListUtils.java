@@ -2,9 +2,8 @@ package com.uiza.sdk.util;
 
 
 import android.os.Build;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +64,7 @@ public final class ListUtils {
      *                  function to apply to each element
      * @return the new List
      */
-    public static <T, R> List<R> map(List<T> list, Pre<T, R> predicate) {
+    public static <T, R> List<R> map(@NonNull List<T> list, Pre<T, R> predicate) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             return list.stream().map(predicate::get).collect(Collectors.toList());
         else {

@@ -1,6 +1,6 @@
 package com.uiza.sdk.chromecast;
 
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 import com.google.android.gms.cast.MediaInfo;
 

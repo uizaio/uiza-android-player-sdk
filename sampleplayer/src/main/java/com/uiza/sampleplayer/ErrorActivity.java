@@ -1,9 +1,8 @@
 package com.uiza.sampleplayer;
 
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.uiza.sdk.exceptions.ErrorConstant;
 

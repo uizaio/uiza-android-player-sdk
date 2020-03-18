@@ -2,11 +2,10 @@ package com.uiza.sdk.view;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.uiza.sdk.models.UZPlayback;
