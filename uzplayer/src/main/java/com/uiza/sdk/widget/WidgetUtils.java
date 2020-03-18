@@ -16,7 +16,9 @@ public class WidgetUtils {
     public static void setClipboard(@NonNull Context context, String text) {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(COPY_LABEL, text);
-        clipboard.setPrimaryClip(clip);
-        UZToast.show(context, "Copied!");
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+            UZToast.show(context, "Copied!");
+        }
     }
 }

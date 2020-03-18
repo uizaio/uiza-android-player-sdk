@@ -62,7 +62,7 @@ public final class UZFloatPlayerManager extends UZFloatPlayerManagerAbs implemen
                             if (duration != 0) {
                                 percent = (int) (mls * 100 / duration);
                             }
-                            int s = Math.round(mls / 1000);
+                            int s = Math.round((float) mls / 1000);
                             progressListener.onVideoProgress(mls, s, duration, percent);
                         }
                     }
@@ -81,7 +81,9 @@ public final class UZFloatPlayerManager extends UZFloatPlayerManagerAbs implemen
     }
 
     public void init(boolean isLivestream, long contentPosition) {
-        Timber.d("miniplayer STEP 1 FUZPLayerManager init isLivestream %b , contentPosition: %d", isLivestream, contentPosition);
+        Timber.d("miniplayer STEP 1 FUZPLayerManager init isLivestream %b , contentPosition: %d",
+                isLivestream,
+                contentPosition);
         reset();
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
@@ -101,18 +103,16 @@ public final class UZFloatPlayerManager extends UZFloatPlayerManagerAbs implemen
         }
         player.prepare(mediaSourceWithAds);
         //setVolumeOff();
-        if (isLivestream) {
+        if (isLivestream)
             player.seekToDefaultPosition();
-        } else {
+        else
             seekTo(contentPosition);
-        }
         player.setPlayWhenReady(true);
     }
 
     private MediaSource createMediaSourceWithAds(MediaSource mediaSource) {
-        if (adsLoader == null) {
+        if (adsLoader == null)
             return mediaSource;
-        }
         return new AdsMediaSource(mediaSource, this, adsLoader,
                 fuzVideo.getPlayerView());
     }

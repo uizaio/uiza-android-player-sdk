@@ -43,23 +43,21 @@ public final class ImageUtils {
      * @param resPlaceHolder: placeholder
      * @param progressBar     : ProgressBar
      */
-    public static void load(@NonNull ImageView imageView, String url, int resPlaceHolder, final ProgressBar progressBar) {
+    public static void load(@NonNull ImageView imageView, String url, int resPlaceHolder, @Nullable final ProgressBar progressBar) {
         Glide.with(imageView.getContext()).load(url)
                 .apply(new RequestOptions().placeholder(resPlaceHolder))
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        if (progressBar != null && progressBar.getVisibility() != View.GONE) {
+                        if (progressBar != null && progressBar.getVisibility() != View.GONE)
                             progressBar.setVisibility(View.GONE);
-                        }
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                        if (progressBar != null && progressBar.getVisibility() != View.GONE) {
+                        if (progressBar != null && progressBar.getVisibility() != View.GONE)
                             progressBar.setVisibility(View.GONE);
-                        }
                         return false;
                     }
                 })

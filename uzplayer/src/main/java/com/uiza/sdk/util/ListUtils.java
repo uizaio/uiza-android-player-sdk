@@ -41,9 +41,9 @@ public final class ListUtils {
      * @return the new List
      */
     public static <T> List<T> filter(@NonNull List<T> list, Pre<T, Boolean> predicate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             return list.stream().filter(predicate::get).collect(Collectors.toList());
-        } else {
+        else {
             List<T> col = new ArrayList<>();
             for (int i = 0; i < list.size(); i++)
                 if (predicate.get(list.get(i)))
@@ -59,16 +59,16 @@ public final class ListUtils {
      * <p>This is an <a href="package-summary.html#StreamOps">intermediate
      * operation</a>.
      *
-     * @param <R> The element type of the new stream
+     * @param <R>       The element type of the new stream
      * @param predicate a <a href="package-summary.html#NonInterference">non-interfering</a>,
-     *               <a href="package-summary.html#Statelessness">stateless</a>
-     *               function to apply to each element
+     *                  <a href="package-summary.html#Statelessness">stateless</a>
+     *                  function to apply to each element
      * @return the new List
      */
     public static <T, R> List<R> map(List<T> list, Pre<T, R> predicate) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             return list.stream().map(predicate::get).collect(Collectors.toList());
-        } else {
+        else {
             List<R> cols = new ArrayList<>();
             for (int i = 0; i < list.size(); i++) {
                 cols.add(predicate.get(list.get(i)));

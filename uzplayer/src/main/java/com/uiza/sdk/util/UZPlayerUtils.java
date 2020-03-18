@@ -82,9 +82,7 @@ public class UZPlayerUtils {
         String profile;
         //set profile
         //https://docs.google.com/spreadsheets/d/13lIsH711GJjttmZzFixph3RZwvP7a7vZhppSFnvsEl8/edit#gid=1297908801
-        if (width < height) {
-            width = height;
-        }
+        if (width < height) width = height;
         if (width <= 480) {
             profile = UZItem.Format.P_270;
             format = UZItem.Format.F_SD;

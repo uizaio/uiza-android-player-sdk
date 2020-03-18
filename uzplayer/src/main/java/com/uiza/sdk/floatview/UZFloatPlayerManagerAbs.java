@@ -10,8 +10,8 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
@@ -55,10 +55,8 @@ abstract class UZFloatPlayerManagerAbs {
     }
 
     public void seekTo(long position) {
-        if (player == null) {
-            return;
-        }
-        player.seekTo(position);
+        if (player != null)
+            player.seekTo(position);
     }
 
     MediaSource createMediaSourceVideo() {
@@ -67,9 +65,8 @@ abstract class UZFloatPlayerManagerAbs {
     }
 
     public boolean togglePauseResume() {
-        if (player == null) {
+        if (player == null)
             return false;
-        }
         if (player.getPlayWhenReady()) {
             pauseVideo();
             return false;
@@ -80,9 +77,8 @@ abstract class UZFloatPlayerManagerAbs {
     }
 
     public void resumeVideo() {
-        if (player != null) {
+        if (player != null)
             player.setPlayWhenReady(true);
-        }
         timestampPlayed = System.currentTimeMillis();
         isCanAddViewWatchTime = true;
     }
@@ -137,7 +133,7 @@ abstract class UZFloatPlayerManagerAbs {
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             case C.TYPE_OTHER:
-                return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             default:
                 throw new IllegalStateException("Unsupported type: " + type);
         }
@@ -156,21 +152,18 @@ abstract class UZFloatPlayerManagerAbs {
     }
 
     protected void setVolume(float volume) {
-        if (player != null) {
+        if (player != null)
             player.setVolume(volume);
-        }
     }
 
     protected void setVolumeOn() {
-        if (player != null) {
+        if (player != null)
             player.setVolume(1f);
-        }
     }
 
     protected void setVolumeOff() {
-        if (player != null) {
+        if (player != null)
             player.setVolume(0f);
-        }
     }
 
     abstract void init(boolean isLiveStream, long contentPosition);
@@ -191,9 +184,8 @@ abstract class UZFloatPlayerManagerAbs {
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            if (fuzVideo != null) {
+            if (fuzVideo != null)
                 fuzVideo.onPlayerStateChanged(playWhenReady, playbackState);
-            }
         }
 
         @Override
@@ -206,9 +198,8 @@ abstract class UZFloatPlayerManagerAbs {
 
         @Override
         public void onPlayerError(ExoPlaybackException error) {
-            if (fuzVideo != null) {
+            if (fuzVideo != null)
                 fuzVideo.onPlayerError(ErrorUtils.exceptionPlayback());
-            }
         }
 
         @Override
@@ -230,9 +221,8 @@ abstract class UZFloatPlayerManagerAbs {
                                        float pixelWidthHeightRatio) {
             videoWidth = width;
             videoHeight = height;
-            if (fuzVideo != null) {
+            if (fuzVideo != null)
                 fuzVideo.onVideoSizeChanged(width, height);
-            }
         }
 
         @Override

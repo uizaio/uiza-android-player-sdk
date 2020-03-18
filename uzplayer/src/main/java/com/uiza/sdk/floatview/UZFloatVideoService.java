@@ -308,7 +308,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     }
 
     private void showController() {
-        if (rlControl == null) return;
         if (!isControllerShowing()) {
             rlControl.setVisibility(View.VISIBLE);
             setSizeMoveView(false);
@@ -316,7 +315,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     }
 
     private void hideController() {
-        if (rlControl == null) return;
         if (isControllerShowing()) {
             rlControl.setVisibility(View.GONE);
             setSizeMoveView(false);

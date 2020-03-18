@@ -110,11 +110,10 @@ public class UZDragView extends LinearLayout {
             } else
                 //mid_left, mid, mid_right
                 changeState(left <= -halfHeaderWidth ? State.MID_LEFT : left >= halfHeaderWidth ? State.MID_RIGHT : State.MID);
-            if (mCenterY < screenH / 2) {
+            if (mCenterY < screenH / 2)
                 changePart(mCenterX < screenW / 2 ? Part.TOP_LEFT : Part.TOP_RIGHT);
-            } else {
+            else
                 changePart(mCenterX < screenW / 2 ? Part.BOTTOM_LEFT : Part.BOTTOM_RIGHT);
-            }
         }
 
         @Override
@@ -128,8 +127,7 @@ public class UZDragView extends LinearLayout {
             float scaledY = child.getScaleY();
             int sizeHScaled = (int) (scaledY * child.getHeight());
             int maxY = getHeight() - sizeHScaled * 3 / 2;
-            if (top <= minY)
-                return minY;
+            if (top <= minY) return minY;
             else return Math.min(top, maxY);
         }
 
@@ -137,8 +135,7 @@ public class UZDragView extends LinearLayout {
         public int clampViewPositionHorizontal(@NonNull View child, int left, int dx) {
             int minX = -child.getWidth() / 2;
             int maxX = child.getWidth() / 2;
-            if (left <= minX)
-                return minX;
+            if (left <= minX) return minX;
             else return Math.min(left, maxX);
         }
 
@@ -236,19 +233,19 @@ public class UZDragView extends LinearLayout {
         float topLeftY = mCenterY - r2;
         float topRightX = mCenterX + d2;
         float bottomLeftY = mCenterY + r2;
-        if (touchX < topLeftX || touchX > topRightX) {
+        if (touchX < topLeftX || touchX > topRightX)
             return false;
-        } else {
+        else
             return !(touchY < topLeftY) && !(touchY > bottomLeftY);
-        }
+
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isEnableSlide) {
-            if (isTouchInSideHeaderView(event.getX(), event.getY())) {
+            if (isTouchInSideHeaderView(event.getX(), event.getY()))
                 mViewDragHelper.processTouchEvent(event);
-            } else {
+            else {
                 mViewDragHelper.cancel();
                 return false;
             }

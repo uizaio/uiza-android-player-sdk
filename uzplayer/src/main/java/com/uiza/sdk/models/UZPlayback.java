@@ -5,6 +5,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.uiza.sdk.util.ListUtils;
 
@@ -58,6 +61,14 @@ public class UZPlayback implements Parcelable {
     boolean live;
 
     public UZPlayback() {
+        this.live = false;
+    }
+
+    public UZPlayback(String id, String name, String description, String thumbnail) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.thumbnail = thumbnail;
         this.live = false;
     }
 
@@ -170,19 +181,20 @@ public class UZPlayback implements Parcelable {
             return ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8));
         } else {
             List<String> listLinkPlay = new ArrayList<>();
-            listLinkPlay.addAll(ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.MPD)));
-            listLinkPlay.addAll(ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8)));
+            List<String> urls = getUrls();
+            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().endsWith(UZMediaExtension.MPD)));
+            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8)));
             return listLinkPlay;
         }
     }
 
     public String getLinkPlay() {
-        if (!TextUtils.isEmpty(hls)) {
-            return hls;
-        } else if (!TextUtils.isEmpty(hlsTs)) {
-            return hlsTs;
-        } else {
+        if (!TextUtils.isEmpty(mpd)) {
             return mpd;
+        } else if (!TextUtils.isEmpty(hls)) {
+            return hls;
+        } else {
+            return hlsTs;
         }
     }
 
@@ -193,5 +205,11 @@ public class UZPlayback implements Parcelable {
             Timber.w(e);
             return null;
         }
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return (new Gson()).toJson(this);
     }
 }

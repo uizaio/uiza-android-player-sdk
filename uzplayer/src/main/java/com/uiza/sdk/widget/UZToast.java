@@ -42,15 +42,17 @@ public class UZToast {
         clear();
         try {
             LayoutInflater inf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View layout = inf.inflate(R.layout.view_l_toast, null);
-            TextView textView = layout.findViewById(R.id.tv_loading);
-            textView.setText(msg);
-            Toast toast = new Toast(context);
-            toast.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
-            toast.setDuration(length);
-            toast.setView(layout);
-            toast.show();
-            toastList.add(toast);
+            if (inf != null) {
+                View layout = inf.inflate(R.layout.view_l_toast, null);
+                TextView textView = layout.findViewById(R.id.tv_loading);
+                textView.setText(msg);
+                Toast toast = new Toast(context);
+                toast.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
+                toast.setDuration(length);
+                toast.setView(layout);
+                toast.show();
+                toastList.add(toast);
+            }
         } catch (Exception e) {
             Timber.e(e, "LToast");
         }

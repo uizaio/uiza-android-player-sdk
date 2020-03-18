@@ -418,7 +418,7 @@ public class Casty implements CastyPlayer.OnMediaLoadedListener {
         activity.startActivity(intent);
     }
 
-    public void disconnectChromecast() {
+    public void disconnectChromeCast() {
         castSession.getRemoteMediaClient().stop(); // stop remote media
         CastContext castContext = CastContext.getSharedInstance(activity);
         SessionManager mSessionManager = castContext.getSessionManager();

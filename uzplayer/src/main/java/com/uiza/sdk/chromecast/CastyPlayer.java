@@ -4,10 +4,11 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaLoadOptions;
+import com.google.android.gms.cast.MediaSeekOptions;
 import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 
 public class CastyPlayer {
-    private final String TAG = getClass().getSimpleName();
     private RemoteMediaClient remoteMediaClient;
     private OnMediaLoadedListener onMediaLoadedListener;
     private MediaInfo currentMedia;
@@ -51,7 +52,7 @@ public class CastyPlayer {
     public void seek(long time) {
         if (remoteMediaClient != null) {
             if (remoteMediaClient.hasMediaSession()) {
-                remoteMediaClient.seek(time);
+                remoteMediaClient.seek(new MediaSeekOptions.Builder().setPosition(time).build());
             } else {
                 loadMediaAndPlayInBackground(currentMedia, true, time);
             }
@@ -73,18 +74,12 @@ public class CastyPlayer {
     }//next 10000mls
 
     public void seekToBackward(long backward) {
-        if (remoteMediaClient == null) {
-            return;
-        }
-        if (remoteMediaClient.getMediaStatus().getStreamPosition() - backward > 0) {
+        if (remoteMediaClient == null) return;
+        if (remoteMediaClient.getMediaStatus().getStreamPosition() - backward > 0)
             seek(remoteMediaClient.getMediaStatus().getStreamPosition() - backward);
-        } else {
-            if (!remoteMediaClient.hasMediaSession()) {
-                seek(currentMedia.getStreamDuration() - backward);
-            } else {
-                seek(0);
-            }
-        }
+        else
+            seek(remoteMediaClient.hasMediaSession() ? 0 : (currentMedia.getStreamDuration() - backward));
+
     }
 
     /**
@@ -92,11 +87,10 @@ public class CastyPlayer {
      */
     public void togglePlayPause() {
         if (remoteMediaClient != null) {
-            if (remoteMediaClient.isPlaying()) {
+            if (remoteMediaClient.isPlaying())
                 remoteMediaClient.pause();
-            } else if (remoteMediaClient.isPaused()) {
+            else if (remoteMediaClient.isPaused())
                 remoteMediaClient.play();
-            }
         }
     }
 
@@ -204,25 +198,21 @@ public class CastyPlayer {
     }
 
     private boolean playMediaBaseMethod(MediaInfo mediaInfo, boolean autoPlay, long position, boolean inBackground) {
-        if (remoteMediaClient == null) {
-            return false;
-        }
-        if (!inBackground) {
-            remoteMediaClient.addListener(createRemoteMediaClientListener());
-        }
-        if (!mediaInfo.equals(currentMedia)) {
+        if (remoteMediaClient == null) return false;
+        if (!inBackground)
+            remoteMediaClient.registerCallback(createRemoteMediaClientCallback());
+        if (!mediaInfo.equals(currentMedia))
             currentMedia = mediaInfo;
-        }
-        remoteMediaClient.load(mediaInfo, autoPlay, position);
+        remoteMediaClient.load(mediaInfo, new MediaLoadOptions.Builder().setAutoplay(autoPlay).setPlayPosition(position).build());
         return true;
     }
 
-    private RemoteMediaClient.Listener createRemoteMediaClientListener() {
-        return new RemoteMediaClient.Listener() {
+    private RemoteMediaClient.Callback createRemoteMediaClientCallback() {
+        return new RemoteMediaClient.Callback() {
             @Override
             public void onStatusUpdated() {
                 onMediaLoadedListener.onMediaLoaded();
-                remoteMediaClient.removeListener(this);
+                remoteMediaClient.unregisterCallback(this);
             }
 
             @Override

@@ -40,12 +40,11 @@ import timber.log.Timber;
 
 public class UZViewUtils {
     public static ArrayList<View> getAllChildren(@NonNull View v) {
-        if (!(v instanceof ViewGroup)) {
-            ArrayList<View> viewArrayList = new ArrayList<>();
-            viewArrayList.add(v);
-            return viewArrayList;
-        }
         ArrayList<View> result = new ArrayList<>();
+        if (!(v instanceof ViewGroup)) {
+            result.add(v);
+            return result;
+        }
         ViewGroup viewGroup = (ViewGroup) v;
         for (int i = 0; i < viewGroup.getChildCount(); i++) {
             View child = viewGroup.getChildAt(i);
@@ -103,33 +102,29 @@ public class UZViewUtils {
 
     public static void visibleViews(View... views) {
         for (View v : views) {
-            if (v != null && v.getVisibility() != View.VISIBLE) {
+            if (v != null && v.getVisibility() != View.VISIBLE)
                 v.setVisibility(View.VISIBLE);
-            }
         }
     }
 
     public static void goneViews(View... views) {
         for (View v : views) {
-            if (v != null && v.getVisibility() != View.GONE) {
+            if (v != null && v.getVisibility() != View.GONE)
                 v.setVisibility(View.GONE);
-            }
         }
     }
 
     public static void invisibleViews(View... views) {
         for (View v : views) {
-            if (v != null && v.getVisibility() != View.INVISIBLE) {
+            if (v != null && v.getVisibility() != View.INVISIBLE)
                 v.setVisibility(View.INVISIBLE);
-            }
         }
     }
 
     public static void setVisibilityViews(int visibility, View... views) {
         for (View v : views) {
-            if (v != null && v.getVisibility() != visibility) {
+            if (v != null && v.getVisibility() != visibility)
                 v.setVisibility(visibility);
-            }
         }
     }
 
@@ -145,24 +140,19 @@ public class UZViewUtils {
 
     @SuppressLint("SourceLockedOrientationActivity")
     public static void changeScreenPortrait(@NonNull Activity activity) {
-        int s = getScreenOrientation();
-        if (s == Configuration.ORIENTATION_LANDSCAPE) {
+        if (getScreenOrientation() == Configuration.ORIENTATION_LANDSCAPE)
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     public static void changeScreenLandscape(@NonNull Activity activity) {
-        int s = getScreenOrientation();
-        if (s == Configuration.ORIENTATION_PORTRAIT) {
+        if (getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT)
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     public static void changeScreenLandscape(@NonNull Activity activity, int orientation) {
-        int s = getScreenOrientation();
-        if (s == Configuration.ORIENTATION_PORTRAIT) {
+        if (getScreenOrientation() == Configuration.ORIENTATION_PORTRAIT) {
             if (orientation == 90) {
                 activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
             } else if (orientation == 270) {
@@ -177,12 +167,11 @@ public class UZViewUtils {
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
-    public static boolean toggleScreenOrientation(@NonNull Activity activity) {
+    public static void toggleScreenOrientation(@NonNull Activity activity) {
         int s = getScreenOrientation();
-        if (s == Configuration.ORIENTATION_LANDSCAPE) {
+        if (s == Configuration.ORIENTATION_LANDSCAPE)
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-            return true;
-        } else if (s == Configuration.ORIENTATION_PORTRAIT) {
+        else if (s == Configuration.ORIENTATION_PORTRAIT) {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
             //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//xoay qua xoay lai landscape
             //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
@@ -198,16 +187,12 @@ public class UZViewUtils {
             //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);//ko con sensor
             //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);//xoay tum lum, nhung khi nhan full thi no k xoay sang landscape
             //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
-            return false;
         }
-        return false;
     }
 
     public static void hideDefaultControls(@NonNull Activity activity) {
         final Window window = activity.getWindow();
-        if (window == null) {
-            return;
-        }
+        if (window == null) return;
         window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         final View decorView = window.getDecorView();
@@ -220,9 +205,7 @@ public class UZViewUtils {
 
     public static void showDefaultControls(@NonNull Activity activity) {
         final Window window = activity.getWindow();
-        if (window == null) {
-            return;
-        }
+        if (window == null) return;
         window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         final View decorView = window.getDecorView();
@@ -260,18 +243,15 @@ public class UZViewUtils {
 
     public static void setFocusableViews(boolean focusable, View... views) {
         for (View v : views) {
-            if (v != null && !v.isFocusable()) {
+            if (v != null && !v.isFocusable())
                 v.setFocusable(focusable);
-            }
         }
     }
 
     public static void setUIFullScreenIcon(@NonNull ImageButton imageButton, boolean isFullScreen) {
-        if (isFullScreen) {
-            imageButton.setImageResource(R.drawable.ic_fullscreen_exit_white_48);
-        } else {
-            imageButton.setImageResource(R.drawable.ic_fullscreen_white_48);
-        }
+        imageButton.setImageResource(isFullScreen ?
+                R.drawable.ic_fullscreen_exit_white_48
+                : R.drawable.ic_fullscreen_white_48);
     }
 
     public static void resizeLayout(@NonNull ViewGroup viewGroup, ImageView ivVideoCover, int pixelAdded, int videoW, int videoH, boolean isFreeSize) {
@@ -287,18 +267,11 @@ public class UZViewUtils {
                 heightSurfaceView = (int) (widthSurfaceView * Constants.RATIO_9_16) + pixelAdded;
             } else {
                 if (videoW >= videoH) {
-                    if (isFreeSize) {
-                        heightSurfaceView = widthSurfaceView * videoH / videoW + pixelAdded;
-                    } else {
-                        heightSurfaceView = (int) (widthSurfaceView * Constants.RATIO_9_16) + pixelAdded;
-                    }
+                    heightSurfaceView = isFreeSize ? (widthSurfaceView * videoH / videoW + pixelAdded)
+                            : ((int) (widthSurfaceView * Constants.RATIO_9_16) + pixelAdded);
                 } else {
-                    if (isFreeSize) {
-                        heightSurfaceView = widthSurfaceView * videoH / videoW + pixelAdded;
-                    } else {
-                        //heightSurfaceView = widthSurfaceView;
-                        heightSurfaceView = (int) (widthSurfaceView * Constants.RATIO_9_16) + pixelAdded;
-                    }
+                    heightSurfaceView = isFreeSize ? (widthSurfaceView * videoH / videoW + pixelAdded)
+                            : ((int) (widthSurfaceView * Constants.RATIO_9_16) + pixelAdded);
                 }
             }
         }
@@ -362,28 +335,19 @@ public class UZViewUtils {
             //wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             wlp.dimAmount = 0.65f;
             window.setAttributes(wlp);
-
             int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height;
-            if (isFullScreen) {
-                height = (int) (dialog.getContext().getResources().getDisplayMetrics().heightPixels * 0.5);
-            } else {
-                height = (int) (dialog.getContext().getResources().getDisplayMetrics().heightPixels * 0.3);
-            }
+            int height = (int) (getScreenHeight() * (isFullScreen ? 0.5 : 0.3));
             window.setLayout(width, height);
         } catch (Exception e) {
             //do nothing
             Timber.e(e);
         }
-        if (isFullScreen) {
+        if (isFullScreen)
             window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-        }
     }
 
     public static void setTextDuration(@NonNull TextView textView, String duration) {
-        if (TextUtils.isEmpty(duration)) {
-            return;
-        }
+        if (TextUtils.isEmpty(duration)) return;
         try {
             int min = (int) Double.parseDouble(duration) + 1;
             String minutes = Integer.toString(min % 60);
@@ -400,10 +364,6 @@ public class UZViewUtils {
     }
 
     public static void updateUIFocusChange(@NonNull View view, boolean isFocus, int resHasFocus, int resNoFocus) {
-        if (isFocus) {
-            view.setBackgroundResource(resHasFocus);
-        } else {
-            view.setBackgroundResource(resNoFocus);
-        }
+        view.setBackgroundResource(isFocus ? resHasFocus : resNoFocus);
     }
 }

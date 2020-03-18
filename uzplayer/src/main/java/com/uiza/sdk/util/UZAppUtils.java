@@ -74,9 +74,11 @@ public class UZAppUtils {
 
     public static boolean checkServiceRunning(@NonNull Context context, String serviceName) {
         ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceName.equals(service.service.getClassName())) {
-                return true;
+        if (manager != null) {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceName.equals(service.service.getClassName())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -84,14 +86,8 @@ public class UZAppUtils {
 
     //stop service pip FloatUizaVideoService
     public static void stopMiniPlayer(@NonNull Context context) {
-        //LLog.d(TAG, "stopMiniPlayer");
-        boolean isSvPipRunning = isMiniPlayerRunning(context);
-        //LLog.d(TAG, "isSvPipRunning " + isSvPipRunning);
-        if (isSvPipRunning) {
-            //stop service if running
-            Intent intent = new Intent(context, UZFloatVideoService.class);
-            context.stopService(intent);
-        }
+        if (isMiniPlayerRunning(context))
+            context.stopService(new Intent(context, UZFloatVideoService.class)); //stop service if running
     }
 
     public static boolean isMiniPlayerRunning(@NonNull Context context) {
@@ -102,7 +98,6 @@ public class UZAppUtils {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
-
     public static boolean isTV(@NonNull Context context) {
         UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
         return uiModeManager != null && uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
@@ -111,9 +106,8 @@ public class UZAppUtils {
     public static void openUrlInBrowser(@NonNull Context context, String url) {
         Uri webPage = Uri.parse(url);
         Intent intent = new Intent(Intent.ACTION_VIEW, webPage);
-        if (intent.resolveActivity(context.getPackageManager()) != null) {
+        if (intent.resolveActivity(context.getPackageManager()) != null)
             context.startActivity(intent);
-        }
     }
 
     private static boolean checkAppInstall(@NonNull Context context, String uri) {
@@ -143,10 +137,8 @@ public class UZAppUtils {
     }
 
     protected static void communicateContext(@NonNull Context context, String event) {
-        if (isMiniPlayerRunning(context)) {
-            CommunicateMng.MsgFromActivity msgFromActivity = new CommunicateMng.MsgFromActivity(event);
-            CommunicateMng.postFromActivity(msgFromActivity);
-        }
+        if (isMiniPlayerRunning(context))
+            CommunicateMng.postFromActivity(new CommunicateMng.MsgFromActivity(event));
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)

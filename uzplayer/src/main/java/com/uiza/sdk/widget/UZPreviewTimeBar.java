@@ -123,16 +123,14 @@ public class UZPreviewTimeBar extends DefaultTimeBar implements PreviewView,
 
     @Override
     public void showPreview() {
-        if (isEnabled()) {
+        if (isEnabled())
             delegate.show();
-        }
     }
 
     @Override
     public void hidePreview() {
-        if (isEnabled()) {
+        if (isEnabled())
             delegate.hide();
-        }
     }
 
     @Override
