@@ -1,4 +1,6 @@
 
+[![](https://jitpack.io/v/uizaio/uiza-android-player-sdk.svg)](https://jitpack.io/#uizaio/uiza-android-player-sdk)
+
 ## Welcome to UIZA Android Player SDK
 
 Simple Streaming at scale.
