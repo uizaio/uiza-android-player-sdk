@@ -163,9 +163,9 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
         controlStub.inflate();
         // inflate controls from skin
         rlControl = mFloatingView.findViewById(R.id.controls_root);
-        btExit = mFloatingView.findViewById(R.id.uiza_mini_exit);
-        btFullScreen = mFloatingView.findViewById(R.id.uiza_mini_full_screen);
-        btPlayPause = mFloatingView.findViewById(R.id.uiza_mini_pause_resume);
+        btExit = mFloatingView.findViewById(R.id.uz_mini_exit);
+        btFullScreen = mFloatingView.findViewById(R.id.uz_mini_full_screen);
+        btPlayPause = mFloatingView.findViewById(R.id.uz_mini_pause_resume);
         setControlsClickListener();
     }
 

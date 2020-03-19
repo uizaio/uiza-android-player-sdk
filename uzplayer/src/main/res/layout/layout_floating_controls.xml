@@ -6,7 +6,7 @@
     android:background="@drawable/background_player_controller">
 
     <ImageView
-        android:id="@id/uiza_mini_full_screen"
+        android:id="@id/uz_mini_full_screen"
         android:layout_width="@dimen/w_25"
         android:layout_height="@dimen/w_25"
         android:layout_alignParentBottom="true"
@@ -18,7 +18,7 @@
         android:tint="@android:color/white" />
 
     <ImageView
-        android:id="@id/uiza_mini_pause_resume"
+        android:id="@id/uz_mini_pause_resume"
         android:layout_width="@dimen/w_25"
         android:layout_height="@dimen/w_25"
         android:layout_alignParentBottom="true"
@@ -31,7 +31,7 @@
         android:tint="@android:color/white" />
 
     <ImageView
-        android:id="@id/uiza_mini_exit"
+        android:id="@id/uz_mini_exit"
         android:layout_width="@dimen/w_25"
         android:layout_height="@dimen/w_25"
         android:layout_alignParentEnd="true"

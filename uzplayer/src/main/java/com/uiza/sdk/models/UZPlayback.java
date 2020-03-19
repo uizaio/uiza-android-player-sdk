@@ -7,8 +7,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import com.uiza.sdk.util.ListUtils;
 
 import java.net.MalformedURLException;
@@ -16,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -35,30 +34,18 @@ public class UZPlayback implements Parcelable {
             return new UZPlayback[size];
         }
     };
-    @SerializedName("id")
-    String id;
-    @SerializedName("name")
-    String name;
-    @SerializedName("description")
-    String description;
-    @SerializedName("thumbnail")
-    String thumbnail;
-    @SerializedName("duration")
-    float duration;
-    @SerializedName("channel_name")
-    String channelName;
-    @SerializedName("last_feed_id")
-    String lastFeedId;
-    @SerializedName("created_at")
-    Date createdAt;
-    @SerializedName("hls")
-    String hls;
-    @SerializedName("hls_ts")
-    String hlsTs;
-    @SerializedName("mpd")
-    String mpd;
-    @SerializedName("is_live")
-    boolean live;
+    private String id;
+    private String name;
+    private String description;
+    private String thumbnail;
+    private float duration;
+    private String channelName;
+    private String lastFeedId;
+    private Date createdAt;
+    private String hls;
+    private String hlsTs;
+    private String mpd;
+    private boolean live;
 
     public UZPlayback() {
         this.live = false;
@@ -210,6 +197,8 @@ public class UZPlayback implements Parcelable {
     @NonNull
     @Override
     public String toString() {
-        return (new Gson()).toJson(this);
+        return String.format(Locale.getDefault(),
+                "UZPlayback(id: %s, name: %s, description: %s, thumbnail: %s , hls: %s, hls_ts: %s, mpd: %s, live: %b)",
+                id, name, description, thumbnail, hls, hlsTs, mpd, live);
     }
 }

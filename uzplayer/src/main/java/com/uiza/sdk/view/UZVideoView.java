@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -230,6 +231,8 @@ public class UZVideoView extends VideoViewBase
     public void onCreateView() {
         if (UZAppUtils.checkChromeCastAvailable())
             setupChromeCast();
+        ((Activity) getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         EventBus.getDefault().register(this);
         startConnectifyService();
         inflate(getContext(), R.layout.uz_ima_video_core_rl, this);
@@ -533,7 +536,6 @@ public class UZVideoView extends VideoViewBase
         timestampBeforeInitNewSession = System.currentTimeMillis();
         isCalledFromChangeSkin = false;
         handlePlayPlayListFolderUI();
-        UZData.getInstance().setSettingPlayer(true);
         hideLayoutMsg();
         setControllerShowTimeoutMs(DEFAULT_VALUE_CONTROLLER_TIMEOUT);
         isOnPlayerEnded = false;
@@ -551,7 +553,7 @@ public class UZVideoView extends VideoViewBase
         initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail(), UZAppUtils.isAdsDependencyAvailable());
         if (uzCallback != null)
             uzCallback.isInitResult(false, UZData.getInstance().getPlayback());
-        initUizaPlayerManager();
+        initUZPlayerManager();
     }
 
 
@@ -602,6 +604,12 @@ public class UZVideoView extends VideoViewBase
 
     protected void resetCountTryLinkPlayError() {
         countTryLinkPlayError = 0;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        ((Activity) getContext()).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        super.onDetachedFromWindow();
     }
 
     public void onDestroyView() {
@@ -908,11 +916,13 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void showController() {
+        Timber.e("showController");
         if (uzPlayerView != null)
             uzPlayerView.showController();
     }
 
     public void hideController() {
+        Timber.e("hideController");
         if (isPlayerControllerAlwayVisible) return;
         if (uzPlayerView != null && !isCastingChromecast)//dont hide if is casting chromecast
             uzPlayerView.hideController();
@@ -1017,21 +1027,24 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void handleClickPlaylistFolder() {
-        UZPlaylistFolderDialog uizaPlaylistFolderDlg = new UZPlaylistFolderDialog(getContext(), isLandscape, UZData.getInstance().getPlayList(), UZData.getInstance().getCurrentPositionOfPlayList(), new CallbackPlaylistFolder() {
-            @Override
-            public void onClickItem(UZPlayback playback, int position) {
-                playPlaylistPosition(position);
-            }
+        UZPlaylistFolderDialog uzPlaylistFolderDlg = new UZPlaylistFolderDialog(
+                getContext(),
+                isLandscape,
+                UZData.getInstance().getPlayList(),
+                UZData.getInstance().getCurrentPositionOfPlayList(),
+                new CallbackPlaylistFolder() {
+                    @Override
+                    public void onClickItem(UZPlayback playback, int position) {
+                        playPlaylistPosition(position);
+                    }
+                    @Override
+                    public void onFocusChange(UZPlayback playback, int position) {
+                    }
 
-            @Override
-            public void onFocusChange(UZPlayback playback, int position) {
-            }
-
-            @Override
-            public void onDismiss() {
-            }
-        });
-        UZViewUtils.showDialog(uizaPlaylistFolderDlg);
+                    public void onDismiss() {
+                    }
+                });
+        UZViewUtils.showDialog(uzPlaylistFolderDlg);
     }
 
     private void handleClickSkipNext() {
@@ -1456,11 +1469,11 @@ public class UZVideoView extends VideoViewBase
         }
         ibFullscreenIcon = uzPlayerView.findViewById(R.id.exo_fullscreen_toggle_icon);
         tvTitle = uzPlayerView.findViewById(R.id.tv_title);
-        ibPauseIcon = uzPlayerView.findViewById(R.id.exo_pause_uiza);
-        ibPlayIcon = uzPlayerView.findViewById(R.id.exo_play_uiza);
+        ibPauseIcon = uzPlayerView.findViewById(R.id.exo_pause);
+        ibPlayIcon = uzPlayerView.findViewById(R.id.exo_play);
         //If auto start true, show button play and gone button pause
         UZViewUtils.goneViews(ibPlayIcon);
-        ibReplayIcon = uzPlayerView.findViewById(R.id.exo_replay_uiza);
+        ibReplayIcon = uzPlayerView.findViewById(R.id.exo_replay);
         ibRewIcon = uzPlayerView.findViewById(R.id.exo_rew);
         if (ibRewIcon != null)
             ibRewIcon.setSrcDrawableDisabled();
@@ -2146,7 +2159,7 @@ public class UZVideoView extends VideoViewBase
                     UZAppUtils.isAdsDependencyAvailable());
             if (uzCallback != null)
                 uzCallback.isInitResult(false, playbackInfo);
-            initUizaPlayerManager();
+            initUZPlayerManager();
         } else
             handleError(ErrorUtils.exceptionSetup());
     }
@@ -2281,7 +2294,7 @@ public class UZVideoView extends VideoViewBase
         UZData.getInstance().setSettingPlayer(false);
     }
 
-    private void initUizaPlayerManager() {
+    private void initUZPlayerManager() {
         if (uzPlayerManager != null) {
             uzPlayerManager.init();
             if (isGetClickedPip && !isPlayPlaylistFolder())

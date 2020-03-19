@@ -25,7 +25,6 @@ import com.uiza.sdk.widget.UZToast;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * Created by loitp on 9/1/2019.
  */
@@ -41,7 +40,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private UZVideoView uzVideo;
     private UZDragView uzDragView;
     private EditText etLinkPlay;
-    private Button btPlaylist;
     private List<UZPlayback> playlist;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
@@ -55,14 +53,13 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         UZPlayer.setUseWithUZDragView(true);
 //        UZPlayer.setCasty(this);
         UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         uzVideo = findViewById(R.id.uz_video_view);
         uzDragView = findViewById(R.id.vdhv);
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
-        btPlaylist = findViewById(R.id.bt_playlist);
+        Button btPlaylist = findViewById(R.id.bt_playlist);
         uzDragView.setCallback(this);
         uzDragView.setOnTouchEvent(this);
         uzDragView.setScreenRotate(false);
@@ -152,12 +149,10 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void onItemClick(View view) {
-        switch (view.getId()) {
-            case R.id.exo_back_screen:
-                if (!uzVideo.isLandscape()) {
-                    onBackPressed();
-                }
-                break;
+        if (view.getId() == R.id.exo_back_screen) {
+            if (!uzVideo.isLandscape()) {
+                onBackPressed();
+            }
         }
     }
 

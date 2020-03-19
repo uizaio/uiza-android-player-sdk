@@ -55,7 +55,6 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
     @Override
     public void onVisibilityChange(int visibility) {
         controllerVisible = visibility == View.VISIBLE;
-        //LLog.d(TAG, "onVisibilityChange visibility controllerVisible " + controllerVisible);
         if (controllerStateCallback != null)
             controllerStateCallback.onVisibilityChange(controllerVisible);
     }
@@ -102,8 +101,7 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
 
     public View[] getAllChild() {
         PlayerControlView playerControlView = getPlayerControlView();
-        if (playerControlView == null)
-            return null;
+        if (playerControlView == null) return null;
         List<View> viewList = UZViewUtils.getAllChildren(playerControlView);
         return viewList.toArray(new View[viewList.size()]);
     }
