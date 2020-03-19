@@ -186,7 +186,7 @@
             android:orientation="horizontal">
 
             <com.uiza.sdk.widget.autosize.UZImageButton
-                android:id="@id/exo_play_uiza"
+                android:id="@id/exo_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -194,7 +194,7 @@
                 android:src="@drawable/ic_play_circle_outline_white_48" />
 
             <com.uiza.sdk.widget.autosize.UZImageButton
-                android:id="@id/exo_pause_uiza"
+                android:id="@id/exo_pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
@@ -202,7 +202,7 @@
                 android:src="@drawable/ic_pause_circle_outline_white_48" />
 
             <com.uiza.sdk.widget.autosize.UZImageButton
-                android:id="@id/exo_replay_uiza"
+                android:id="@id/exo_replay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
