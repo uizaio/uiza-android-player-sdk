@@ -1,7 +1,9 @@
 package com.uiza.sampleplayer;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,10 +18,7 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.ListUtils;
-import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.UZViewUtils;
-import com.uiza.sdk.view.UZDragView;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
@@ -31,8 +30,7 @@ import java.util.List;
  * Created by loitp on 9/1/2019.
  */
 
-public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZPlayerView.OnSingleTap, UZVideoViewItemClick,
-        UZPlayerView.ControllerStateCallback {
+public class PipPlayerActivity extends AppCompatActivity implements UZCallback, UZPlayerView.OnSingleTap, UZVideoViewItemClick {
     private static final String[] urls = new String[]{
             "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
             "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
@@ -40,7 +38,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
     HorizontalScrollView llBottom;
     private UZVideoView uzVideo;
-    private UZDragView uzDragView;
     private EditText etLinkPlay;
     private List<UZPlayback> playlist;
 
@@ -52,22 +49,16 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        UZPlayer.setUseWithUZDragView(true);
         UZPlayer.setCasty(this);
-        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player);
+        setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
-        uzDragView = findViewById(R.id.vdhv);
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
         Button btPlaylist = findViewById(R.id.bt_playlist);
-        uzDragView.setCallback(this);
-        uzDragView.setOnSingleTap(this);
-        uzDragView.setScreenRotate(false);
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
-        uzVideo.setControllerStateCallback(this);
+        uzVideo.setOnSingleTap(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlayback playbackInfo = null;
@@ -108,9 +99,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             onPlay(true);
         });
 
-        btPlaylist.setOnClickListener(view -> {
-                uzVideo.play(playlist);
-        });
+        btPlaylist.setOnClickListener(view -> uzVideo.play(playlist));
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
             if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
@@ -121,6 +110,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
                 UZToast.show(this, "Init failed");
         }
     }
+
 
     private void initPlaylist() {
         playlist = new ArrayList<>();
@@ -144,7 +134,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
-        uzDragView.setInitResult(isInitSuccess);
     }
 
     @Override
@@ -154,6 +143,18 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
                 onBackPressed();
             }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        uzVideo.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        uzVideo.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -168,7 +169,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             uzVideo.setFreeSize(false);
             uzVideo.setSize(w, h);
         }
-        uzDragView.setScreenRotate(isLandscape);
     }
 
     @Override
@@ -179,7 +179,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     public void onDestroy() {
         super.onDestroy();
         uzVideo.onDestroyView();
-        UZPlayer.setUseWithUZDragView(false);
     }
 
     @Override
@@ -191,7 +190,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     public void onPause() {
         super.onPause();
-        uzDragView.onPause();
         uzVideo.onPauseView();
     }
 
@@ -202,46 +200,17 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         }
     }
 
-    private void updateUIRevertMaxChange(boolean isEnableRevertMaxSize) {
-        if (isEnableRevertMaxSize && uzDragView.isAppear()) {
-            // todo
-        }
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
+        if (newConfig != null)
+            uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
     }
 
     @Override
-    public void onViewSizeChange(boolean isMaximizeView) {
-
-    }
-
-    @Override
-    public void onStateChange(UZDragView.State state) {
-
-    }
-
-    @Override
-    public void onPartChange(UZDragView.Part part) {
-
-    }
-
-    @Override
-    public void onViewPositionChanged(int left, int top, float dragOffset) {
-
-    }
-
-    @Override
-    public void onOverScroll(UZDragView.State state, UZDragView.Part part) {
-        uzVideo.pause();
-        uzDragView.disappear();
-    }
-
-    @Override
-    public void onEnableRevertMaxSize(boolean isEnableRevertMaxSize) {
-        updateUIRevertMaxChange(!isEnableRevertMaxSize);
-    }
-
-    @Override
-    public void onAppear(boolean isAppear) {
-        updateUIRevertMaxChange(uzDragView.isEnableRevertMaxSize());
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        uzVideo.enterPIPMode();
     }
 
     @Override
@@ -249,8 +218,4 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         uzVideo.toggleShowHideController();
     }
 
-    @Override
-    public void onVisibilityChange(boolean isShow) {
-        uzDragView.setVisibilityChange(isShow);
-    }
 }

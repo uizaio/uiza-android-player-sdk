@@ -16,44 +16,58 @@ import java.util.List;
 
 public abstract class VideoViewBase extends RelativeLayout {
 
+    private boolean isInit = false;
+
     public VideoViewBase(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public VideoViewBase(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public VideoViewBase(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        onInitView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public VideoViewBase(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        onInitView();
     }
 
     /**
-     * Call one time from {@link #onAttachedToWindow}
-     * Note: you must call inflate in this method
+     * constructors call 2 times, use isInit like a flag
      */
-    public abstract void onCreateView();
-
+    private void onInitView() {
+//        if (!isInit) {
+//            onCreateView();
+//            isInit = true;
+//        }
+    }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        onCreateView();
+        if (!isInit) {
+            onCreateView();
+            isInit = true;
+        }
     }
+
+    public abstract void onCreateView();
 
     /**
      * Play from custom Playback
+     *
      * @return true if success init
      */
     public abstract boolean play();
 
     /**
      * Play a playback
+     *
      * @param playback
      * @return true if success init
      */
@@ -61,6 +75,7 @@ public abstract class VideoViewBase extends RelativeLayout {
 
     /**
      * play a playlist
+     *
      * @param playlist
      * @return true if success init
      */

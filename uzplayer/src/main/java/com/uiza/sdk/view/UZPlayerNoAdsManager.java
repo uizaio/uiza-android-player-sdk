@@ -1,12 +1,15 @@
 package com.uiza.sdk.view;
 
 import android.os.Handler;
+import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.uiza.sdk.util.UZAppUtils;
 
 public final class UZPlayerNoAdsManager extends IUZPlayerManager {
 
@@ -19,7 +22,7 @@ public final class UZPlayerNoAdsManager extends IUZPlayerManager {
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null)
+            if (uzVideoView == null || uzVideoView.getUZPlayerView() == null)
                 return;
             handleVideoProgress();
             if (handler != null && runnable != null)
@@ -35,7 +38,7 @@ public final class UZPlayerNoAdsManager extends IUZPlayerManager {
 
         player = buildPlayer(drmSessionManager);
         playerHelper = new UZPlayerHelper(player);
-        uzVideoView.getUzPlayerView().setPlayer(player);
+        uzVideoView.getUZPlayerView().setPlayer(player);
 
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // Prepare the player with the source.
@@ -47,7 +50,13 @@ public final class UZPlayerNoAdsManager extends IUZPlayerManager {
             playerHelper.seekToDefaultPosition();
         else
             seekTo(contentPosition);
-
         notifyUpdateButtonVisibility();
+        if (UZAppUtils.hasSupportPIP(context)) {
+            //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
+            MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getPackageName());
+            MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
+            mediaSessionConnector.setPlayer(player);
+            mediaSession.setActive(true);
+        }
     }
 }

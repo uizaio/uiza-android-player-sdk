@@ -27,6 +27,9 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
     private boolean controllerVisible;
     private GestureDetector mDetector;
     private OnTouchEvent onTouchEvent;
+    private OnSingleTap onSingleTap;
+    private OnDoubleTap onDoubleTap;
+    private OnLongPressed onLongPressed;
     private ControllerStateCallback controllerStateCallback;
 
     public UZPlayerView(Context context) {
@@ -82,6 +85,18 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         this.onTouchEvent = onTouchEvent;
     }
 
+    public void setOnSingleTap(OnSingleTap onSingleTap) {
+        this.onSingleTap = onSingleTap;
+    }
+
+    public void setOnDoubleTap(OnDoubleTap onDoubleTap) {
+        this.onDoubleTap = onDoubleTap;
+    }
+
+    public void setOnLongPressed(OnLongPressed onLongPressed) {
+        this.onLongPressed = onLongPressed;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (UZData.getInstance().isUseUZDragView())
@@ -110,12 +125,19 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         void onVisibilityChange(boolean isShow);
     }
 
-    public interface OnTouchEvent {
+    public interface OnSingleTap {
         void onSingleTapConfirmed(float x, float y);
+    }
 
-        void onLongPress(float x, float y);
+    public interface OnLongPressed {
+        void onLongPressed(float x, float y);
+    }
 
+    public interface OnDoubleTap {
         void onDoubleTap(float x, float y);
+    }
+
+    public interface OnTouchEvent {
 
         void onSwipeRight();
 
@@ -144,25 +166,26 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
             } else if (getControllerHideOnTouch()) {
                 hideController();
             }
-            if (onTouchEvent != null) {
-                onTouchEvent.onSingleTapConfirmed(e.getX(), e.getY());
+            if (onSingleTap != null) {
+                onSingleTap.onSingleTapConfirmed(e.getX(), e.getY());
             }
             return true;
         }
 
         @Override
         public void onLongPress(MotionEvent e) {
-            if (onTouchEvent != null) {
-                onTouchEvent.onLongPress(e.getX(), e.getY());
+            if (onLongPressed != null) {
+                onLongPressed.onLongPressed(e.getX(), e.getY());
             }
         }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if (onTouchEvent != null) {
-                onTouchEvent.onDoubleTap(e.getX(), e.getY());
+            if (onDoubleTap != null) {
+                onDoubleTap.onDoubleTap(e.getX(), e.getY());
+                return true;
             }
-            return true;
+            return false;
         }
 
         @Override

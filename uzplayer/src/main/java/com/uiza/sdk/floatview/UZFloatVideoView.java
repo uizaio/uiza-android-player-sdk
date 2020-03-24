@@ -38,46 +38,47 @@ public class UZFloatVideoView extends VideoViewBase {
     private boolean isLiveStream;
     private long contentPosition;
     private boolean isOnStateReadyFirst;
-    private int progressBarColor = Color.WHITE;
     private long timestampRebufferStart;
     private int oldPercent = -1;
     private VideoViewBase.ProgressListener progressListener;
 
     private Callback callback;
+    private boolean init = false;
 
     public UZFloatVideoView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public UZFloatVideoView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public UZFloatVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        this(context, attrs, defStyleAttr, 0);
+        onInitView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public UZFloatVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+        onInitView();
+    }
+
+    private void onInitView(){
+        if(!init) {
+            inflate(getContext(), R.layout.uz_float_video_view, this);
+            progressBar = findViewById(R.id.pb);
+            playerView = findViewById(R.id.player_view);
+            init = true;
+        }
     }
 
     @Override
     public void onCreateView() {
-        inflate(getContext(), R.layout.uz_float_video_view, this);
-        progressBar = findViewById(R.id.pb);
-        UZViewUtils.setColorProgressBar(progressBar, progressBarColor);
-        playerView = findViewById(R.id.player_view);
+        // Nothing
     }
 
     //=============================================================================================================START CONFIG
-
-    public void setProgressBarColor(int progressBarColor) {
-        if (progressBar != null) {
-            this.progressBarColor = progressBarColor;
-            UZViewUtils.setColorProgressBar(progressBar, progressBarColor);
-        }
-    }
 
     @Override
     public long getCurrentPosition() {
@@ -137,7 +138,7 @@ public class UZFloatVideoView extends VideoViewBase {
     public boolean play() {
         UZPlayback playback = UZData.getInstance().getPlayback();
         if (playback != null) {
-            init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
+            init(playback.getLinkPlay(), playback.isLive(), 0, null);
             return true;
         } else
             return false;
@@ -145,7 +146,7 @@ public class UZFloatVideoView extends VideoViewBase {
 
     @Override
     public boolean play(@NonNull UZPlayback playback) {
-        init(playback.getLinkPlay(), playback.isLive(), 0, Color.WHITE, null);
+        init(playback.getLinkPlay(), playback.isLive(), 0, null);
         return true;
     }
 
@@ -180,17 +181,16 @@ public class UZFloatVideoView extends VideoViewBase {
         progressBar.setVisibility(VISIBLE);
     }
 
-    public void init(String linkPlay, boolean isLiveStream, long contentPosition, int progressBarColor, Callback callback) {
+    public void init(String linkPlay, boolean isLiveStream, long contentPosition, Callback callback) {
         if (TextUtils.isEmpty(linkPlay)) {
             Timber.e("init failed: linkPlay == null || linkPlay.isEmpty()");
             return;
         }
-        showProgress();
         this.linkPlay = linkPlay;
         this.isLiveStream = isLiveStream;
         this.contentPosition = contentPosition;
-        this.progressBarColor = progressBarColor;
-        UZViewUtils.setColorProgressBar(progressBar, this.progressBarColor);
+        showProgress();
+//        UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
         isOnStateReadyFirst = false;
         Timber.d("init linkPlay: %s, isLiveStream: %s", linkPlay, isLiveStream);
         this.callback = callback;

@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.uiza.sdk.util.Constants;
+import com.uiza.sdk.util.UZAppUtils;
 
 import timber.log.Timber;
 
@@ -34,9 +35,10 @@ public final class UZFloatPlayerManager extends UZFloatPlayerManagerAbs implemen
         if (urlIMAAd != null && !urlIMAAd.isEmpty()) {
             adsLoader = new ImaAdsLoader(context, Uri.parse(urlIMAAd));
         }
-        manifestDataSourceFactory = new DefaultDataSourceFactory(context, Constants.USER_AGENT);
+        String userAgent = UZAppUtils.getUserAgent(context);
+        manifestDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
         mediaDataSourceFactory =
-                new DefaultDataSourceFactory(context, Constants.USER_AGENT, new DefaultBandwidthMeter.Builder(context).build());
+                new DefaultDataSourceFactory(context, userAgent, new DefaultBandwidthMeter.Builder(context).build());
         handler = new Handler();
         runnable = () -> {
             if (fuzVideo.getPlayerView() != null) {

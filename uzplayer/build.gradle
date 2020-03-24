@@ -35,13 +35,15 @@ android {
 dependencies {
     //need for ima Ad https://stackoverflow.com/questions/31833479/didnt-find-class-com-google-android-gms-ads-identifier-advertisingidclient
     //
-    implementation 'com.google.android.gms:play-services-ads:19.0.0'
+    implementation 'com.google.android.gms:play-services-ads:19.0.1'
     implementation 'com.google.android.gms:play-services-cast-framework:18.1.0'
     // exoplayer
     api 'com.google.android.exoplayer:exoplayer:2.10.8'
     implementation 'com.google.android.exoplayer:extension-ima:2.10.8'
     implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.8'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.8'
+    implementation 'com.google.android.exoplayer:extension-mediasession:2.10.8'
+
     // android support lib
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.mediarouter:mediarouter:1.1.0'

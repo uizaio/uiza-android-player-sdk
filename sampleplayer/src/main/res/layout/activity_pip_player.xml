@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_smoke"
+    android:orientation="vertical">
+
+    <com.uiza.sdk.view.UZVideoView
+        android:id="@+id/uz_video_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:id="@id/body_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <EditText
+                android:id="@+id/et_link_play"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter any linkplay here"
+                android:padding="5dp"
+                android:textSize="@dimen/txt_14" />
+
+            <HorizontalScrollView
+                android:id="@+id/hsv_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/bt_0"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_5"
+                        android:text="Link 0"
+                        android:textSize="@dimen/txt_18" />
+
+                    <Button
+                        android:id="@+id/bt_1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_5"
+                        android:text="Link 1"
+                        android:textSize="@dimen/txt_18" />
+
+                    <Button
+                        android:id="@+id/bt_2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_5"
+                        android:text="Link 2"
+                        android:textSize="@dimen/txt_18" />
+
+                    <Button
+                        android:id="@+id/bt_3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/padding_5"
+                        android:text="Link 3"
+                        android:textSize="@dimen/txt_18" />
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <Button
+                android:id="@+id/bt_stats_for_nerds"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_5"
+                android:text="StatsForNerds toggle"
+                android:textSize="@dimen/txt_18" />
+
+            <Button
+                android:id="@+id/bt_playlist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/w_15"
+                android:padding="@dimen/padding_5"
+                android:text="Playlist"
+                android:textSize="@dimen/txt_18" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

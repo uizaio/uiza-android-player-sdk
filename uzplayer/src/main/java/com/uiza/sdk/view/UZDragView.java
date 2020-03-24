@@ -44,6 +44,9 @@ public class UZDragView extends LinearLayout {
     private Part part;
     private GestureDetector mDetector;
     private UZPlayerView.OnTouchEvent onTouchEvent;
+    private UZPlayerView.OnSingleTap onSingleTap;
+    private UZPlayerView.OnDoubleTap onDoubleTap;
+    private UZPlayerView.OnLongPressed onLongPressed;
     private boolean isAppear = true;
     private boolean isEnableSlide;
     private boolean isInitSuccess;
@@ -450,6 +453,18 @@ public class UZDragView extends LinearLayout {
         this.onTouchEvent = onTouchEvent;
     }
 
+    public void setOnSingleTap(UZPlayerView.OnSingleTap onSingleTap) {
+        this.onSingleTap = onSingleTap;
+    }
+
+    public void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
+        this.onDoubleTap = onDoubleTap;
+    }
+
+    public void setOnLongPressed(UZPlayerView.OnLongPressed onLongPressed) {
+        this.onLongPressed = onLongPressed;
+    }
+
     public enum State {TOP, TOP_LEFT, TOP_RIGHT, BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, MID, MID_LEFT, MID_RIGHT, NULL}
 
     public enum Part {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT}
@@ -486,22 +501,24 @@ public class UZDragView extends LinearLayout {
             if (!isEnableRevertMaxSize)
                 setEnableRevertMaxSize(true);
             maximize();
-            if (onTouchEvent != null)
-                onTouchEvent.onSingleTapConfirmed(e.getX(), e.getY());
+            if (onSingleTap != null)
+                onSingleTap.onSingleTapConfirmed(e.getX(), e.getY());
             return true;
         }
 
         @Override
         public void onLongPress(MotionEvent e) {
-            if (onTouchEvent != null)
-                onTouchEvent.onLongPress(e.getX(), e.getY());
+            if (onLongPressed != null)
+                onLongPressed.onLongPressed(e.getX(), e.getY());
         }
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
-            if (onTouchEvent != null)
-                onTouchEvent.onDoubleTap(e.getX(), e.getY());
-            return true;
+            if (onDoubleTap != null) {
+                onDoubleTap.onDoubleTap(e.getX(), e.getY());
+                return true;
+            }
+            return false;
         }
 
         @Override

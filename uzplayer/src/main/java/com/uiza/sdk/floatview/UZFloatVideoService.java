@@ -78,7 +78,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     private int marginT;
     private int marginR;
     private int marginB;
-    private int progressBarColor;
     private int positionBeforeDisappearX = -1;
     private int positionBeforeDisappearY = -1;
     private CountDownTimer countDownTimer;
@@ -98,7 +97,6 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         contentPosition = intent.getLongExtra(Constants.FLOAT_CONTENT_POSITION, 0);
-        progressBarColor = intent.getIntExtra(Constants.FLOAT_PROGRESS_BAR_COLOR, Color.WHITE);
         int pipControlSkin = intent.getIntExtra(Constants.FLOAT_CONTROL_SKIN_ID, 0);
         if (controlStub != null && rlControl == null) {
             // this means control is not inflated yet
@@ -687,13 +685,12 @@ public class UZFloatVideoService extends Service implements UZFloatVideoView.Cal
 
     private void setupVideo() {
         if (TextUtils.isEmpty(linkPlay)) {
-            Timber.e("setupVideo linkPlay == null || linkPlay.isEmpty() -> stopSelf");
+            Timber.e("setupVideo linkPlay.isBlank() -> stopSelf");
             stopSelf();
             return;
         }
-        Timber.d("setupVideo linkPlay: %s, isLivestream: %s", linkPlay, isLiveStream);
         if (ConnectivityUtils.isConnected(this)) {
-            uzFLVideo.init(linkPlay, isLiveStream, contentPosition, progressBarColor, this);
+            uzFLVideo.init(linkPlay, isLiveStream, contentPosition, this);
             tvMsg.setVisibility(View.GONE);
         } else
             tvMsg.setVisibility(View.VISIBLE);

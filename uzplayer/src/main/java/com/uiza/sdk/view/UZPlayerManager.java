@@ -2,6 +2,7 @@ package com.uiza.sdk.view;
 
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -13,10 +14,12 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.util.LocalData;
+import com.uiza.sdk.util.UZAppUtils;
 
 import timber.log.Timber;
 
@@ -62,7 +65,7 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideoView == null || uzVideoView.getUzPlayerView() == null)
+            if (uzVideoView == null || uzVideoView.getUZPlayerView() == null)
                 return;
             if (uzVideoAdPlayerListener.isEnded())
                 onAdEnded();
@@ -99,7 +102,7 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
         player = buildPlayer(drmSessionManager);
         playerHelper = new UZPlayerHelper(player);
 
-        uzVideoView.getUzPlayerView().setPlayer(player);
+        uzVideoView.getUZPlayerView().setPlayer(player);
 
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // merge ads to media source subtitle
@@ -119,13 +122,20 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
         else
             seekTo(contentPosition);
         notifyUpdateButtonVisibility();
+        if(UZAppUtils.hasSupportPIP(context)) {
+            //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
+            MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getPackageName());
+            MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
+            mediaSessionConnector.setPlayer(player);
+            mediaSession.setActive(true);
+        }
     }
 
     private MediaSource createMediaSourceWithAds(MediaSource mediaSource) {
         if (adsLoader == null)
             return mediaSource;
         return new AdsMediaSource(mediaSource, this, adsLoader,
-                uzVideoView.getUzPlayerView());
+                uzVideoView.getUZPlayerView());
     }
 
     public void reset() {

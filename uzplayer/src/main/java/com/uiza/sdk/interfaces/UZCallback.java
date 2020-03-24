@@ -9,7 +9,7 @@ public interface UZCallback {
     void isInitResult(boolean isInitSuccess, UZPlayback playback);
 
     //when pip video is init success
-    void onStateMiniPlayer(boolean isInitMiniPlayerSuccess);
+//    void onStateMiniPlayer(boolean isInitMiniPlayerSuccess);
 
     //when skin is changed
     void onSkinChange();

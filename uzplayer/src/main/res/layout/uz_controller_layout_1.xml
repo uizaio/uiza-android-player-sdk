@@ -32,13 +32,13 @@
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
-        <!--<com.uiza.sdk.widget.autosize.UZImageButton
+        <com.uiza.sdk.widget.autosize.UZImageButton
             android:id="@id/exo_picture_in_picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/transparent"
+            android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_picture_in_picture_alt_white_48" />-->
+            android:src="@drawable/ic_picture_in_picture_alt_white_48" />
 
         <com.uiza.sdk.widget.autosize.UZImageButton
             android:id="@id/exo_fullscreen_toggle_icon"

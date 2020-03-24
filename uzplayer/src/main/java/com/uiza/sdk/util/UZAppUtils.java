@@ -31,6 +31,10 @@ public class UZAppUtils {
     }
 
 
+    public static String getUserAgent(@NonNull Context context) {
+        return context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
+    }
+
     public static boolean checkChromeCastAvailable() {
         return UZAppUtils.isDependencyAvailable("com.google.android.gms.cast.framework.OptionsProvider")
                 && UZAppUtils.isDependencyAvailable("androidx.mediarouter.app.MediaRouteButton");
@@ -153,4 +157,12 @@ public class UZAppUtils {
         }
     }
 
+    /**
+     * Feature for {@link PackageManager#getSystemAvailableFeatures} and {@link PackageManager#hasSystemFeature}:
+     * The device supports picture-in-picture multi-window mode.
+     */
+    public static boolean hasSupportPIP(@NonNull Context context) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE);
+    }
 }

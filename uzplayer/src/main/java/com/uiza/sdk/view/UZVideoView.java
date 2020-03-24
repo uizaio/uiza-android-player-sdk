@@ -3,25 +3,30 @@ package com.uiza.sdk.view;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
+import android.app.PictureInPictureParams;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.util.Rational;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -42,6 +47,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.TextOutput;
@@ -141,8 +147,9 @@ public class UZVideoView extends VideoViewBase
     private UZChromeCast uzChromeCast;
     private boolean isCastingChromecast = false;
     private boolean autoMoveToLiveEdge;
-    private @LayoutRes
-    int pipControlSkin;
+    private boolean isInPipMode = false;
+    private boolean isPIPModeEnabled = true; //Has the user disabled PIP mode in AppOpps?
+    private long positionPIPPlayer;
     //========================================================================START CONFIG
     private boolean isAutoStart = Constants.DF_PLAYER_IS_AUTO_START;
     private boolean isAutoSwitchItemPlaylistFolder = true;
@@ -158,7 +165,6 @@ public class UZVideoView extends VideoViewBase
     private boolean isOnPreview;
     private long maxSeekLastDuration;
     private boolean isLandscape;//current screen is landscape or portrait
-    private boolean isInitMiniPlayerSuccess = true;
     private boolean isHideOnTouch = true;
     private boolean isDefaultUseController = true;
     private boolean isOnPlayerEnded;
@@ -172,7 +178,6 @@ public class UZVideoView extends VideoViewBase
     private long currentPositionBeforeChangeSkin;
     private boolean isCalledFromChangeSkin;
     private View firstViewHasFocus;
-    private int progressBarColor = Color.WHITE;
     /**
      * ======== START EVENT =====
      */
@@ -187,41 +192,30 @@ public class UZVideoView extends VideoViewBase
     private long timestampInitDataSource;
     //=============================================================================================START EVENTBUS
     private boolean isCalledFromConnectionEventBus = false;
-    private long positionMiniPlayer;
     //last current position lúc từ exoplayer switch sang cast player
     private long lastCurrentPosition;
     private boolean isCastPlayerPlayingFirst;
     private StatsForNerdsView statsForNerdsView;
     private UZAdPlayerCallback videoAdPlayerCallback;
 
+
     public UZVideoView(Context context) {
         super(context);
-        initView(null, 0);
     }
 
     public UZVideoView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initView(attrs, 0);
     }
 
     public UZVideoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initView(attrs, defStyleAttr);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public UZVideoView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        initView(attrs, defStyleAttr);
     }
 
-    /**
-     * Call twice time
-     * Node: Don't call inflate in this method
-     */
-    private void initView(AttributeSet attrs, int defStyleAttr) {
-        // nothing
-    }
 
     /**
      * Call one time from {@link #onAttachedToWindow}
@@ -231,8 +225,6 @@ public class UZVideoView extends VideoViewBase
     public void onCreateView() {
         if (UZAppUtils.checkChromeCastAvailable())
             setupChromeCast();
-        ((Activity) getContext()).getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
-                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         EventBus.getDefault().register(this);
         startConnectifyService();
         inflate(getContext(), R.layout.uz_ima_video_core_rl, this);
@@ -545,7 +537,7 @@ public class UZVideoView extends VideoViewBase
         if (isLiveStream)
             startTime = -1;
         if (uzPlayerManager != null) {
-            releaseUzPlayerManager();
+            releaseUZPlayerManager();
             resetCountTryLinkPlayError();
             showProgress();
         }
@@ -585,8 +577,7 @@ public class UZVideoView extends VideoViewBase
             return;
         }
         countTryLinkPlayError++;
-        Timber.e("%s: %d", getContext().getString(R.string.cannot_play_will_try), countTryLinkPlayError);
-        releaseUzPlayerManager();
+        releaseUZPlayerManager();
         checkToSetUpResource();
     }
 
@@ -606,24 +597,40 @@ public class UZVideoView extends VideoViewBase
         countTryLinkPlayError = 0;
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        ((Activity) getContext()).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        super.onDetachedFromWindow();
+    public boolean onBackPressed() {
+        if (isLandscape()) {
+            toggleFullscreen();
+            return true;
+        }
+        if (UZAppUtils.hasSupportPIP(getContext()) && isPIPModeEnabled) {
+            enterPIPMode();
+            return true;
+        }
+        return false;
+    }
+
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
+        positionPIPPlayer = getCurrentPosition();
+        isInPipMode = !isInPictureInPictureMode;
+        if (!isPlaying() && uzPlayerView != null) {
+            uzPlayerView.setUseController(true);
+        }
     }
 
     public void onDestroyView() {
-        //cannot use isGetClickedPip (global variable), must use UizaUtil.getClickedPip(activity)
         if (LocalData.getClickedPip())
             UZAppUtils.stopMiniPlayer(getContext());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             getContext().stopService(new Intent(getContext(), UZConnectifyService.class));
         releasePlayerAnalytic();
-        releaseUzPlayerManager();
+        releaseUZPlayerManager();
         UZData.getInstance().setSettingPlayer(false);
         isCastingChromecast = false;
         isCastPlayerPlayingFirst = false;
         EventBus.getDefault().unregister(this);
+        if (UZAppUtils.hasSupportPIP(getContext())) {
+            ((Activity) getContext()).finishAndRemoveTask();
+        }
     }
 
     private void releasePlayerAnalytic() {
@@ -631,7 +638,7 @@ public class UZVideoView extends VideoViewBase
             getPlayer().removeAnalyticsListener(statsForNerdsView);
     }
 
-    private void releaseUzPlayerManager() {
+    private void releaseUZPlayerManager() {
         if (uzPlayerManager != null)
             uzPlayerManager.release();
     }
@@ -648,7 +655,14 @@ public class UZVideoView extends VideoViewBase
         // try to move to the edge of livestream video
         if (autoMoveToLiveEdge && isLiveStream())
             seekToLiveEdge();
+        else if (positionPIPPlayer > 0L && isInPipMode) {
+            seekTo(positionPIPPlayer);
+        }
+        //Makes sure that the media controls pop up on resuming and when going between PIP and non-PIP states.
+        if (uzPlayerView != null)
+            uzPlayerView.setUseController(true);
     }
+
 
     public boolean isPlaying() {
         return (getPlayer() != null) && getPlayer().getPlayWhenReady();
@@ -671,20 +685,20 @@ public class UZVideoView extends VideoViewBase
             getPlayer().seekToDefaultPosition();
     }
 
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putLong("ARG_VIDEO_POSITION", getCurrentPosition());
+    }
+
+    public void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        positionPIPPlayer = savedInstanceState.getLong("ARG_VIDEO_POSITION");
+    }
+
     public void onPauseView() {
         activityIsPausing = true;
+        positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
         if (uzPlayerManager != null)
             uzPlayerManager.pause();
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (isCastingChromecast()) {
-            Timber.e("Error: handleClickPictureInPicture isCastingChromecast -> return");
-            return;
-        }
-        if (UZViewUtils.isCanOverlay(getContext()))
-            initializePiP();
     }
 
     @Override
@@ -773,7 +787,7 @@ public class UZVideoView extends VideoViewBase
             UZViewUtils.showDefaultControls((Activity) getContext());
             isLandscape = false;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, false);
-            if (!isCastingChromecast())
+            if (!isCastingChromecast() && UZAppUtils.hasSupportPIP(getContext()))
                 UZViewUtils.visibleViews(ibPictureInPictureIcon);
         }
         TmpParamData.getInstance().setPlayerIsFullscreen(isLandscape);
@@ -806,7 +820,7 @@ public class UZVideoView extends VideoViewBase
         else if (v == ibHearingIcon)
             handleClickHearing();
         else if (v == ibPictureInPictureIcon)
-            handleClickPictureInPicture();
+            enterPIPMode();
         else if (v.getParent() == debugRootView)
             showUZTrackSelectionDialog(v, true);
         else if (v == rlChromeCast)
@@ -861,44 +875,26 @@ public class UZVideoView extends VideoViewBase
             uzVideoViewItemClick.onItemClick(v);
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
-    private void handleClickPictureInPicture() {
-        if (!isInitMiniPlayerSuccess) {
-            //dang init 1 instance mini player roi, khong cho init nua
-            notifyError(ErrorUtils.exceptionShowPip());
-            return;
+    @TargetApi(Build.VERSION_CODES.N)
+    public void enterPIPMode() {
+        if (UZAppUtils.hasSupportPIP(getContext())) {
+            positionPIPPlayer = getCurrentPosition();
+            uzPlayerView.setUseController(false);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                PictureInPictureParams.Builder params = new PictureInPictureParams.Builder();
+                Rational aspectRatio = new Rational(getVideoWidth(), getVideoHeight());
+                params.setAspectRatio(aspectRatio);
+                ((Activity) getContext()).enterPictureInPictureMode(params.build());
+            } else {
+                ((Activity) getContext()).enterPictureInPictureMode();
+            }
         }
-        if (isCastingChromecast()) {
-            notifyError(ErrorUtils.exceptionShowPip());
-            return;
-        }
-        if (UZViewUtils.isCanOverlay(getContext())) {
-            initializePiP();
-        } else {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getContext().getPackageName()));
-            ((Activity) getContext()).startActivityForResult(intent, Constants.CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-        }
-    }
-
-    public void initializePiP() {
-        if (uzPlayerManager == null || TextUtils.isEmpty(uzPlayerManager.getLinkPlay())) {
-            notifyError(ErrorUtils.exceptionShowPip());
-            return;
-        }
-        UZViewUtils.goneViews(ibPictureInPictureIcon);
-        if (uzCallback != null) {
-            isInitMiniPlayerSuccess = false;
-            uzCallback.onStateMiniPlayer(false);
-        }
-        LocalData.setVideoWidth(getVideoWidth());
-        LocalData.setVideoHeight(getVideoHeight());
-        Intent intent = new Intent(getContext(), UZFloatVideoService.class);
-        intent.putExtra(Constants.FLOAT_CONTENT_POSITION, getCurrentPosition());
-        intent.putExtra(Constants.FLOAT_LINK_PLAY, uzPlayerManager.getLinkPlay());
-        intent.putExtra(Constants.FLOAT_IS_LIVESTREAM, isLiveStream);
-        intent.putExtra(Constants.FLOAT_PROGRESS_BAR_COLOR, progressBarColor);
-        intent.putExtra(Constants.FLOAT_CONTROL_SKIN_ID, pipControlSkin);
-        getContext().startService(intent);
+        postDelayed(() -> {
+            isPIPModeEnabled = ((Activity) getContext()).isInPictureInPictureMode();
+            if (!isPIPModeEnabled) {
+                onBackPressed();
+            }
+        }, 60);
     }
 
     public int getControllerShowTimeoutMs() {
@@ -922,7 +918,6 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void hideController() {
-        Timber.e("hideController");
         if (isPlayerControllerAlwayVisible) return;
         if (uzPlayerView != null && !isCastingChromecast)//dont hide if is casting chromecast
             uzPlayerView.hideController();
@@ -1037,6 +1032,7 @@ public class UZVideoView extends VideoViewBase
                     public void onClickItem(UZPlayback playback, int position) {
                         playPlaylistPosition(position);
                     }
+
                     @Override
                     public void onFocusChange(UZPlayback playback, int position) {
                     }
@@ -1178,26 +1174,6 @@ public class UZVideoView extends VideoViewBase
         ibSettingIcon.performClick();
     }
 
-    /*
-     ** Hiển thị picture in picture và close video view hiện tại
-     * Chỉ work nếu local player đang không casting
-     * Device phải là tablet
-     */
-    public void showPip() {
-        if (isCastingChromecast()) {
-            Timber.e(ErrorConstant.ERR_19);
-            notifyError(ErrorUtils.exceptionShowPip());
-        } else {
-            // [Re-check]: Why use performClick?
-            // UIUtils.performClick(ibPictureInPictureIcon);
-            handleClickPictureInPicture();
-        }
-    }
-
-    public void setPipControlSkin(@LayoutRes int skinId) {
-        this.pipControlSkin = skinId;
-    }
-
     public void showSpeed() {
         if (getPlayer() == null) return;
         final UZSpeedDialog uzDlgSpeed = new UZSpeedDialog(getContext(), getPlayer().getPlaybackParameters().speed,
@@ -1222,7 +1198,7 @@ public class UZVideoView extends VideoViewBase
         handleClickSkipPrevious();
     }
 
-    public PlayerView getUzPlayerView() {
+    public PlayerView getUZPlayerView() {
         return uzPlayerView;
     }
 
@@ -1436,7 +1412,7 @@ public class UZVideoView extends VideoViewBase
         ivVideoCover = findViewById(R.id.iv_cover);
         llTop = findViewById(R.id.ll_top);
         progressBar = findViewById(R.id.pb);
-        UZViewUtils.setColorProgressBar(progressBar, progressBarColor);
+        UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
         updateUIPositionOfProgressBar();
         uzPlayerView.setControllerStateCallback(this);
         uzTimebar = uzPlayerView.findViewById(R.id.exo_progress);
@@ -1488,6 +1464,8 @@ public class UZVideoView extends VideoViewBase
         ibSkipNextIcon = uzPlayerView.findViewById(R.id.exo_skip_next);
         ibSkipPreviousIcon = uzPlayerView.findViewById(R.id.exo_skip_previous);
         ibSpeedIcon = uzPlayerView.findViewById(R.id.exo_speed);
+        if(!UZAppUtils.hasSupportPIP(getContext()))
+            UZViewUtils.goneViews(ibPictureInPictureIcon);
         LinearLayout debugLayout = findViewById(R.id.debug_layout);
         debugRootView = findViewById(R.id.controls_root);
         if (BuildConfig.DEBUG) {
@@ -1688,7 +1666,7 @@ public class UZVideoView extends VideoViewBase
             if (UZAppUtils.checkChromeCastAvailable())
                 setupChromeCast();
             currentPositionBeforeChangeSkin = getCurrentPosition();
-            releaseUzPlayerManager();
+            releaseUZPlayerManager();
             updateUIDependOnLivestream();
             setTitle();
             checkToSetUpResource();
@@ -2022,13 +2000,6 @@ public class UZVideoView extends VideoViewBase
         }
     }
 
-    public void setProgressBarColor(int progressBarColor) {
-        if (progressBar != null) {
-            this.progressBarColor = progressBarColor;
-            UZViewUtils.setColorProgressBar(progressBar, progressBarColor);
-        }
-    }
-
     public void hideProgress() {
         if (uzPlayerManager != null)
             uzPlayerManager.hideProgress();
@@ -2096,6 +2067,21 @@ public class UZVideoView extends VideoViewBase
             uzPlayerView.setOnTouchEvent(onTouchEvent);
     }
 
+    public void setOnSingleTap(UZPlayerView.OnSingleTap onSingleTap) {
+        if (uzPlayerView != null)
+            uzPlayerView.setOnSingleTap(onSingleTap);
+    }
+
+    public void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
+        if (uzPlayerView != null)
+            uzPlayerView.setOnDoubleTap(onDoubleTap);
+    }
+
+    public void setOnLongPressed(UZPlayerView.OnLongPressed onLongPressed) {
+        if (uzPlayerView != null)
+            uzPlayerView.setOnLongPressed(onLongPressed);
+    }
+
     public void setAudioListener(AudioListener audioListener) {
         this.audioListener = audioListener;
     }
@@ -2128,9 +2114,8 @@ public class UZVideoView extends VideoViewBase
         }
         isLiveStream = playback.isLive();
         isGetClickedPip = LocalData.getClickedPip();
-        Timber.d("checkData isLivestream: %b, isGetClickedPip: %b", isLiveStream, isGetClickedPip);
         if (uzPlayerManager != null) {
-            releaseUzPlayerManager();
+            releaseUZPlayerManager();
             resetCountTryLinkPlayError();
             showProgress();
         }
@@ -2296,7 +2281,7 @@ public class UZVideoView extends VideoViewBase
 
     private void initUZPlayerManager() {
         if (uzPlayerManager != null) {
-            uzPlayerManager.init();
+            uzPlayerManager.init(this);
             if (isGetClickedPip && !isPlayPlaylistFolder())
                 uzPlayerManager.getPlayer().setPlayWhenReady(false);
             else {
@@ -2318,7 +2303,7 @@ public class UZVideoView extends VideoViewBase
 
     //=============================================================================================START CHROMECAST
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN_ORDERED)
     public void onMessageEvent(EventBusData.ConnectEvent event) {
         if (event == null || uzPlayerManager == null) return;
         if (!event.isConnected()) notifyError(ErrorUtils.exceptionNoConnection());
@@ -2330,7 +2315,7 @@ public class UZVideoView extends VideoViewBase
                 isCalledFromConnectionEventBus = true;
                 uzPlayerManager.setResumeIfConnectionError();
                 if (!activityIsPausing) {
-                    uzPlayerManager.init();
+                    uzPlayerManager.init(this);
                     if (isCalledFromConnectionEventBus) {
                         uzPlayerManager.setRunnable();
                         isCalledFromConnectionEventBus = false;
@@ -2342,50 +2327,18 @@ public class UZVideoView extends VideoViewBase
     }
 
     public boolean isInitNewItem(String urlImgThumbnail) {
-        if (positionMiniPlayer != 0) {
-            seekTo(positionMiniPlayer);
+        if (positionPIPPlayer != 0) {
+            seekTo(positionPIPPlayer);
             resume();
             sendEventInitSuccess();
-            positionMiniPlayer = 0;
+            positionPIPPlayer = 0;
             return false;
         } else {
             setUrlImgThumbnail(urlImgThumbnail);
             pause();
             showProgress();
-            positionMiniPlayer = 0;
+            positionPIPPlayer = 0;
             return true;
-        }
-    }
-
-    //listen msg from service FloatUizaVideoService
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(CommunicateMng.MsgFromService msg) {
-        if (msg == null || uzPlayerManager == null) return;
-        //click open app of mini player
-        if (msg instanceof CommunicateMng.MsgFromServiceOpenApp) {
-            Timber.d("miniplayer STEP 6");
-            try {
-                positionMiniPlayer = ((CommunicateMng.MsgFromServiceOpenApp) msg).getPositionMiniPlayer();
-                Class classNamePfPlayer = Class.forName(((Activity) getContext()).getClass().getName());
-                Intent intent = new Intent(getContext(), classNamePfPlayer);
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.putExtra(Constants.KEY_UIZA_ENTITY_ID, UZData.getInstance().getEntityId());
-                getContext().startActivity(intent);
-            } catch (ClassNotFoundException e) {
-                Timber.w(e);
-            }
-            return;
-        }
-        //when pip float view init success
-        if (uzCallback != null && msg instanceof CommunicateMng.MsgFromServiceIsInitSuccess) {
-            //Ham nay duoc goi khi player o FloatUizaVideoService da init xong
-            //Nhiem vu la minh se gui vi tri hien tai sang cho FloatUizaVideoService no biet
-            Timber.d("miniplayer STEP 3 UZVideo biet FloatUizaVideoService da init xong -> gui lai content position cua UZVideo cho FloatUizaVideoService");
-            CommunicateMng.MsgFromActivityPosition msgFromActivityPosition = new CommunicateMng.MsgFromActivityPosition(null);
-            msgFromActivityPosition.setPosition(getCurrentPosition());
-            CommunicateMng.postFromActivity(msgFromActivityPosition);
-            isInitMiniPlayerSuccess = true;
-            uzCallback.onStateMiniPlayer(((CommunicateMng.MsgFromServiceIsInitSuccess) msg).isInitSuccess());
         }
     }
 
@@ -2438,9 +2391,6 @@ public class UZVideoView extends VideoViewBase
                 .setStreamDuration(duration)
                 .build();
 
-        //play chromecast with full screen control
-        //UizaData.getInstance().getCasty().getPlayer().loadMediaAndPlay(mediaInfo, true, lastCurrentPosition);
-
         //play chromecast without screen control
         Casty casty = UZData.getInstance().getCasty();
         if (casty != null) {
@@ -2468,7 +2418,6 @@ public class UZVideoView extends VideoViewBase
             uzPlayerManager.setVolume(0f);
             UZViewUtils.visibleViews(rlChromeCast, ibPlayIcon);
             UZViewUtils.goneViews(ibPauseIcon);
-//            UIUtils.goneViews(ibSettingIcon, ibCcIcon, ibBackScreenIcon, ibPlayIcon, ibPauseIcon, ibVolumeIcon);
             //casting player luôn play first với volume not mute
             //UizaData.getInstance().getCasty().setVolume(0.99);
             if (uzPlayerView != null)

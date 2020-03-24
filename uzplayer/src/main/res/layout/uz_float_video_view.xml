@@ -17,6 +17,7 @@
         style="?android:attr/progressBarStyleLarge"
         android:layout_width="@dimen/w_20"
         android:layout_height="@dimen/w_20"
+        android:secondaryProgressTint="@android:color/white"
         android:layout_centerInParent="true" />
 
 </RelativeLayout>

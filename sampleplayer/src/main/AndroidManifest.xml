@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.uiza.sampleplayer">
 
     <application
@@ -11,7 +12,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".PlayerActivity"
+            android:name=".PipPlayerActivity"
+            android:resizeableActivity="true"
+            android:supportsPictureInPicture="true"
+            tools:targetApi="n"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>

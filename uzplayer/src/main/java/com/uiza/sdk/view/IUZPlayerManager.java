@@ -1,5 +1,6 @@
 package com.uiza.sdk.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
@@ -62,6 +63,7 @@ import com.uiza.sdk.util.ListUtils;
 import com.uiza.sdk.util.LocalData;
 import com.uiza.sdk.util.StringUtils;
 import com.uiza.sdk.util.TmpParamData;
+import com.uiza.sdk.util.UZAppUtils;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.autosize.UZImageButton;
 import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
@@ -92,6 +94,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
     protected int percent = 0;
     protected int s = 0;
     protected DefaultTrackSelector trackSelector;
+    private String userAgent;
     protected String drmScheme;
     private String linkPlay;
     private boolean isFirstStateReady;
@@ -121,7 +124,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
         this.uzVideoView = uzVideo;
         this.linkPlay = linkPlay;
         this.isFirstStateReady = false;
-
+        userAgent = UZAppUtils.getUserAgent(this.context);
         // OPTION 1 OK
         /* manifestDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
         mediaDataSourceFactory = new DefaultDataSourceFactory(
@@ -132,21 +135,24 @@ abstract class IUZPlayerManager implements PreviewLoader {
         // OPTION 2 PLAY LINK REDIRECT
         // Default parameters, except allowCrossProtocolRedirects is true
         this.manifestDataSourceFactory =
-                new DefaultHttpDataSourceFactory(Constants.USER_AGENT, null /* listener */,
+                new DefaultHttpDataSourceFactory(userAgent, null /* listener */,
                         DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
                         DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
                         true /* allowCrossProtocolRedirects */);
         this.mediaDataSourceFactory =
                 new DefaultDataSourceFactory(context, null /* listener */, manifestDataSourceFactory);
-
         //SETUP OTHER
         this.imageView = uzVideo.getIvThumbnail();
         this.uzTimeBar = uzVideo.getUZTimeBar();
         this.thumbnailsUrl = thumbnailsUrl;
     }
 
-    public void init() {
+    public void init(@NonNull UZVideoView uzVideo) {
         reset();
+        if (this.uzVideoView == null) {
+            this.uzVideoView = uzVideo;
+            this.context = uzVideo.getContext();
+        }
         initSource();
     }
 
@@ -457,8 +463,8 @@ abstract class IUZPlayerManager implements PreviewLoader {
         uzVideoView.removeVideoCover(false);
     }
 
-    private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
-                                                                                     String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
+    private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl,
+                                                                                     String[] keyRequestPropertiesArray, boolean multiSession)
             throws UnsupportedDrmException {
 
         HttpDataSource.Factory licenseDataSourceFactory = buildHttpDataSourceFactory();
@@ -474,7 +480,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
     }
 
     private HttpDataSource.Factory buildHttpDataSourceFactory() {
-        return new DefaultHttpDataSourceFactory(Constants.USER_AGENT);
+        return new DefaultHttpDataSourceFactory(userAgent);
     }
 
     abstract void initSource();
@@ -685,6 +691,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
                         onFirstStateReady();
                         isFirstStateReady = true;
                     }
+                    ((Activity)uzVideoView.getContext()).setResult(Activity.RESULT_OK);
                     break;
             }
             notifyUpdateButtonVisibility();

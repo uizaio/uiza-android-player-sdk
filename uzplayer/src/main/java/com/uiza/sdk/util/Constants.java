@@ -5,7 +5,6 @@ import com.uiza.sdk.BuildConfig;
 public class Constants {
 
     public static final String PLAYER_NAME = "UZPlayer";
-    public static final String USER_AGENT = "UZPlayer-Android";
     public static final String PLAYER_SDK_VERSION = BuildConfig.VERSION_NAME;
 
     public static final float RATIO_9_16 = 9f / 16f;
@@ -30,7 +29,6 @@ public class Constants {
 
     public final static String FLOAT_LINK_PLAY = "FLOAT_LINK_PLAY";
     public final static String FLOAT_CONTENT_POSITION = "FLOAT_CONTENT_POSITION";
-    public final static String FLOAT_PROGRESS_BAR_COLOR = "FLOAT_PROGRESS_BAR_COLOR";
     public final static String FLOAT_IS_LIVESTREAM = "FLOAT_IS_LIVESTREAM";
     public final static String FLOAT_CONTROL_SKIN_ID = "FLOAT_CONTROL_SKIN_ID";
 
