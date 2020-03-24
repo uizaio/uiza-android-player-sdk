@@ -8,6 +8,12 @@ import timber.log.Timber;
 
 public class LSApplication extends MultiDexApplication {
 
+    public static final String[] urls = new String[]{
+            "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
+            "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
+            "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+            "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -235,6 +235,13 @@ But if you wanna change the player's skin when the player is playing, please you
 Ex: `android:id="@id/player_view"`
 Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_0"` ...
 
+## Picture In Picture (PIP)
+
+1. You can use `UZDragView`, review [`PlayerActivity`](https://github.com/uizaio/uiza-android-player-sdk/blob/master/sampleplayer/src/main/java/com/uiza/sampleplayer/PlayerActivity.java)
+
+2. From `Android Nougat` (Android SDK >= 24) Google supported `PIP`. To implement,
+in `AndroidManifest.xml` add `android:supportsPictureInPicture="true"` inside `Your Activity` and review [`PIPPlayerActivity`](https://github.com/uizaio/uiza-android-player-sdk/blob/master/sampleplayer/src/main/java/com/uiza/sampleplayer/PipPlayerActivity.java).
+
 ## R8 / ProGuard
 
 ___Do not support R8___

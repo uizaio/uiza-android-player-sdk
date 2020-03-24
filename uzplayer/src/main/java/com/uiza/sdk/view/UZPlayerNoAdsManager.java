@@ -11,6 +11,8 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.uiza.sdk.util.UZAppUtils;
 
+import timber.log.Timber;
+
 public final class UZPlayerNoAdsManager extends IUZPlayerManager {
 
     public UZPlayerNoAdsManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {

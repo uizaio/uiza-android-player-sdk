@@ -33,11 +33,7 @@ import java.util.List;
 
 public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZPlayerView.OnSingleTap, UZVideoViewItemClick,
         UZPlayerView.ControllerStateCallback {
-    private static final String[] urls = new String[]{
-            "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
-            "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
-            "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-            "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
+
     HorizontalScrollView llBottom;
     private UZVideoView uzVideo;
     private UZDragView uzDragView;
@@ -88,22 +84,22 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         }
 
         findViewById(R.id.bt_0).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[0]);
+            etLinkPlay.setText(LSApplication.urls[0]);
             setLastCursorEditText(etLinkPlay);
             onPlay(false);
         });
         findViewById(R.id.bt_1).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[1]);
+            etLinkPlay.setText(LSApplication.urls[1]);
             setLastCursorEditText(etLinkPlay);
             onPlay(false);
         });
         findViewById(R.id.bt_2).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[2]);
+            etLinkPlay.setText(LSApplication.urls[2]);
             setLastCursorEditText(etLinkPlay);
             onPlay(false);
         });
         findViewById(R.id.bt_3).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[3]);
+            etLinkPlay.setText(LSApplication.urls[3]);
             setLastCursorEditText(etLinkPlay);
             onPlay(true);
         });
@@ -124,7 +120,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void initPlaylist() {
         playlist = new ArrayList<>();
-        for (String url : urls) {
+        for (String url : LSApplication.urls) {
             UZPlayback playback = new UZPlayback();
             playback.setHls(url);
             playlist.add(playback);
@@ -133,6 +129,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void onPlay(boolean live) {
         final UZPlayback playback = new UZPlayback();
+        playback.setThumbnail("https://i.insider.com/5ae1e2b3bd96711e008b4704?width=1100&format=jpeg&auto=webp");
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
         UZPlayer.setCurrentPlayback(playback);

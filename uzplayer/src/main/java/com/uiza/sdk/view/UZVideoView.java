@@ -542,7 +542,7 @@ public class UZVideoView extends VideoViewBase
             showProgress();
         }
         updateUIDependOnLivestream();
-        initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail(), UZAppUtils.isAdsDependencyAvailable());
+        initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), null, UZAppUtils.isAdsDependencyAvailable());
         if (uzCallback != null)
             uzCallback.isInitResult(false, UZData.getInstance().getPlayback());
         initUZPlayerManager();
@@ -602,10 +602,6 @@ public class UZVideoView extends VideoViewBase
             toggleFullscreen();
             return true;
         }
-        if (UZAppUtils.hasSupportPIP(getContext()) && isPIPModeEnabled) {
-            enterPIPMode();
-            return true;
-        }
         return false;
     }
 
@@ -618,6 +614,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void onDestroyView() {
+        Timber.e("onDestroyView");
         if (LocalData.getClickedPip())
             UZAppUtils.stopMiniPlayer(getContext());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -697,7 +694,8 @@ public class UZVideoView extends VideoViewBase
         activityIsPausing = true;
         positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
-        if (uzPlayerManager != null)
+        // in PIP not pause
+        if (uzPlayerManager != null && (ibPictureInPictureIcon == null || ibPictureInPictureIcon.getVisibility() != VISIBLE))
             uzPlayerManager.pause();
     }
 
@@ -892,9 +890,9 @@ public class UZVideoView extends VideoViewBase
         postDelayed(() -> {
             isPIPModeEnabled = ((Activity) getContext()).isInPictureInPictureMode();
             if (!isPIPModeEnabled) {
-                onBackPressed();
+                enterPIPMode();
             }
-        }, 60);
+        }, 50);
     }
 
     public int getControllerShowTimeoutMs() {
@@ -912,7 +910,6 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void showController() {
-        Timber.e("showController");
         if (uzPlayerView != null)
             uzPlayerView.showController();
     }
@@ -1464,7 +1461,7 @@ public class UZVideoView extends VideoViewBase
         ibSkipNextIcon = uzPlayerView.findViewById(R.id.exo_skip_next);
         ibSkipPreviousIcon = uzPlayerView.findViewById(R.id.exo_skip_previous);
         ibSpeedIcon = uzPlayerView.findViewById(R.id.exo_speed);
-        if(!UZAppUtils.hasSupportPIP(getContext()))
+        if (!UZAppUtils.hasSupportPIP(getContext()))
             UZViewUtils.goneViews(ibPictureInPictureIcon);
         LinearLayout debugLayout = findViewById(R.id.debug_layout);
         debugRootView = findViewById(R.id.controls_root);
@@ -2017,8 +2014,8 @@ public class UZVideoView extends VideoViewBase
         if (TextUtils.isEmpty(info.getThumbnail()))
             return;
         ivLogo = new ImageView(getContext());
-        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ConvertUtils.dp2px(50f), ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams.gravity = Gravity.CENTER;
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ConvertUtils.dp2px(50f), ConvertUtils.dp2px(50f));
+        layoutParams.gravity = Gravity.BOTTOM | Gravity.END;
         if (uzPlayerView.getOverlayFrameLayout() != null)
             uzPlayerView.getOverlayFrameLayout().addView(ivLogo, layoutParams);
         ivLogo.setOnClickListener(this);

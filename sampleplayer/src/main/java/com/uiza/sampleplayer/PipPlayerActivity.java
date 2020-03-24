@@ -31,15 +31,9 @@ import java.util.List;
  */
 
 public class PipPlayerActivity extends AppCompatActivity implements UZCallback, UZPlayerView.OnSingleTap, UZVideoViewItemClick {
-    private static final String[] urls = new String[]{
-            "https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd",
-            "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
-            "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-            "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
-    HorizontalScrollView llBottom;
+
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
-    private List<UZPlayback> playlist;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
@@ -53,7 +47,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
-        llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
         Button btPlaylist = findViewById(R.id.bt_playlist);
         uzVideo.setUZCallback(this);
@@ -64,42 +57,17 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         UZPlayback playbackInfo = null;
         if (getIntent() != null) {
             playbackInfo = getIntent().getParcelableExtra("extra_playback_info");
-            if (playbackInfo != null) {
-                llBottom.setVisibility(View.GONE);
-                etLinkPlay.setVisibility(View.GONE);
-            } else {
-                llBottom.setVisibility(View.VISIBLE);
-                etLinkPlay.setVisibility(View.VISIBLE);
-                initPlaylist();
-            }
-        } else {
-            llBottom.setVisibility(View.VISIBLE);
-            etLinkPlay.setVisibility(View.VISIBLE);
-            initPlaylist();
         }
+        if (playbackInfo != null)
+            etLinkPlay.setText(playbackInfo.getLinkPlay());
+        else
+            etLinkPlay.setText(LSApplication.urls[1]);
 
-        findViewById(R.id.bt_0).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[0]);
-            setLastCursorEditText(etLinkPlay);
+        findViewById(R.id.btn_play).setOnClickListener(view -> {
             onPlay(false);
-        });
-        findViewById(R.id.bt_1).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[1]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(false);
-        });
-        findViewById(R.id.bt_2).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[2]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(false);
-        });
-        findViewById(R.id.bt_3).setOnClickListener(view -> {
-            etLinkPlay.setText(urls[3]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(true);
         });
 
-        btPlaylist.setOnClickListener(view -> uzVideo.play(playlist));
+
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
             if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
@@ -111,18 +79,9 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         }
     }
 
-
-    private void initPlaylist() {
-        playlist = new ArrayList<>();
-        for (String url : urls) {
-            UZPlayback playback = new UZPlayback();
-            playback.setHls(url);
-            playlist.add(playback);
-        }
-    }
-
     private void onPlay(boolean live) {
         final UZPlayback playback = new UZPlayback();
+        playback.setThumbnail("https://i.insider.com/5ae1e2b3bd96711e008b4704?width=1100&format=jpeg&auto=webp");
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
         UZPlayer.setCurrentPlayback(playback);

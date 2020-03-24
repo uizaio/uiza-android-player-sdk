@@ -86,6 +86,18 @@ public class UZPlayback implements Parcelable {
         dest.writeInt(live ? 1 : 0);
     }
 
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public int describeContents() {
         return 0;
