@@ -287,7 +287,7 @@ ___Do not support R8___
  2. Select **Analyze** > **Inspect Code**
 
 
-## API Reference
+## Reference
 [API Reference](https://uizaio.github.io/uiza-android-player-sdk/)
 
 ## Supported devices
