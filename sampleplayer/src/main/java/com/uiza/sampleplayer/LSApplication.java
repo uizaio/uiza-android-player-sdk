@@ -20,7 +20,7 @@ public class LSApplication extends MultiDexApplication {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        UZPlayer.init(this);
+        UZPlayer.init();
     }
 
 }

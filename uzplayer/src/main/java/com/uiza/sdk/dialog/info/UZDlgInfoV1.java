@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 
 /**
  * Created by loitp on 5/2/2018.

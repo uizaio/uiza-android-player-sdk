@@ -9,9 +9,7 @@ import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.uiza.sdk.util.UZAppUtils;
-
-import timber.log.Timber;
+import com.uiza.sdk.utils.UZAppUtils;
 
 public final class UZPlayerNoAdsManager extends IUZPlayerManager {
 

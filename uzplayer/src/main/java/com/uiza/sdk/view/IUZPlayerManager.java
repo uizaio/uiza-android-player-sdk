@@ -53,19 +53,19 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.ErrorUtils;
 import com.uiza.sdk.interfaces.DebugCallback;
 import com.uiza.sdk.listerner.UZBufferListener;
-import com.uiza.sdk.util.ConnectivityUtils;
-import com.uiza.sdk.util.Constants;
-import com.uiza.sdk.util.ImageUtils;
-import com.uiza.sdk.util.ListUtils;
-import com.uiza.sdk.util.LocalData;
-import com.uiza.sdk.util.StringUtils;
-import com.uiza.sdk.util.TmpParamData;
-import com.uiza.sdk.util.UZAppUtils;
+import com.uiza.sdk.utils.ConnectivityUtils;
+import com.uiza.sdk.utils.Constants;
+import com.uiza.sdk.utils.ImageUtils;
+import com.uiza.sdk.utils.ListUtils;
+import com.uiza.sdk.utils.StringUtils;
+import com.uiza.sdk.utils.TmpParamData;
+import com.uiza.sdk.utils.UZAppUtils;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
-import com.uiza.sdk.widget.autosize.UZImageButton;
+import com.uiza.sdk.widget.UZImageButton;
 import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 
 import java.util.List;
@@ -579,8 +579,8 @@ abstract class IUZPlayerManager implements PreviewLoader {
                     return;
                 }
 
-                long elapsedTime = SystemClock.elapsedRealtime() - LocalData.getLastElapsedTime();
-                long currentTime = LocalData.getLastServerTime() + elapsedTime;
+                long elapsedTime = SystemClock.elapsedRealtime() - UZPlayer.getElapsedTime();
+                long currentTime = System.currentTimeMillis() + elapsedTime;
 
                 long latency = currentTime - extProgramDateTime;
                 uzVideoView.updateLiveStreamLatency(latency);

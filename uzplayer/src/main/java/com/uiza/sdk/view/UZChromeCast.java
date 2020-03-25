@@ -9,9 +9,9 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.exceptions.ErrorConstant;
-import com.uiza.sdk.util.UZAppUtils;
-import com.uiza.sdk.util.UZData;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZAppUtils;
+import com.uiza.sdk.utils.UZData;
+import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.widget.UZMediaRouteButton;
 
 import timber.log.Timber;

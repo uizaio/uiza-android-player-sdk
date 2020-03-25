@@ -13,10 +13,9 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.UZAppUtils;
-import com.uiza.sdk.util.UZData;
-import com.uiza.sdk.util.UZViewUtils;
-import com.uiza.sdk.widget.WidgetUtils;
+import com.uiza.sdk.utils.UZAppUtils;
+import com.uiza.sdk.utils.UZData;
+import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.widget.flowlayout.FlowLayout;
 
 import java.util.List;
@@ -86,7 +85,7 @@ public class UZShareDialog extends Dialog {
         String pkgName = resolveInfo.activityInfo.packageName;
         String label = (String) resolveInfo.loadLabel(activity.getPackageManager());
         if (pkgName.equals(GOOGLE_DOCS_PACKAGE) && label.toLowerCase().contains(CLIPBOARD)) {
-            WidgetUtils.setClipboard(activity, MESSAGE);
+            UZAppUtils.setClipboard(activity, MESSAGE);
         } else {
             UZAppUtils.sharingToSocialMedia(activity, resolveInfo.activityInfo.packageName, SUBJECT, MESSAGE);
         }

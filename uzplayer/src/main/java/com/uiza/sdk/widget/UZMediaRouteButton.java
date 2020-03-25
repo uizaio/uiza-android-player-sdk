@@ -8,7 +8,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.mediarouter.app.MediaRouteButton;
 
 import com.uiza.sdk.exceptions.ErrorConstant;
-import com.uiza.sdk.util.UZAppUtils;
+import com.uiza.sdk.utils.UZAppUtils;
 
 public class UZMediaRouteButton extends MediaRouteButton {
 

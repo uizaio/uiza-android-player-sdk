@@ -1,4 +1,4 @@
-package com.uiza.sdk.util;
+package com.uiza.sdk.utils;
 
 
 import android.content.Context;
@@ -24,8 +24,8 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import com.uiza.sdk.glide.BlurTransformation;
-import com.uiza.sdk.glide.GlideThumbnailTransformationPB;
+import com.uiza.sdk.utils.glide.BlurTransformation;
+import com.uiza.sdk.utils.glide.GlideThumbnailTransformationPB;
 
 
 /**

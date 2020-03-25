@@ -1,4 +1,4 @@
-package com.uiza.sdk.util;
+package com.uiza.sdk.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

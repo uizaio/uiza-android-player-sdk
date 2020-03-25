@@ -9,7 +9,7 @@ com.uiza.sdk.dialog.speed
 com.uiza.sdk.events
 com.uiza.sdk.exceptions
 com.uiza.sdk.floatview
-com.uiza.sdk.glide
+com.uiza.sdk.utils.glide
 com.uiza.sdk.interfaces
 com.uiza.sdk.listerner
 com.uiza.sdk.models

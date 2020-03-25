@@ -1,6 +1,5 @@
 package com.uiza.sampleplayer;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -16,9 +15,7 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.ListUtils;
-import com.uiza.sdk.util.LocalData;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZDragView;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
@@ -105,7 +102,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         });
 
         btPlaylist.setOnClickListener(view -> {
-                uzVideo.play(playlist);
+            uzVideo.play(playlist);
         });
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
             if (uzVideo != null)
@@ -182,13 +179,13 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     public void onResume() {
         super.onResume();
-        uzVideo.onResumeView();
+        if (uzDragView.isAppear())
+            uzVideo.onResumeView();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        uzDragView.onPause();
         uzVideo.onPauseView();
     }
 
@@ -243,7 +240,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void onSingleTapConfirmed(float x, float y) {
-        uzVideo.toggleShowHideController();
+        if (uzDragView.isMaximizeView())
+            uzDragView.post(() -> uzVideo.toggleShowHideController());
     }
 
     @Override

@@ -7,13 +7,12 @@ package com.uiza.sdk.widget.flowlayout;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.ConvertUtils;
+import com.uiza.sdk.utils.ConvertUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ public class FlowLayout extends ViewGroup {
      * ignored and the spacing will be calculated according to childSpacing.
      */
     public static final int SPACING_ALIGN = -65537;
-    private static final String LOG_TAG = FlowLayout.class.getSimpleName();
     private static final int SPACING_UNDEFINED = -65538;
 
     private static final int UNSPECIFIED_GRAVITY = -1;

@@ -7,7 +7,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.uiza.sdk.util.ListUtils;
+import com.uiza.sdk.utils.ListUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,8 +39,7 @@ public class UZPlayback implements Parcelable {
     private String description;
     private String thumbnail;
     private float duration;
-    private String channelName;
-    private String lastFeedId;
+    private String logo;
     private Date createdAt;
     private String hls;
     private String hlsTs;
@@ -64,6 +63,7 @@ public class UZPlayback implements Parcelable {
         name = in.readString();
         description = in.readString();
         thumbnail = in.readString();
+        logo = in.readString();
         duration = in.readFloat();
         createdAt = new Date(in.readLong());
         hls = in.readString();
@@ -78,6 +78,7 @@ public class UZPlayback implements Parcelable {
         dest.writeString(name);
         dest.writeString(description);
         dest.writeString(thumbnail);
+        dest.writeString(logo);
         dest.writeFloat(duration);
         dest.writeLong(createdAt.getTime());
         dest.writeString(hls);
@@ -131,8 +132,8 @@ public class UZPlayback implements Parcelable {
         return description;
     }
 
-    public String getChannelName() {
-        return channelName;
+    public String getLogo() {
+        return logo;
     }
 
     public String getThumbnail() {
@@ -141,10 +142,6 @@ public class UZPlayback implements Parcelable {
 
     public float getDuration() {
         return duration;
-    }
-
-    public String getLastFeedId() {
-        return lastFeedId;
     }
 
     public String getHls() {

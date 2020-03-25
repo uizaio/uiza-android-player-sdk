@@ -10,7 +10,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 
 import com.uiza.sdk.events.EventBusData;
-import com.uiza.sdk.util.ConnectivityUtils;
+import com.uiza.sdk.utils.ConnectivityUtils;
 
 import timber.log.Timber;
 

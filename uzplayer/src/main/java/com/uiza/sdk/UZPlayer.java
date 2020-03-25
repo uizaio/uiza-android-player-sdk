@@ -2,40 +2,41 @@ package com.uiza.sdk;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.SystemClock;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.LocalData;
-import com.uiza.sdk.util.UZAppUtils;
-import com.uiza.sdk.util.UZData;
+import com.uiza.sdk.utils.UZAppUtils;
+import com.uiza.sdk.utils.UZData;
 
 public class UZPlayer {
     private UZPlayer() {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
+    private static long elapsedTime = SystemClock.elapsedRealtime();
+
     /**
-     * @param context see {@link Context}
+     * init SDK
      */
-    public static void init(@NonNull Context context) {
-        init(context, R.layout.uzplayer_skin_1);
+    public static void init() {
+        init(R.layout.uzplayer_skin_1);
     }
 
     /**
+     * initSDK
      *
-     * @param context      see {@link Context}
      * @param skinLayoutId Skin of player
      */
-    public static void init(@NonNull Context context,
-                            @LayoutRes int skinLayoutId) {
+    public static void init(@LayoutRes int skinLayoutId) {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
-        LocalData.init(context);
         setUZPlayerSkinLayoutId(skinLayoutId);
+        elapsedTime = SystemClock.elapsedRealtime();
     }
 
     /**
@@ -77,5 +78,9 @@ public class UZPlayer {
      */
     public static void setCurrentPlayback(UZPlayback playback) {
         UZData.getInstance().setPlayback(playback);
+    }
+
+    public static long getElapsedTime() {
+        return elapsedTime;
     }
 }

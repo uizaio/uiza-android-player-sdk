@@ -1,4 +1,4 @@
-package com.uiza.sdk.widget.autosize;
+package com.uiza.sdk.widget;
 
 import android.content.Context;
 import android.content.res.Configuration;

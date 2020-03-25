@@ -1,4 +1,4 @@
-package com.uiza.sdk.widget.autosize;
+package com.uiza.sdk.widget;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -10,10 +10,10 @@ import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatImageButton;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.Constants;
-import com.uiza.sdk.util.ConvertUtils;
-import com.uiza.sdk.util.UZAppUtils;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.Constants;
+import com.uiza.sdk.utils.ConvertUtils;
+import com.uiza.sdk.utils.UZAppUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 
 /**
  * Created by loitp on 2/27/2019.

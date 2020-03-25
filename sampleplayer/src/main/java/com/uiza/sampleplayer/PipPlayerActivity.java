@@ -1,13 +1,11 @@
 package com.uiza.sampleplayer;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,13 +16,10 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by loitp on 9/1/2019.
@@ -44,11 +39,11 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         UZPlayer.setCasty(this);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_1);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
         etLinkPlay = findViewById(R.id.et_link_play);
-        Button btPlaylist = findViewById(R.id.bt_playlist);
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
         uzVideo.setOnSingleTap(this);

@@ -14,7 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.customview.widget.ViewDragHelper;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 
 import timber.log.Timber;
 
@@ -404,6 +404,10 @@ public class UZDragView extends LinearLayout {
 
     public boolean isAppear() {
         return isAppear;
+    }
+
+    public boolean isMaximizeView() {
+        return isMaximizeView;
     }
 
     public void appear() {

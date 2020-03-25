@@ -1,4 +1,4 @@
-package com.uiza.sdk.glide;
+package com.uiza.sdk.utils.glide;
 
 
 import android.annotation.TargetApi;

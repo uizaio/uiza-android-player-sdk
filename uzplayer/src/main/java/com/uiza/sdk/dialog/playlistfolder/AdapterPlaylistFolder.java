@@ -20,8 +20,8 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.uiza.sdk.R;
 import com.uiza.sdk.animations.AnimationUtils;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.ImageUtils;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.ImageUtils;
+import com.uiza.sdk.utils.UZViewUtils;
 
 import java.util.List;
 

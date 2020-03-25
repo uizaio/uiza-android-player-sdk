@@ -54,7 +54,7 @@ public class UZToast {
                 toastList.add(toast);
             }
         } catch (Exception e) {
-            Timber.e(e, "LToast");
+            Timber.e(e, "UZToast");
         }
     }
 

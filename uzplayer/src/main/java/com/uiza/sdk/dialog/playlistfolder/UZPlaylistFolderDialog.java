@@ -17,7 +17,7 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.uiza.sdk.R;
 import com.uiza.sdk.animations.AnimationUtils;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.util.UZData;
+import com.uiza.sdk.utils.UZData;
 import com.uiza.sdk.widget.recyclerview.SnapType;
 import com.uiza.sdk.widget.recyclerview.SnappyLinearLayoutManager;
 

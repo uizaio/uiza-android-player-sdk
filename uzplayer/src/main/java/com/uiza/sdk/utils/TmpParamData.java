@@ -1,4 +1,4 @@
-package com.uiza.sdk.util;
+package com.uiza.sdk.utils;
 
 public class TmpParamData {
     private static final TmpParamData ourInstance = new TmpParamData();

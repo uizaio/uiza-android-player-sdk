@@ -20,9 +20,9 @@ import com.uiza.sdk.BuildConfig;
 import com.uiza.sdk.R;
 import com.uiza.sdk.observers.AudioVolumeObserver;
 import com.uiza.sdk.observers.OnAudioVolumeChangedListener;
-import com.uiza.sdk.util.StringUtils;
-import com.uiza.sdk.util.UZData;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.StringUtils;
+import com.uiza.sdk.utils.UZData;
+import com.uiza.sdk.utils.UZViewUtils;
 
 import java.util.Locale;
 

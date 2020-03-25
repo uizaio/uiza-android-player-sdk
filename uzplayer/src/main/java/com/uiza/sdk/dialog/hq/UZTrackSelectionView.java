@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
 import com.google.android.exoplayer2.util.Assertions;
 import com.uiza.sdk.R;
-import com.uiza.sdk.util.UZPlayerUtils;
+import com.uiza.sdk.utils.UZPlayerUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

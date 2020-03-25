@@ -1,4 +1,4 @@
-package com.uiza.sdk.util;
+package com.uiza.sdk.utils;
 
 import com.uiza.sdk.BuildConfig;
 

@@ -1,10 +1,12 @@
-package com.uiza.sdk.util;
+package com.uiza.sdk.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.UiModeManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,8 +18,7 @@ import android.os.Vibrator;
 import androidx.annotation.NonNull;
 
 import com.uiza.sdk.R;
-import com.uiza.sdk.floatview.UZFloatVideoService;
-import com.uiza.sdk.view.CommunicateMng;
+import com.uiza.sdk.widget.UZToast;
 
 import timber.log.Timber;
 
@@ -89,14 +90,14 @@ public class UZAppUtils {
     }
 
     //stop service pip FloatUizaVideoService
-    public static void stopMiniPlayer(@NonNull Context context) {
-        if (isMiniPlayerRunning(context))
-            context.stopService(new Intent(context, UZFloatVideoService.class)); //stop service if running
-    }
-
-    public static boolean isMiniPlayerRunning(@NonNull Context context) {
-        return checkServiceRunning(context, UZFloatVideoService.class.getName());
-    }
+//    public static void stopMiniPlayer(@NonNull Context context) {
+//        if (isMiniPlayerRunning(context))
+//            context.stopService(new Intent(context, UZFloatVideoService.class)); //stop service if running
+//    }
+//
+//    public static boolean isMiniPlayerRunning(@NonNull Context context) {
+//        return checkServiceRunning(context, UZFloatVideoService.class.getName());
+//    }
 
     public static boolean isTablet(@NonNull Context context) {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
@@ -140,10 +141,10 @@ public class UZAppUtils {
         }
     }
 
-    protected static void communicateContext(@NonNull Context context, String event) {
-        if (isMiniPlayerRunning(context))
-            CommunicateMng.postFromActivity(new CommunicateMng.MsgFromActivity(event));
-    }
+//    protected static void communicateContext(@NonNull Context context, String event) {
+//        if (isMiniPlayerRunning(context))
+//            CommunicateMng.postFromActivity(new CommunicateMng.MsgFromActivity(event));
+//    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static void moveTaskToFront(@NonNull Activity activity, boolean mIsRestoredToTop) {
@@ -164,5 +165,14 @@ public class UZAppUtils {
     public static boolean hasSupportPIP(@NonNull Context context) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE);
+    }
+
+    public static void setClipboard(@NonNull Context context, String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("COPY", text);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+            UZToast.show(context, "Copied!");
+        }
     }
 }

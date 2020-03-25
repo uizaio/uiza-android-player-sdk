@@ -1,11 +1,6 @@
-package com.uiza.sdk.util;
-
-import android.content.Context;
-
-import androidx.annotation.NonNull;
+package com.uiza.sdk.utils;
 
 import com.uiza.sdk.dialog.hq.UZItem;
-import com.uiza.sdk.view.CommunicateMng;
 
 import timber.log.Timber;
 
@@ -112,42 +107,5 @@ public class UZPlayerUtils {
         f.setFormat(format);
         f.setProfile(profile);
         return f;
-    }
-
-
-    public static void showMiniPlayerController(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.SHOW_MINI_PLAYER_CONTROLLER);
-    }
-
-    public static void hideMiniPlayerController(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.HIDE_MINI_PLAYER_CONTROLLER);
-    }
-
-    public static void toggleMiniPlayerController(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.TOGGLE_MINI_PLAYER_CONTROLLER);
-    }
-
-    public static void pauseVideo(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.PAUSE_MINI_PLAYER);
-    }
-
-    public static void resumeVideo(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.RESUME_MINI_PLAYER);
-    }
-
-    public static void toggleResumePauseVideo(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.TOGGLE_RESUME_PAUSE_MINI_PLAYER);
-    }
-
-    public static void openAppFromMiniPlayer(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.OPEN_APP_FROM_MINI_PLAYER);
-    }
-
-    public static void disappearMiniPlayer(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.DISAPPEAR);
-    }
-
-    public static void appearMiniPlayer(@NonNull Context context) {
-        UZAppUtils.communicateContext(context, CommunicateMng.APPEAR);
     }
 }

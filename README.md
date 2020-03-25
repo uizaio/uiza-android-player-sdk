@@ -88,7 +88,7 @@ compileOptions {
             @Override
             public void onCreate() {
                 super.onCreate();
-                UZPlayer.init(this);
+                UZPlayer.init();
             }
      }
      ```
@@ -287,8 +287,8 @@ ___Do not support R8___
  2. Select **Analyze** > **Inspect Code**
 
 
-## Docs
-[Docs](https://uizaio.github.io/uiza-android-player-sdk/)
+## API Reference
+[API Reference](https://uizaio.github.io/uiza-android-player-sdk/)
 
 ## Supported devices
 

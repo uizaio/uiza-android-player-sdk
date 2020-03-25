@@ -8,8 +8,8 @@ import android.view.View;
 
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.uiza.sdk.util.UZData;
-import com.uiza.sdk.util.UZViewUtils;
+import com.uiza.sdk.utils.UZData;
+import com.uiza.sdk.utils.UZViewUtils;
 
 import java.util.List;
 
