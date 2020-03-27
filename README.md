@@ -56,8 +56,8 @@ if you use `android support compat`
 
 ```xml
         // for IMA Ads
-        implementation 'com.google.android.exoplayer:extension-ima:2.9.6'
-        implementation 'com.google.android.gms:play-services-ads:17.2.1' // from 18.x support androidx only
+        implementation 'com.google.android.exoplayer:extension-ima:2.10.8'
+        implementation 'com.google.android.gms:play-services-ads:19.0.1' // from 18.x support androidx only
 ```
 
 **Note:**
