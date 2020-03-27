@@ -48,6 +48,7 @@
     <string name="audio">Audio Setting</string>
     <string name="text">Subtitle Setting</string>
     <string name="no_caption">No captions are available for this video</string>
+    <string name="casty">Cast</string>
     <string name="casty_introduction_text">Use this button to connect with Chromecast</string>
     <string name="cannot_play_will_try">Can not play, UZPlayer will try to play the next link...</string>
     <string name="share_via">Share via</string>

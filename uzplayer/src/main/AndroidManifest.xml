@@ -23,7 +23,7 @@
             android:value="com.uiza.sdk.chromecast.CastOptionsProvider" />
         <activity
             android:name=".chromecast.ExpandedControlsActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:theme="@style/Theme.CastVideosDark" />
         <!--STOP CHROMECAST-->
     </application>
 

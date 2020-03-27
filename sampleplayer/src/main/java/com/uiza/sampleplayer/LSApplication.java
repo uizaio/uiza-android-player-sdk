@@ -14,6 +14,8 @@ public class LSApplication extends MultiDexApplication {
             "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
             "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};
 
+    public static final String thumbnailUrl = "https://i.insider.com/5ae1e2b3bd96711e008b4704?width=1100&format=jpeg&auto=webp";
+
     @Override
     public void onCreate() {
         super.onCreate();

@@ -54,6 +54,14 @@ public class UZPlayer {
     }
 
     /**
+     *
+     * @return Casty
+     */
+    public static Casty getCasty() {
+        return UZData.getInstance().getCasty();
+    }
+
+    /**
      * set Player Skin layout_id
      *
      * @param resLayoutMain: id of layout xml

@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.uiza.module.sample"
+        applicationId "com.uiza.sampleplayer"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 20032518
@@ -42,4 +42,6 @@ android {
 dependencies {
     implementation project(':uzplayer')
     implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 }

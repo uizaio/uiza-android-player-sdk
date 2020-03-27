@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_player"
         android:layout_width="wrap_content"
-        android:text="Player"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="Player" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_pip_player"
         android:layout_width="wrap_content"
-        android:text="PIP Player"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="PIP Player" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_cast_player"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Casty Player" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txt_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="-- --"
+        android:layout_marginBottom="8dp"/>
 </LinearLayout>

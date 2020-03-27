@@ -2,9 +2,13 @@ package com.uiza.sampleplayer;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatTextView;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -14,5 +18,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         findViewById(R.id.btn_player).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, PlayerActivity.class)));
         findViewById(R.id.btn_pip_player).setOnClickListener(v -> startActivity(new Intent(MainActivity.this, PipPlayerActivity.class)));
+        findViewById(R.id.btn_cast_player).setVisibility(View.GONE);
+        //.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CastPlayerActivity.class)));
+        ((AppCompatTextView) findViewById(R.id.txt_version)).setText(String.format(Locale.getDefault(),
+                "%s (%s)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
     }
 }

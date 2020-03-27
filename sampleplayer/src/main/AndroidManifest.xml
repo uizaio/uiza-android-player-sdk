@@ -11,6 +11,7 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,17 +22,23 @@
         <activity
             android:name=".PlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:parentActivityName=".MainActivity"
             android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PipPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
             android:supportsPictureInPicture="true"
-            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="n" />
+        <activity
+            android:name=".CastPlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ErrorActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"

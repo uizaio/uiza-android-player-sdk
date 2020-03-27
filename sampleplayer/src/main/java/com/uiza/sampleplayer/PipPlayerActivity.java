@@ -4,7 +4,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -22,24 +21,16 @@ import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
 
 /**
- * Created by loitp on 9/1/2019.
+ * Demo UZPlayer with Picture In Picture
  */
-
 public class PipPlayerActivity extends AppCompatActivity implements UZCallback, UZPlayerView.OnSingleTap, UZVideoViewItemClick {
 
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
 
-    public static void setLastCursorEditText(@NonNull EditText editText) {
-        if (!editText.getText().toString().isEmpty()) {
-            editText.setSelection(editText.getText().length());
-        }
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        UZPlayer.setCasty(this);
-        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_1);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
@@ -76,7 +67,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
 
     private void onPlay(boolean live) {
         final UZPlayback playback = new UZPlayback();
-        playback.setThumbnail("https://i.insider.com/5ae1e2b3bd96711e008b4704?width=1100&format=jpeg&auto=webp");
+        playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
         UZPlayer.setCurrentPlayback(playback);

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by loitp on 9/1/2019.
+ * Demo UZPlayer with UZDragView
  */
 
 public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZPlayerView.OnSingleTap, UZVideoViewItemClick,
@@ -46,7 +46,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         UZPlayer.setUseWithUZDragView(true);
-        UZPlayer.setCasty(this);
         UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
@@ -126,7 +125,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void onPlay(boolean live) {
         final UZPlayback playback = new UZPlayback();
-        playback.setThumbnail("https://i.insider.com/5ae1e2b3bd96711e008b4704?width=1100&format=jpeg&auto=webp");
+        playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(live);
         UZPlayer.setCurrentPlayback(playback);
