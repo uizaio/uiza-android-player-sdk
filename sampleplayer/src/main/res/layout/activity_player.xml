@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content" />
         </FrameLayout>
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:id="@id/body_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -40,11 +40,20 @@
                     android:layout_height="0dp"
                     android:layout_weight="1" />
 
-                <EditText
+                <Button
+                    android:id="@+id/bt_stats_for_nerds"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/padding_5"
+                    android:text="StatsForNerds toggle"
+                    android:textSize="@dimen/txt_18" />
+
+                <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/et_link_play"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Enter any linkplay here"
+                    android:lines="4"
                     android:padding="5dp"
                     android:textSize="@dimen/txt_14" />
 
@@ -64,54 +73,52 @@
                             android:id="@+id/bt_0"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding_5"
-                            android:text="Link 0"
+                            android:padding="@dimen/padding_3"
+                            android:text="Link 1"
                             android:textSize="@dimen/txt_18" />
 
                         <Button
                             android:id="@+id/bt_1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding_5"
-                            android:text="Link 1"
+                            android:padding="@dimen/padding_3"
+                            android:text="Link 2"
                             android:textSize="@dimen/txt_18" />
 
                         <Button
                             android:id="@+id/bt_2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding_5"
-                            android:text="Link 2"
+                            android:padding="@dimen/padding_3"
+                            android:text="Link 3"
                             android:textSize="@dimen/txt_18" />
 
                         <Button
                             android:id="@+id/bt_3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:padding="@dimen/padding_5"
-                            android:text="Link 3"
+                            android:padding="@dimen/padding_3"
+                            android:text="Link 4"
+                            android:textSize="@dimen/txt_18" />
+
+                        <Button
+                            android:id="@+id/bt_4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:padding="@dimen/padding_3"
+                            android:text="Playlist"
                             android:textSize="@dimen/txt_18" />
                     </LinearLayout>
-
                 </HorizontalScrollView>
-
                 <Button
-                    android:id="@+id/bt_stats_for_nerds"
+                    android:id="@+id/bt_play"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/w_5"
                     android:padding="@dimen/padding_5"
-                    android:text="StatsForNerds toggle"
-                    android:textSize="@dimen/txt_18" />
-
-                <Button
-                    android:id="@+id/bt_playlist"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/w_15"
-                    android:padding="@dimen/padding_5"
-                    android:text="Playlist"
+                    android:text="Play"
                     android:textSize="@dimen/txt_18" />
             </LinearLayout>
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
     </com.uiza.sdk.view.UZDragView>
 </LinearLayout>

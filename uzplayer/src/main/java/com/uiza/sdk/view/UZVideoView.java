@@ -217,7 +217,11 @@ public class UZVideoView extends VideoViewBase
     public void onCreateView() {
         if (UZAppUtils.checkChromeCastAvailable())
             setupChromeCast();
-        EventBus.getDefault().register(this);
+        try {
+            EventBus.getDefault().register(this);
+        } catch (NoClassDefFoundError e) {
+            Timber.e(e);
+        }
         startConnectifyService();
         inflate(getContext(), R.layout.uz_ima_video_core_rl, this);
         rootView = findViewById(R.id.root_view);

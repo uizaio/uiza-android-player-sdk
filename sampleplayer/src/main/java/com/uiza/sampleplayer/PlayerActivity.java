@@ -1,10 +1,12 @@
 package com.uiza.sampleplayer;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,6 +38,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private UZDragView uzDragView;
     private EditText etLinkPlay;
     private List<UZPlayback> playlist;
+    Button btPlay, btnStarts;
+    private boolean isLive = false;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
@@ -53,7 +57,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         uzDragView = findViewById(R.id.vdhv);
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
-        Button btPlaylist = findViewById(R.id.bt_playlist);
+        btPlay = findViewById(R.id.bt_play);
+        btnStarts = findViewById(R.id.bt_stats_for_nerds);
         uzDragView.setCallback(this);
         uzDragView.setOnSingleTap(this);
         uzDragView.setScreenRotate(false);
@@ -78,32 +83,18 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             etLinkPlay.setVisibility(View.VISIBLE);
             initPlaylist();
         }
-
-        findViewById(R.id.bt_0).setOnClickListener(view -> {
-            etLinkPlay.setText(LSApplication.urls[0]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(false);
-        });
-        findViewById(R.id.bt_1).setOnClickListener(view -> {
-            etLinkPlay.setText(LSApplication.urls[1]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(false);
-        });
-        findViewById(R.id.bt_2).setOnClickListener(view -> {
-            etLinkPlay.setText(LSApplication.urls[2]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(false);
-        });
-        findViewById(R.id.bt_3).setOnClickListener(view -> {
-            etLinkPlay.setText(LSApplication.urls[3]);
-            setLastCursorEditText(etLinkPlay);
-            onPlay(true);
-        });
-
-        btPlaylist.setOnClickListener(view -> {
+        btnStarts.setVisibility(View.GONE);
+        findViewById(R.id.bt_0).setOnClickListener(view -> updateView(LSApplication.urls[0], false));
+        findViewById(R.id.bt_1).setOnClickListener(view -> updateView(LSApplication.urls[1], false));
+        findViewById(R.id.bt_2).setOnClickListener(view -> updateView(LSApplication.urls[2], false));
+        findViewById(R.id.bt_3).setOnClickListener(view -> updateView(LSApplication.urls[3], true));
+        findViewById(R.id.bt_4).setOnClickListener(view -> {
+            etLinkPlay.setVisibility(View.GONE);
+            btPlay.setVisibility(View.GONE);
             uzVideo.play(playlist);
         });
-        findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
+        btPlay.setOnClickListener(view -> onPlay());
+        btnStarts.setOnClickListener(v -> {
             if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
         });
@@ -112,6 +103,19 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             if (!isInitSuccess)
                 UZToast.show(this, "Init failed");
         }
+
+        (new Handler()).postDelayed(() -> {
+            updateView(LSApplication.urls[0], false);
+            onPlay();
+        }, 1000);
+    }
+
+    private void updateView(String url, boolean live){
+        etLinkPlay.setVisibility(View.VISIBLE);
+        btPlay.setVisibility(View.VISIBLE);
+        etLinkPlay.setText(url);
+        isLive = live;
+        setLastCursorEditText(etLinkPlay);
     }
 
     private void initPlaylist() {
@@ -123,11 +127,11 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         }
     }
 
-    private void onPlay(boolean live) {
+    private void onPlay() {
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
-        playback.setLive(live);
+        playback.setLive(isLive);
         UZPlayer.setCurrentPlayback(playback);
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
@@ -137,6 +141,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
+        btnStarts.setVisibility(View.VISIBLE);
         uzDragView.setInitResult(isInitSuccess);
     }
 
@@ -166,6 +171,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void onError(UZException e) {
+        runOnUiThread(() ->  UZToast.show(this, e.getLocalizedMessage()));
     }
 
     @Override
