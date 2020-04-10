@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -416,9 +415,8 @@ abstract class IUZPlayerManager implements PreviewLoader {
                 new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-
-        return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector,
-                new DefaultLoadControl() {
+                return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector,
+                new UZLoadControl() {
                     @Override
                     public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
                         if (bufferCallback != null)
