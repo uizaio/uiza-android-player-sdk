@@ -11,7 +11,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.uiza.sdk.utils.UZAppUtils;
 
-public final class UZPlayerNoAdsManager extends IUZPlayerManager {
+public final class UZPlayerNoAdsManager extends AbstractPlayerManager {
 
     public UZPlayerNoAdsManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
         super(uzVideo, linkPlay, thumbnailsUrl);

@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
+import com.uiza.sdk.analytics.UZAnalytic;
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.utils.UZAppUtils;
@@ -17,13 +18,16 @@ public class UZPlayer {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
+    private static final String LIVE_COUNT_URL = "https://development-api.uizadev.io";
+    private static final String ANALYTIC_URL = "https://tracking-dev.uizadev.io";
+    private static final String APP_ID = "92a8d2032fe8492aa77804b4c2c519c5";
     private static long elapsedTime = SystemClock.elapsedRealtime();
 
     /**
      * init SDK
      */
-    public static void init() {
-        init(R.layout.uzplayer_skin_1);
+    public static void init(@NonNull Context context) {
+        init(context, R.layout.uzplayer_skin_1);
     }
 
     /**
@@ -31,10 +35,11 @@ public class UZPlayer {
      *
      * @param skinLayoutId Skin of player
      */
-    public static void init(@LayoutRes int skinLayoutId) {
+    public static void init(@NonNull Context context, @LayoutRes int skinLayoutId) {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
+        UZAnalytic.init(context.getApplicationContext(), ANALYTIC_URL, LIVE_COUNT_URL, APP_ID);
         setUZPlayerSkinLayoutId(skinLayoutId);
         elapsedTime = SystemClock.elapsedRealtime();
     }
@@ -54,7 +59,6 @@ public class UZPlayer {
     }
 
     /**
-     *
      * @return Casty
      */
     public static Casty getCasty() {

@@ -44,7 +44,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.DashSegmentIndex;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
@@ -121,7 +120,7 @@ public class UZVideoView extends VideoViewBase
     private boolean isLiveStream;
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
-    private IUZPlayerManager uzPlayerManager;
+    private AbstractPlayerManager uzPlayerManager;
     private ProgressBar progressBar;
     private LinearLayout llTop, debugRootView;
     private RelativeLayout rlMsg, rlLiveInfo, rlEndScreen;
@@ -1195,7 +1194,7 @@ public class UZVideoView extends VideoViewBase
         return isLiveStream;
     }
 
-    public IUZPlayerManager getUZPlayerManager() {
+    public AbstractPlayerManager getUZPlayerManager() {
         return uzPlayerManager;
     }
 
@@ -2202,6 +2201,7 @@ public class UZVideoView extends VideoViewBase
             public void onVideoProgress(long currentMls, int s, long duration, int percent) {
                 TmpParamData.getInstance().setPlayerPlayheadTime(s);
                 updateUIIbRewIconDependOnProgress(currentMls, false);
+                Timber.e("onVideoProgress: %d, %d, %d, %d", currentMls, s, duration, percent);
                 if (progressListener != null)
                     progressListener.onVideoProgress(currentMls, s, duration, percent);
             }
@@ -2214,6 +2214,7 @@ public class UZVideoView extends VideoViewBase
 
             @Override
             public void onBufferProgress(long bufferedPosition, int bufferedPercentage, long duration) {
+                Timber.e("onBufferProgress: %d, %d, %d", bufferedPosition, bufferedPercentage, duration);
                 if (progressListener != null)
                     progressListener.onBufferProgress(bufferedPosition, bufferedPercentage, duration);
             }

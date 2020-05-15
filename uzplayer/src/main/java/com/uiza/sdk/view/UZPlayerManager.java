@@ -24,14 +24,14 @@ import com.uiza.sdk.utils.UZAppUtils;
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
 //https://medium.com/@takusemba/understands-callbacks-of-exoplayer-c05ac3c322c2
-public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaSource.MediaSourceFactory {
+public final class UZPlayerManager extends AbstractPlayerManager implements AdsMediaSource.MediaSourceFactory {
 
     private ImaAdsLoader adsLoader = null;
     private boolean isOnAdEnded;
     private UZAdPlayerCallback uzAdPlayerCallback;
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
 
-    public UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl) {
+    UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl) {
         super(uzVideo, linkPlay, thumbnailsUrl);
         if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable())
             adsLoader = new ImaAdsLoader(context, Uri.parse(urlIMAAd));
@@ -48,15 +48,12 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
 
     @Override
     protected boolean isPlayingAd() {
-        if (uzVideoAdPlayerListener == null)
-            return false;
-        return uzVideoAdPlayerListener.isPlayingAd();
+        return uzVideoAdPlayerListener != null && uzVideoAdPlayerListener.isPlayingAd();
     }
 
     @Override
     public void setRunnable() {
-        handler = new Handler();
-        runnable = () -> {
+        new Handler().postDelayed(() -> {
             if (uzVideoView == null || uzVideoView.getUZPlayerView() == null)
                 return;
             if (uzVideoAdPlayerListener.isEnded())
@@ -65,10 +62,7 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
                 handleAdProgress();
             else
                 handleVideoProgress();
-            if (handler != null && runnable != null)
-                handler.postDelayed(runnable, 1000);
-        };
-        handler.postDelayed(runnable, 0);
+        }, 1000);
     }
 
     private void handleAdProgress() {
@@ -157,7 +151,7 @@ public final class UZPlayerManager extends IUZPlayerManager implements AdsMediaS
         return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
     }
 
-    public void addAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
+    void addAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
         this.uzAdPlayerCallback = uzAdPlayerCallback;
     }
 

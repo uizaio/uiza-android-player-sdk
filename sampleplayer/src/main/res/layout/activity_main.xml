@@ -7,6 +7,7 @@
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_player"
         android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_height="wrap_content"
         android:text="Player (UZDragView)" />
 
@@ -22,6 +23,19 @@
         android:layout_height="wrap_content"
         android:text="Casty Player" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="@android:color/darker_gray" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_analytic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Analytic" />
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -31,7 +45,7 @@
         android:id="@+id/txt_version"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
-        android:text="-- --"
-        android:layout_marginBottom="8dp"/>
+        android:text="-- --" />
 </LinearLayout>

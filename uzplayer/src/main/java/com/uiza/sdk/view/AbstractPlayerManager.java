@@ -72,7 +72,7 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
-abstract class IUZPlayerManager implements PreviewLoader {
+abstract class AbstractPlayerManager implements PreviewLoader {
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
     private static final long INVALID_PROGRAM_DATE_TIME = 0;
@@ -80,21 +80,21 @@ abstract class IUZPlayerManager implements PreviewLoader {
     private final DataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
     protected Context context;
-    protected UZVideoView uzVideoView;
-    protected long contentPosition;
+    UZVideoView uzVideoView;
+    long contentPosition;
     protected SimpleExoPlayer player;
-    protected UZPlayerHelper playerHelper;
+    UZPlayerHelper playerHelper;
     protected Handler handler;
-    protected Runnable runnable;
-    protected VideoViewBase.ProgressListener progressListener;
-    protected UZBufferListener bufferCallback;
-    protected long mls = 0;
+    Runnable runnable;
+    VideoViewBase.ProgressListener progressListener;
+    private UZBufferListener bufferCallback;
+    private long mls = 0;
     protected long duration = 0;
-    protected int percent = 0;
+    int percent = 0;
     protected int s = 0;
-    protected DefaultTrackSelector trackSelector;
+    private DefaultTrackSelector trackSelector;
     private String userAgent;
-    protected String drmScheme;
+    String drmScheme;
     private String linkPlay;
     private boolean isFirstStateReady;
     private UZPreviewTimeBar uzTimeBar;
@@ -102,15 +102,15 @@ abstract class IUZPlayerManager implements PreviewLoader {
     private ImageView imageView;
     private boolean isCanAddViewWatchTime;
     private long timestampPlayed;
-    private long bufferPosition = 0;
-    private int bufferPercentage = 0;
-    private int videoWidth = 0;
-    private int videoHeight = 0;
+    private long bufferPosition;
+    private int bufferPercentage;
+    private int videoWidth;
+    private int videoHeight;
     private float volumeToggle;
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
 
-    IUZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
+    AbstractPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
@@ -155,19 +155,19 @@ abstract class IUZPlayerManager implements PreviewLoader {
         initSource();
     }
 
-    public void initWithoutReset() {
+    void initWithoutReset() {
         initSource();
     }
 
-    public String getLinkPlay() {
+    String getLinkPlay() {
         return linkPlay;
     }
 
-    public void setProgressListener(VideoViewBase.ProgressListener progressListener) {
+    void setProgressListener(VideoViewBase.ProgressListener progressListener) {
         this.progressListener = progressListener;
     }
 
-    public void setBufferCallback(UZBufferListener bufferCallback) {
+    void setBufferCallback(UZBufferListener bufferCallback) {
         this.bufferCallback = bufferCallback;
     }
 
@@ -186,27 +186,27 @@ abstract class IUZPlayerManager implements PreviewLoader {
             ImageUtils.loadThumbnail(imageView, thumbnailsUrl, currentPosition);
     }
 
-    public DefaultTrackSelector getTrackSelector() {
+    DefaultTrackSelector getTrackSelector() {
         return trackSelector;
     }
 
-    public void setDebugCallback(DebugCallback debugCallback) {
+    void setDebugCallback(DebugCallback debugCallback) {
         this.debugCallback = debugCallback;
     }
 
     //if player is playing then turn off connection -> player is error -> store current position
     //then if connection is connected again, resume position
-    public void setResumeIfConnectionError() {
+    void setResumeIfConnectionError() {
         contentPosition = mls;
     }
 
-    protected void resume() {
+    void resume() {
         setPlayWhenReady(true);
         timestampPlayed = System.currentTimeMillis();
         isCanAddViewWatchTime = true;
     }
 
-    protected void pause() {
+    void pause() {
         if (!isPlayerValid()) return;
         setPlayWhenReady(false);
         if (isCanAddViewWatchTime) {
@@ -228,37 +228,37 @@ abstract class IUZPlayerManager implements PreviewLoader {
         return false;
     }
 
-    protected void hideProgress() {
+    void hideProgress() {
         if (uzVideoView.isCastingChromecast())
             return;
         uzVideoView.getProgressBar().setVisibility(View.GONE);
     }
 
-    protected void showProgress() {
+    void showProgress() {
         uzVideoView.getProgressBar().setVisibility(View.VISIBLE);
     }
 
-    protected SimpleExoPlayer getPlayer() {
+    SimpleExoPlayer getPlayer() {
         return playerHelper.getPlayer();
     }
 
-    protected ExoPlaybackException getExoPlaybackException() {
+    ExoPlaybackException getExoPlaybackException() {
         return exoPlaybackException;
     }
 
-    protected boolean isPlayerValid() {
+    private boolean isPlayerValid() {
         return playerHelper != null && playerHelper.isPlayerValid();
     }
 
-    protected int getVideoWidth() {
+    int getVideoWidth() {
         return videoWidth;
     }
 
-    protected int getVideoHeight() {
+    int getVideoHeight() {
         return videoHeight;
     }
 
-    protected void toggleVolumeMute(UZImageButton exoVolume) {
+    void toggleVolumeMute(UZImageButton exoVolume) {
         if (!isPlayerValid() || exoVolume == null) return;
         if (getVolume() == 0f) {
             setVolume(volumeToggle);
@@ -270,11 +270,11 @@ abstract class IUZPlayerManager implements PreviewLoader {
         }
     }
 
-    protected float getVolume() {
+    float getVolume() {
         return playerHelper.getVolume();
     }
 
-    protected void setVolume(float volume) {
+    void setVolume(float volume) {
         if (!isPlayerValid()) return;
         playerHelper.setVolume(volume);
         if (uzVideoView == null) return;
@@ -287,29 +287,29 @@ abstract class IUZPlayerManager implements PreviewLoader {
         }
     }
 
-    protected void setPlayWhenReady(boolean ready) {
+    void setPlayWhenReady(boolean ready) {
         playerHelper.setPlayWhenReady(ready);
     }
 
-    protected boolean seekTo(long positionMs) {
+    boolean seekTo(long positionMs) {
         return playerHelper.seekTo(positionMs);
     }
 
     //forward  10000mls
-    protected void seekToForward(long forward) {
+    void seekToForward(long forward) {
         playerHelper.seekToForward(forward);
     }
 
     //next 10000mls
-    protected void seekToBackward(long backward) {
+    void seekToBackward(long backward) {
         playerHelper.seekToBackward(backward);
     }
 
-    protected long getCurrentPosition() {
+    long getCurrentPosition() {
         return playerHelper.getCurrentPosition();
     }
 
-    protected long getDuration() {
+    private long getDuration() {
         return playerHelper.getDuration();
     }
 
@@ -328,29 +328,29 @@ abstract class IUZPlayerManager implements PreviewLoader {
     /**
      * Returns a string containing player state debugging information.
      */
-    protected String getPlayerStateString() {
+    private String getPlayerStateString() {
         return playerHelper.getPlayerStateString();
     }
 
     /**
      * Returns a string containing video debugging information.
      */
-    protected String getVideoString() {
+    private String getVideoString() {
         return playerHelper.getVideoString();
     }
 
-    protected int getVideoProfileW() {
+    int getVideoProfileW() {
         return playerHelper.getVideoProfileW();
     }
 
-    protected int getVideoProfileH() {
+    int getVideoProfileH() {
         return playerHelper.getVideoProfileH();
     }
 
     /**
      * Returns a string containing audio debugging information.
      */
-    protected String getAudioString() {
+    private String getAudioString() {
         return playerHelper.getAudioString();
     }
 
@@ -415,7 +415,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
                 new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-                return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector,
+        return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector,
                 new UZLoadControl() {
                     @Override
                     public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
@@ -485,7 +485,7 @@ abstract class IUZPlayerManager implements PreviewLoader {
 
     abstract void setRunnable();
 
-    public List<String> getSubtitleList() {
+    List<String> getSubtitleList() {
         return null; // template no support
     }
 
@@ -689,7 +689,8 @@ abstract class IUZPlayerManager implements PreviewLoader {
                         onFirstStateReady();
                         isFirstStateReady = true;
                     }
-                    ((Activity)uzVideoView.getContext()).setResult(Activity.RESULT_OK);
+                    if (uzVideoView != null)
+                        ((Activity) uzVideoView.getContext()).setResult(Activity.RESULT_OK);
                     break;
             }
             notifyUpdateButtonVisibility();

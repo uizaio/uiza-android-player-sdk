@@ -1,5 +1,6 @@
 package com.uiza.sdk.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -16,7 +17,7 @@ import java.util.List;
 import timber.log.Timber;
 
 /**
- * Created by loitp on 6/8/2018.
+ * Player View
  */
 
 //https://github.com/google/ExoPlayer/issues/4031
@@ -97,6 +98,7 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         this.onLongPressed = onLongPressed;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         if (UZData.getInstance().isUseUZDragView())
@@ -118,7 +120,7 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         PlayerControlView playerControlView = getPlayerControlView();
         if (playerControlView == null) return null;
         List<View> viewList = UZViewUtils.getAllChildren(playerControlView);
-        return viewList.toArray(new View[viewList.size()]);
+        return viewList.toArray(new View[0]);
     }
 
     public interface ControllerStateCallback {

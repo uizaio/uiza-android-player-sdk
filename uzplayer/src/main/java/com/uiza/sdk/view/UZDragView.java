@@ -1,5 +1,6 @@
 package com.uiza.sdk.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -243,6 +244,7 @@ public class UZDragView extends LinearLayout {
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isEnableSlide) {

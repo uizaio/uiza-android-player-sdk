@@ -27,16 +27,16 @@ public class UZChromeCast {
     private UZMediaRouteButton uzMediaRouteButton;
     private UZChromeCastListener listener;
 
-    {
+    static {
         if (!UZAppUtils.checkChromeCastAvailable())
             throw new NoClassDefFoundError(ErrorConstant.ERR_505);
     }
 
-    public void setUZChromeCastListener(UZChromeCastListener listener) {
+    void setUZChromeCastListener(UZChromeCastListener listener) {
         this.listener = listener;
     }
 
-    public void setupChromeCast(Context context) {
+    void setupChromeCast(Context context) {
         if (UZAppUtils.isTV(context)) return;
         uzMediaRouteButton = new UZMediaRouteButton(context);
         setUpMediaRouteButton();
@@ -67,7 +67,7 @@ public class UZChromeCast {
     }
 
     //tự tạo layout chromecast và background đen
-    //Gen layout chromecast with black backgroudn programmatically
+    //Gen layout chromecast with black background programmatically
     private void addUIChromecastLayer(Context context) {
         //listener check state of chromecast
         CastContext castContext = null;
@@ -90,7 +90,7 @@ public class UZChromeCast {
             uzMediaRouteButton.post(() -> uzMediaRouteButton.applyTint(color));
     }
 
-    public UZMediaRouteButton getUZMediaRouteButton() {
+    UZMediaRouteButton getUZMediaRouteButton() {
         return uzMediaRouteButton;
     }
 
