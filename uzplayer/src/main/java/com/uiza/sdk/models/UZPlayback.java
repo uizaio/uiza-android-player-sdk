@@ -4,9 +4,11 @@ package com.uiza.sdk.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
+import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.ListUtils;
 
 import java.net.MalformedURLException;
@@ -174,15 +176,16 @@ public class UZPlayback implements Parcelable {
     public List<String> getLinkPlays() {
         if (live) {
             //Bat buoc dung linkplay m3u8 cho nay, do bug cua system
-            return ListUtils.filter(this.getUrls(), url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8));
+            return ListUtils.filter(this.getUrls(), url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0);
         } else {
             List<String> listLinkPlay = new ArrayList<>();
             List<String> urls = getUrls();
-            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().endsWith(UZMediaExtension.MPD)));
-            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().endsWith(UZMediaExtension.M3U8)));
+            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.MPD) > 0));
+            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0));
             return listLinkPlay;
         }
     }
+
 
     public String getLinkPlay() {
         if (!TextUtils.isEmpty(mpd)) {
@@ -192,6 +195,20 @@ public class UZPlayback implements Parcelable {
         } else {
             return hlsTs;
         }
+    }
+
+    public UZAnalyticInfo getAnalyticInfo() {
+        String url = getLinkPlay();
+        int index = url.indexOf("?cm=");
+        if (index > 0) {
+            try {
+                String json = new String(Base64.decode(url.substring(index + 4), Base64.DEFAULT));
+                return JacksonUtils.fromJson(json, UZAnalyticInfo.class);
+            } catch (Exception e) {
+                Timber.e(e);
+            }
+        }
+        return null;
     }
 
     public URL getPlayUrl() {

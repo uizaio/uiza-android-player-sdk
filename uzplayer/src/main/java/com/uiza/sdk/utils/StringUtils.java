@@ -74,7 +74,6 @@ public final class StringUtils {
             Date date = dateFormat.parse(timeStr);
             return date == null ? -1 : date.getTime();
         } catch (ParseException e) {
-            Timber.e(e);
             return -1;
         }
     }

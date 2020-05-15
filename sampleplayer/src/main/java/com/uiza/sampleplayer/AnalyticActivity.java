@@ -6,6 +6,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import android.os.Bundle;
 
 import com.uiza.sdk.analytics.UZAnalytic;
+import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZEventType;
 import com.uiza.sdk.models.UZTrackingData;
 import com.uiza.sdk.utils.JacksonUtils;
@@ -19,8 +20,9 @@ import timber.log.Timber;
 public class AnalyticActivity extends AppCompatActivity {
     private AppCompatTextView txtLog;
     CompositeDisposable disposables;
-    private static final String ENTITY_ID = "6682f3fe-72f7-46a2-a2fb-a9bbc74e8356";
     String sessionId;
+    UZAnalyticInfo info;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,7 @@ public class AnalyticActivity extends AppCompatActivity {
         findViewById(R.id.one_event).setOnClickListener(v -> trackEvent());
         findViewById(R.id.some_events).setOnClickListener(v -> trackEvents());
         findViewById(R.id.live_viewers).setOnClickListener(v -> getLiveViewers());
+        info = new UZAnalyticInfo("b963b465c34e4ffb9a71922442ee0dca", "b938c0a6-e9bc-4b25-9e66-dbf81d755c25", "live");
     }
 
     @Override
@@ -41,7 +44,7 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void getLiveViewers() {
-        disposables.add(UZAnalytic.getLiveViewers(ENTITY_ID, liveCounter -> {
+        disposables.add(UZAnalytic.getLiveViewers(info, liveCounter -> {
             Timber.e("onNext: %s", liveCounter.getViews());
             txtLog.setText(String.format("trackEvent::onNext: %s", JacksonUtils.toJson(liveCounter)));
         }, error -> {
@@ -51,10 +54,8 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void trackEvent() {
-        UZTrackingData data = new UZTrackingData(sessionId);
+        UZTrackingData data = new UZTrackingData(info, sessionId);
         data.setEventType(UZEventType.WATCHING);
-        data.setEntityId(ENTITY_ID);
-        data.setEntitySource("live");
         disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
                     Timber.e("onNext: %s", responseBody.contentLength());
                     txtLog.setText(String.format("trackEvent::onNext: %s", responseBody.contentLength()));
@@ -68,14 +69,10 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void trackEvents() {
-        UZTrackingData data1 = new UZTrackingData(sessionId);
+        UZTrackingData data1 = new UZTrackingData(info, sessionId);
         data1.setEventType(UZEventType.WATCHING);
-        data1.setEntityId(ENTITY_ID);
-        data1.setEntitySource("live");
-        UZTrackingData data2 = new UZTrackingData(sessionId);
+        UZTrackingData data2 = new UZTrackingData(info, sessionId);
         data2.setEventType(UZEventType.WATCHING);
-        data2.setEntityId(ENTITY_ID);
-        data2.setEntitySource("live");
         disposables.add(UZAnalytic.pushEvents(Arrays.asList(data1, data2), responseBody -> {
                     Timber.e("onNext: %s", responseBody.contentLength());
                     txtLog.setText(String.format("trackEvents::onNext: %s", responseBody.contentLength()));

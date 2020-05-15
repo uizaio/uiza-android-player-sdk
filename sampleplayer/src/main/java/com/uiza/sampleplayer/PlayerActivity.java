@@ -16,15 +16,20 @@ import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
+import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZPlayback;
+import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZDragView;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Demo UZPlayer with UZDragView
@@ -133,6 +138,10 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(isLive);
         UZPlayer.setCurrentPlayback(playback);
+        UZAnalyticInfo analyticInfo = playback.getAnalyticInfo();
+        if(analyticInfo != null){
+            Timber.e(JacksonUtils.toJson(analyticInfo));
+        }
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");

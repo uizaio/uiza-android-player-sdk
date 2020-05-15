@@ -7,6 +7,7 @@ import android.provider.Settings;
 import androidx.annotation.NonNull;
 
 import com.uiza.sdk.BuildConfig;
+import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZTrackingBody;
 import com.uiza.sdk.models.UZTrackingData;
 import com.uiza.sdk.models.UZLiveCounter;
@@ -19,7 +20,6 @@ import io.reactivex.functions.Consumer;
 import okhttp3.ResponseBody;
 
 public final class UZAnalytic {
-    private static String appId;
     private static String sdkVersionName; //UZData/AndroidSDK/1.1.0
     private static String deviceId;
 
@@ -27,21 +27,16 @@ public final class UZAnalytic {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
-    private static void init(String deviceId, String appId) {
-        UZAnalytic.appId = appId;
+    private static void init(String deviceId) {
         UZAnalytic.sdkVersionName = String.format("UZData/AndroidPlayerSDK/%s", BuildConfig.VERSION_NAME);
         UZAnalytic.deviceId = deviceId;
     }
 
     @SuppressLint("HardwareIds")
-    public static void init(@NonNull Context context, String baseAnalyticUrl, String baseLiveCountUrl, String appId) {
-        init(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID), appId);
+    public static void init(@NonNull Context context, String baseAnalyticUrl, String baseLiveCountUrl) {
+        init(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
         UZAnalyticClient.getInstance().init(baseAnalyticUrl);
         UZLiveCountClient.getInstance().init(baseLiveCountUrl);
-    }
-
-    public static String getAppId() {
-        return appId;
     }
 
     public static String getDeviceId() {
@@ -69,7 +64,7 @@ public final class UZAnalytic {
         return RxBinder.bind(UZAnalyticClient.getInstance().createAnalyticAPI().pushEvents(UZTrackingBody.create(data)), onNext, onError, onComplete);
     }
 
-    public static Disposable getLiveViewers(String entityId, Consumer<UZLiveCounter> onNext, Consumer<Throwable> onError) {
-        return RxBinder.bind(UZLiveCountClient.getInstance().createLiveViewCountAPI().getLiveViewers(appId, entityId), onNext, onError);
+    public static Disposable getLiveViewers(UZAnalyticInfo info, Consumer<UZLiveCounter> onNext, Consumer<Throwable> onError) {
+        return RxBinder.bind(UZLiveCountClient.getInstance().createLiveViewCountAPI().getLiveViewers(info.getAppId(), info.getEntityId()), onNext, onError);
     }
 }
