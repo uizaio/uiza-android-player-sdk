@@ -5,12 +5,14 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import com.uiza.api.UZApi;
 import com.uiza.sdk.analytics.UZAnalytic;
 import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZEventType;
 import com.uiza.sdk.models.UZTrackingData;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.UUID;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -43,13 +45,13 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void getLiveViewers() {
-//        disposables.add(UZAnalytic.getLiveViewers(info, liveCounter -> {
-//            Timber.e("onNext: %s", liveCounter.getViews());
-//            txtLog.setText(String.format("trackEvent::onNext: %s", JacksonUtils.toJson(liveCounter)));
-//        }, error -> {
-//            Timber.e("onError: %s", error.getMessage());
-//            txtLog.setText(String.format("getLiveViewers::onError: %s", error.getMessage()));
-//        }));
+        disposables.add(UZApi.getLiveViewers(info.getAppId(), info.getEntityId(), liveCounter -> {
+            Timber.e("onNext: %d", liveCounter.getViews());
+            txtLog.setText(String.format(Locale.getDefault(), "Views: %d", liveCounter.getViews()));
+        }, error -> {
+            Timber.e("onError: %s", error.getMessage());
+            txtLog.setText(String.format("getLiveViewers::onError: %s", error.getMessage()));
+        }));
     }
 
     private void trackEvent() {

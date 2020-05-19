@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="One Event" />
+        android:text="@string/one_event" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/some_events"
@@ -20,7 +20,7 @@
         android:layout_below="@+id/one_event"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="Some Events" />
+        android:text="@string/some_events" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/live_viewers"
@@ -29,14 +29,16 @@
         android:layout_below="@+id/some_events"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:text="Get Live Viewers" />
+        android:text="@string/get_live_viewers" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txt_log"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/live_viewers"
+        android:gravity="center_horizontal"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:paddingStart="@dimen/appbar_padding_top"
-        android:paddingTop="@dimen/appbar_padding_top" />
+        android:paddingTop="@dimen/appbar_padding_top"
+        tools:ignore="RtlSymmetry" />
 </RelativeLayout>

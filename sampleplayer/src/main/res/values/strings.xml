@@ -6,7 +6,6 @@
     <string name="title_activity_settings">Settings</string>
     <string name="general_title">General</string>
     <string name="version_title">Build Number</string>
-    <string name="uz_analytic_url">https://tracking-dev.uizadev.io</string>
     <string name="uz_live_views_url">https://development-api.uizadev.io</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
@@ -105,4 +104,7 @@
     <string name="play">Play</string>
     <string name="enter_any_linkplay_here">Enter any linkplay here</string>
     <string name="statsfornerds_toggle">StatsForNerds toggle</string>
+    <string name="get_live_viewers">Get Live Viewers</string>
+    <string name="some_events">Some Events</string>
+    <string name="one_event">One Event</string>
 </resources>
