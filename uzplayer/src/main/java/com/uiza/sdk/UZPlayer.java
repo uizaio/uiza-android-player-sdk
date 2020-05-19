@@ -1,8 +1,10 @@
 package com.uiza.sdk;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.SystemClock;
+import android.provider.Settings;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -32,11 +34,13 @@ public class UZPlayer {
      *
      * @param skinLayoutId Skin of player
      */
+    @SuppressLint("HardwareIds")
     public static void init(@NonNull Context context, @LayoutRes int skinLayoutId) {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
-        UZAnalytic.init(context.getApplicationContext());
+        String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        UZAnalytic.init(deviceId);
         setUZPlayerSkinLayoutId(skinLayoutId);
         elapsedTime = SystemClock.elapsedRealtime();
     }

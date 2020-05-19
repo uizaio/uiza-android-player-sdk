@@ -3,7 +3,6 @@ package com.uiza.sdk.analytics;
 import io.reactivex.Observable;
 
 import com.uiza.sdk.models.UZTrackingBody;
-import com.uiza.sdk.models.UZLiveCounter;
 
 import okhttp3.ResponseBody;
 import retrofit2.http.Body;

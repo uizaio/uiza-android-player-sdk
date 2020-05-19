@@ -16,6 +16,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import timber.log.Timber;
 
 public class UZAnalyticClient {
+    private final static String BASE_URL = "https://tracking-dev.uizadev.io";
     private Interceptor restRequestInterceptor;
     private static final int CONNECT_TIMEOUT_TIME = 20;//20s
     private Retrofit retrofit;
@@ -32,12 +33,9 @@ public class UZAnalyticClient {
 
     }
 
-    void init(String apiBaseUrl) {
-        if (TextUtils.isEmpty(apiBaseUrl)) {
-            throw new InvalidParameterException("apiBaseUrl cannot null or empty");
-        }
+    void init() {
         retrofit = new Retrofit.Builder()
-                .baseUrl(apiBaseUrl)
+                .baseUrl(BASE_URL)
                 .client(provideHttpClient())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create())

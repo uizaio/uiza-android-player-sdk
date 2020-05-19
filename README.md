@@ -83,17 +83,6 @@ compileOptions {
 
 ## Init SDK
 
-0. In `AnroidManifest.zml` please set data for Uiza Analytic
-
-     ```xml
-     	 <meta-data
-            android:name="uz_analytic_url"
-            android:value="@string/uz_analytic_url"/>
-        <meta-data
-            android:name="uz_live_views_url"
-            android:value="@string/uz_live_views_url"/>
-     ```
-
 1. Init UZPlayer
 
      ```java
