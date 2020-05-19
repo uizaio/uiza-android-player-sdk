@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,20 +15,15 @@ import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
-import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZPlayback;
-import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZDragView;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Demo UZPlayer with UZDragView
@@ -89,10 +83,10 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             initPlaylist();
         }
         btnStarts.setVisibility(View.GONE);
-        findViewById(R.id.bt_0).setOnClickListener(view -> updateView(LSApplication.urls[0], false));
+        findViewById(R.id.bt_0).setOnClickListener(view -> updateView(LSApplication.urls[0], true));
         findViewById(R.id.bt_1).setOnClickListener(view -> updateView(LSApplication.urls[1], false));
         findViewById(R.id.bt_2).setOnClickListener(view -> updateView(LSApplication.urls[2], false));
-        findViewById(R.id.bt_3).setOnClickListener(view -> updateView(LSApplication.urls[3], true));
+        findViewById(R.id.bt_3).setOnClickListener(view -> updateView(LSApplication.urls[3], false));
         findViewById(R.id.bt_4).setOnClickListener(view -> {
             etLinkPlay.setVisibility(View.GONE);
             btPlay.setVisibility(View.GONE);
@@ -115,7 +109,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         }, 1000);
     }
 
-    private void updateView(String url, boolean live){
+    private void updateView(String url, boolean live) {
         etLinkPlay.setVisibility(View.VISIBLE);
         btPlay.setVisibility(View.VISIBLE);
         etLinkPlay.setText(url);
@@ -138,10 +132,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(isLive);
         UZPlayer.setCurrentPlayback(playback);
-        UZAnalyticInfo analyticInfo = playback.getAnalyticInfo();
-        if(analyticInfo != null){
-            Timber.e(JacksonUtils.toJson(analyticInfo));
-        }
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");
@@ -180,7 +170,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     @Override
     public void onError(UZException e) {
-        runOnUiThread(() ->  UZToast.show(this, e.getLocalizedMessage()));
+        runOnUiThread(() -> UZToast.show(this, e.getLocalizedMessage()));
     }
 
     @Override

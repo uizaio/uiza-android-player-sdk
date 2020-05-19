@@ -9,6 +9,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -34,6 +35,15 @@ public class UZAppUtils {
 
     public static String getUserAgent(@NonNull Context context) {
         return context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
+    }
+
+    public static String getMetaData(@NonNull Context context, String key) {
+        try {
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+            return info.metaData.getString(key);
+        } catch (PackageManager.NameNotFoundException e) {
+            return null;
+        }
     }
 
     public static boolean checkChromeCastAvailable() {

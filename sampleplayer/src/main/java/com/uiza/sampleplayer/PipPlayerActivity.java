@@ -47,12 +47,9 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         if (playbackInfo != null)
             etLinkPlay.setText(playbackInfo.getLinkPlay());
         else
-            etLinkPlay.setText(LSApplication.urls[1]);
+            etLinkPlay.setText(LSApplication.urls[0]);
 
-        findViewById(R.id.btn_play).setOnClickListener(view -> {
-            onPlay(false);
-        });
-
+        findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
 
         findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
             if (uzVideo != null)
@@ -65,11 +62,11 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         }
     }
 
-    private void onPlay(boolean live) {
+    private void onPlay() {
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
-        playback.setLive(live);
+        playback.setLive(true);
         UZPlayer.setCurrentPlayback(playback);
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {

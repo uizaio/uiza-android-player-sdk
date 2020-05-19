@@ -54,6 +54,7 @@ import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaTrack;
 import com.uiza.sdk.BuildConfig;
 import com.uiza.sdk.R;
+import com.uiza.sdk.analytics.UZAnalytic;
 import com.uiza.sdk.animations.AnimationUtils;
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.dialog.hq.UZItem;
@@ -71,7 +72,9 @@ import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
+import com.uiza.sdk.models.UZAnalyticInfo;
 import com.uiza.sdk.models.UZPlayback;
+import com.uiza.sdk.models.UZTrackingData;
 import com.uiza.sdk.observers.SensorOrientationChangeNotifier;
 import com.uiza.sdk.observers.UZConnectifyService;
 import com.uiza.sdk.utils.ConnectivityUtils;
@@ -79,6 +82,7 @@ import com.uiza.sdk.utils.Constants;
 import com.uiza.sdk.utils.ConvertUtils;
 import com.uiza.sdk.utils.DebugUtils;
 import com.uiza.sdk.utils.ImageUtils;
+import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.ListUtils;
 import com.uiza.sdk.utils.StringUtils;
 import com.uiza.sdk.utils.TmpParamData;
@@ -97,7 +101,9 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import io.reactivex.disposables.CompositeDisposable;
 import timber.log.Timber;
 
 /**
@@ -189,7 +195,8 @@ public class UZVideoView extends VideoViewBase
     private boolean isCastPlayerPlayingFirst;
     private StatsForNerdsView statsForNerdsView;
     private UZAdPlayerCallback videoAdPlayerCallback;
-
+    private String viewerSessionId;
+    private CompositeDisposable disposables;
 
     public UZVideoView(Context context) {
         super(context);
@@ -520,6 +527,7 @@ public class UZVideoView extends VideoViewBase
         isOnPlayerEnded = false;
         updateUIEndScreen();
         isHasError = false;
+        viewerSessionId = UUID.randomUUID().toString();
         this.isLiveStream = playback.isLive();
         if (isLiveStream)
             startTime = -1;
@@ -533,6 +541,8 @@ public class UZVideoView extends VideoViewBase
         if (uzCallback != null)
             uzCallback.isInitResult(false, UZData.getInstance().getPlayback());
         initUZPlayerManager();
+        disposables = new CompositeDisposable();
+        trackWatchingTimer(true);
     }
 
 
@@ -612,6 +622,9 @@ public class UZVideoView extends VideoViewBase
         if (UZAppUtils.hasSupportPIP(getContext())) {
             ((Activity) getContext()).finishAndRemoveTask();
         }
+        if (disposables != null)
+            disposables.dispose();
+        handler = null;
     }
 
     private void releasePlayerAnalytic() {
@@ -2466,5 +2479,31 @@ public class UZVideoView extends VideoViewBase
 
     protected void hideTextLiveStreamLatency() {
         statsForNerdsView.hideTextLiveStreamLatency();
+    }
+
+    private void trackWatchingTimer(boolean firstRun) {
+        UZAnalyticInfo ai = UZData.getInstance().getAnalyticInfo();
+        if (ai != null && handler != null) {
+            UZTrackingData data = new UZTrackingData(ai, viewerSessionId);
+            handler.postDelayed(() -> trackWatching(data)
+                    , firstRun ? 0 : 5000); // 5s
+        } else {
+            Timber.e("Do not track watching");
+        }
+    }
+
+    private void trackWatching(final UZTrackingData data) {
+        if (isPlaying()) {
+            disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
+                Timber.d("send track watching: %s, response: %s", viewerSessionId, responseBody.string());
+            }, error -> {
+                Timber.e("send track watching error: %s", error.getMessage());
+            }, () -> {
+                // onComplete
+                trackWatchingTimer(false);
+            }));
+        } else {
+            trackWatchingTimer(false);
+        }
     }
 }

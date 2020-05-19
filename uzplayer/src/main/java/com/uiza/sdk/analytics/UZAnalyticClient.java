@@ -67,7 +67,7 @@ public class UZAnalyticClient {
         return restRequestInterceptor;
     }
 
-    public AnalyticAPI createAnalyticAPI() {
+    AnalyticAPI createAnalyticAPI() {
         if (retrofit == null) {
             throw new IllegalStateException("Must call init() before using");
         }

@@ -11,6 +11,8 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 
+import timber.log.Timber;
+
 
 /**
  * Utility class for converting objects to and from JSON using Jackson implementation.
@@ -52,6 +54,7 @@ public final class JacksonUtils {
         try {
             return mapper.readValue(json, classOfT);
         } catch (JsonProcessingException e) {
+            Timber.e(e);
             return null;
         }
     }

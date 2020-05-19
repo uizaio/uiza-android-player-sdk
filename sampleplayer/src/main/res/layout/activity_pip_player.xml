@@ -27,21 +27,21 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <EditText
+            <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/et_link_play"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Enter any linkplay here"
+                android:hint="@string/enter_any_linkplay_here"
                 android:padding="5dp"
-                android:textSize="@dimen/txt_14" />
+                android:lines="8"
+                android:textSize="@dimen/txt_14"/>
 
             <Button
                 android:id="@+id/bt_stats_for_nerds"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:padding="@dimen/padding_5"
-                android:text="StatsForNerds toggle"
+                android:text="@string/statsfornerds_toggle"
                 android:textSize="@dimen/txt_18" />
 
             <Button
@@ -50,7 +50,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/w_15"
                 android:padding="@dimen/padding_5"
-                android:text="Play"
+                android:text="@string/play"
                 android:textSize="@dimen/txt_18" />
 
         </LinearLayout>

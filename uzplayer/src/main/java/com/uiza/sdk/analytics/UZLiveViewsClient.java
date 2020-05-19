@@ -15,20 +15,20 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import timber.log.Timber;
 
-public class UZLiveCountClient {
+public class UZLiveViewsClient {
     private Interceptor restRequestInterceptor;
     private static final int CONNECT_TIMEOUT_TIME = 20;//20s
     private Retrofit retrofit;
 
     private static class UZLiveCountClientHelper {
-        private static final UZLiveCountClient INSTANCE = new UZLiveCountClient();
+        private static final UZLiveViewsClient INSTANCE = new UZLiveViewsClient();
     }
 
-    public static UZLiveCountClient getInstance() {
+    public static UZLiveViewsClient getInstance() {
         return UZLiveCountClientHelper.INSTANCE;
     }
 
-    private UZLiveCountClient() {
+    private UZLiveViewsClient() {
 
     }
 
@@ -67,7 +67,7 @@ public class UZLiveCountClient {
         return restRequestInterceptor;
     }
 
-    public LiveViewCountAPI createLiveViewCountAPI() {
+    LiveViewCountAPI createLiveViewCountAPI() {
         if (retrofit == null) {
             throw new IllegalStateException("Must call init() before using");
         }

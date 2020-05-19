@@ -18,8 +18,6 @@ public class UZPlayer {
         throw new UnsupportedOperationException("u can't instantiate me...");
     }
 
-    private static final String LIVE_COUNT_URL = "https://development-api.uizadev.io";
-    private static final String ANALYTIC_URL = "https://tracking-dev.uizadev.io";
     private static long elapsedTime = SystemClock.elapsedRealtime();
 
     /**
@@ -38,7 +36,7 @@ public class UZPlayer {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
-        UZAnalytic.init(context.getApplicationContext(), ANALYTIC_URL, LIVE_COUNT_URL);
+        UZAnalytic.init(context.getApplicationContext());
         setUZPlayerSkinLayoutId(skinLayoutId);
         elapsedTime = SystemClock.elapsedRealtime();
     }
