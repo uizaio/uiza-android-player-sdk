@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -119,7 +120,7 @@ public class UZVideoView extends VideoViewBase
     protected Player.EventListener eventListener;
     protected VideoListener videoListener;
     protected TextOutput textOutput;
-    Handler handler = new Handler();
+    Handler handler = new Handler(Looper.getMainLooper());
     private int DEFAULT_VALUE_BACKWARD_FORWARD = 10000;//10000 mls
     private int DEFAULT_VALUE_CONTROLLER_TIMEOUT = 8000;//8000 mls
     private boolean isLiveStream;
@@ -439,7 +440,7 @@ public class UZVideoView extends VideoViewBase
         //
         UZData.getInstance().setPlayback(playback);
         post(() -> initPlayback(playback, true));
-        UZData.getInstance().clear();
+//        UZData.getInstance().clear();
         return true;
     }
 
@@ -536,12 +537,13 @@ public class UZVideoView extends VideoViewBase
             showProgress();
         }
         updateUIDependOnLivestream();
+        disposables = new CompositeDisposable();
         initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail());
         if (uzCallback != null)
-            uzCallback.isInitResult(false, UZData.getInstance().getPlayback());
+            uzCallback.isInitResult(true, UZData.getInstance().getPlayback());
+        trackWatchingTimer(UZData.getInstance().getPlaybackInfo(), true);
         initUZPlayerManager();
-        disposables = new CompositeDisposable();
-        trackWatchingTimer(true);
+
     }
 
 
@@ -2480,29 +2482,24 @@ public class UZVideoView extends VideoViewBase
         statsForNerdsView.hideTextLiveStreamLatency();
     }
 
-    private void trackWatchingTimer(boolean firstRun) {
-        UZPlaybackInfo pi = UZData.getInstance().getPlaybackInfo();
+    private void trackWatchingTimer(UZPlaybackInfo pi, boolean firstRun) {
         if (pi != null && handler != null) {
             UZTrackingData data = new UZTrackingData(pi, viewerSessionId);
-            handler.postDelayed(() -> trackWatching(data)
+            handler.postDelayed(() -> {
+                        Timber.e("is playing: %b", isPlaying());
+                        if (isPlaying()) {
+                            disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
+                                Timber.d("send track watching: %s, response: %s", viewerSessionId, responseBody.string());
+                            }, error -> {
+                                Timber.e("send track watching error: %s", error.getMessage());
+                            }));
+                        }
+                        Timber.d("Delay 5s");
+                        trackWatchingTimer(pi, false);
+                    }
                     , firstRun ? 0 : 5000); // 5s
         } else {
             Timber.e("Do not track watching");
-        }
-    }
-
-    private void trackWatching(final UZTrackingData data) {
-        if (isPlaying()) {
-            disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
-                Timber.d("send track watching: %s, response: %s", viewerSessionId, responseBody.string());
-            }, error -> {
-                Timber.e("send track watching error: %s", error.getMessage());
-            }, () -> {
-                // onComplete
-                trackWatchingTimer(false);
-            }));
-        } else {
-            trackWatchingTimer(false);
         }
     }
 }

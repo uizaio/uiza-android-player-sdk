@@ -1,10 +1,8 @@
 package com.uiza.sdk.analytics;
 
-import android.text.TextUtils;
-
+import com.uiza.sdk.analytics.helps.NullOnEmptyConverterFactory;
 import com.uiza.sdk.analytics.interceptors.RestRequestInterceptor;
 
-import java.security.InvalidParameterException;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
@@ -18,7 +16,7 @@ import timber.log.Timber;
 public class UZAnalyticClient {
     private final static String BASE_URL = "https://tracking-dev.uizadev.io";
     private Interceptor restRequestInterceptor;
-    private static final int CONNECT_TIMEOUT_TIME = 20;//20s
+    private static final int CONNECT_TIMEOUT_TIME = 30; //30s
     private Retrofit retrofit;
 
     private static class UZRestClientHelper {
@@ -30,15 +28,16 @@ public class UZAnalyticClient {
     }
 
     private UZAnalyticClient() {
-
+        init();
     }
 
-    void init() {
+    private void init() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(provideHttpClient())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(new NullOnEmptyConverterFactory())
                 .build();
     }
 

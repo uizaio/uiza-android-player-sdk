@@ -80,7 +80,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
-        if (isInitSuccess) {
+        if (isInitSuccess && data != null) {
             getLiveViewsTimer(data, true);
         } else {
             UZToast.show(this, "Init failed");
@@ -173,9 +173,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         handler.postDelayed(() -> {
             UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
                 uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
-            }, Timber::e, () -> {
-                getLiveViewsTimer(playback, false);
-            });
+            }, Timber::e);
+            getLiveViewsTimer(playback, false);
         }, firstRun ? 0 : 5000);
     }
 }

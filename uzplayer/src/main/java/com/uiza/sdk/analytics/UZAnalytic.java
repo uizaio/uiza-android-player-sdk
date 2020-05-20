@@ -34,7 +34,6 @@ public final class UZAnalytic {
     public static void init(String deviceId) {
         UZAnalytic.deviceId = deviceId;
         UZAnalytic.sdkVersionName = String.format("UZData/AndroidPlayerSDK/%s", BuildConfig.VERSION_NAME);
-        UZAnalyticClient.getInstance().init();
     }
 
     public static String getDeviceId() {
