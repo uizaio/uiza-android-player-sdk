@@ -25,6 +25,8 @@ import com.uiza.sdk.widget.UZToast;
 
 import java.util.Locale;
 
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
 /**
@@ -35,6 +37,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
     private Handler handler = new Handler(Looper.getMainLooper());
+    private CompositeDisposable disposables;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +66,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
             if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
         });
+        disposables = new CompositeDisposable();
         if (playbackInfo != null) {
             boolean isInitSuccess = uzVideo.play(playbackInfo);
             if (!isInitSuccess)
@@ -130,6 +134,9 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     public void onDestroy() {
         super.onDestroy();
         uzVideo.onDestroyView();
+        if(disposables != null)
+        disposables.dispose();
+        handler = null;
     }
 
     @Override
@@ -170,11 +177,15 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     }
 
     private void getLiveViewsTimer(UZPlayback playback, boolean firstRun) {
-        handler.postDelayed(() -> {
-            UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
-                uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
-            }, Timber::e);
-            getLiveViewsTimer(playback, false);
-        }, firstRun ? 0 : 5000);
+        if (handler != null)
+            handler.postDelayed(() -> {
+                Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                    uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+                }, Timber::e);
+                if(d != null){
+                    disposables.add(d);
+                }
+                getLiveViewsTimer(playback, false);
+            }, firstRun ? 0 : 5000);
     }
 }
