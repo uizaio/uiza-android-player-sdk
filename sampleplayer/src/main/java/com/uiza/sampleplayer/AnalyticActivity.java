@@ -7,7 +7,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 
 import com.uiza.api.UZApi;
 import com.uiza.sdk.analytics.UZAnalytic;
-import com.uiza.sdk.models.UZAnalyticInfo;
+import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZEventType;
 import com.uiza.sdk.models.UZTrackingData;
 
@@ -22,7 +22,7 @@ public class AnalyticActivity extends AppCompatActivity {
     private AppCompatTextView txtLog;
     CompositeDisposable disposables;
     String sessionId;
-    UZAnalyticInfo info;
+    UZPlaybackInfo info;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,7 @@ public class AnalyticActivity extends AppCompatActivity {
         findViewById(R.id.one_event).setOnClickListener(v -> trackEvent());
         findViewById(R.id.some_events).setOnClickListener(v -> trackEvents());
         findViewById(R.id.live_viewers).setOnClickListener(v -> getLiveViewers());
-        info = new UZAnalyticInfo("b963b465c34e4ffb9a71922442ee0dca", "b938c0a6-e9bc-4b25-9e66-dbf81d755c25", "live");
+        info = new UZPlaybackInfo("b963b465c34e4ffb9a71922442ee0dca", "b938c0a6-e9bc-4b25-9e66-dbf81d755c25", "live");
     }
 
     @Override

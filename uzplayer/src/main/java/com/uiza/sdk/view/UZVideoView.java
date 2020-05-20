@@ -72,7 +72,7 @@ import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
-import com.uiza.sdk.models.UZAnalyticInfo;
+import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.models.UZTrackingData;
 import com.uiza.sdk.observers.SensorOrientationChangeNotifier;
@@ -82,7 +82,6 @@ import com.uiza.sdk.utils.Constants;
 import com.uiza.sdk.utils.ConvertUtils;
 import com.uiza.sdk.utils.DebugUtils;
 import com.uiza.sdk.utils.ImageUtils;
-import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.ListUtils;
 import com.uiza.sdk.utils.StringUtils;
 import com.uiza.sdk.utils.TmpParamData;
@@ -2482,9 +2481,9 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void trackWatchingTimer(boolean firstRun) {
-        UZAnalyticInfo ai = UZData.getInstance().getAnalyticInfo();
-        if (ai != null && handler != null) {
-            UZTrackingData data = new UZTrackingData(ai, viewerSessionId);
+        UZPlaybackInfo pi = UZData.getInstance().getPlaybackInfo();
+        if (pi != null && handler != null) {
+            UZTrackingData data = new UZTrackingData(pi, viewerSessionId);
             handler.postDelayed(() -> trackWatching(data)
                     , firstRun ? 0 : 5000); // 5s
         } else {

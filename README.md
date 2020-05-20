@@ -180,6 +180,10 @@ Don't forget to add in activity life cycle event:
     }
 ```
 
+## How to apply live viewers for UZPlayer
+
+Please see [uiza-android-api-sdk](https://github.com/uizaio/uiza-android-api-sdk/blob/master/README.md)
+
 ## How to customize your skin?
 Only 3 steps, you can customize everything about player skin.
 

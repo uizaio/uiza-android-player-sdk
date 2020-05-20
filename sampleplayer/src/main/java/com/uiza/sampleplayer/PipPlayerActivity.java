@@ -2,6 +2,8 @@ package com.uiza.sampleplayer;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PersistableBundle;
 import android.view.View;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
@@ -20,6 +23,10 @@ import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
 
+import java.util.Locale;
+
+import timber.log.Timber;
+
 /**
  * Demo UZPlayer with Picture In Picture
  */
@@ -27,6 +34,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
 
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,6 +79,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         boolean isInitSuccess = uzVideo.play();
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");
+        } else {
+            getLiveViewsTimer(playback, true);
         }
     }
 
@@ -160,4 +170,14 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         uzVideo.toggleShowHideController();
     }
 
+    private void getLiveViewsTimer(UZPlayback playback, boolean firstRun) {
+        handler.postDelayed(() -> {
+            UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+            }, Timber::e, () -> {
+                getLiveViewsTimer(playback, false);
+            });
+        }, firstRun ? 0 : 5000);
+
+    }
 }

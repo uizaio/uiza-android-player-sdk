@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UZAnalyticInfo implements Serializable {
+public class UZPlaybackInfo implements Serializable {
     @JsonProperty("app_id")
     private String appId;
     @JsonProperty("entity_id")
@@ -16,9 +16,9 @@ public class UZAnalyticInfo implements Serializable {
     @JsonProperty("entity_source")
     private String entitySource;
 
-    public UZAnalyticInfo() {}
+    public UZPlaybackInfo() {}
 
-    public UZAnalyticInfo(String appId, String entityId, String entitySource) {
+    public UZPlaybackInfo(String appId, String entityId, String entitySource) {
         this.appId = appId;
         this.entityId = entityId;
         this.entitySource = entitySource;

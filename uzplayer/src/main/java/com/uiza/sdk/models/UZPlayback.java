@@ -197,13 +197,13 @@ public class UZPlayback implements Parcelable {
         }
     }
 
-    public UZAnalyticInfo getAnalyticInfo() {
+    public UZPlaybackInfo getPlaybackInfo() {
         String url = getLinkPlay();
         int index = url.indexOf("?cm=");
         if (index > 0) {
             try {
                 String json = new String(Base64.decode(url.substring(index + 4), Base64.DEFAULT));
-                return JacksonUtils.fromJson(json, UZAnalyticInfo.class);
+                return JacksonUtils.fromJson(json, UZPlaybackInfo.class);
             } catch (Exception e) {
                 Timber.e(e);
             }

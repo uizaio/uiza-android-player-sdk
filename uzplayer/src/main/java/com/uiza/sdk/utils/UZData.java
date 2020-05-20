@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.chromecast.Casty;
-import com.uiza.sdk.models.UZAnalyticInfo;
+import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZPlayback;
 
 import java.net.URL;
@@ -30,7 +30,7 @@ public class UZData {
     private String urlIMAAd = "";
     //start singleton data if play playlist folder
     private List<UZPlayback> playList;
-    private UZAnalyticInfo analyticInfo;
+    private UZPlaybackInfo playbackInfo;
     private int currentPositionOfPlayList = 0;
     private boolean useUZDragView;
     //dialog share
@@ -68,13 +68,13 @@ public class UZData {
         return playback;
     }
 
-    public UZAnalyticInfo getAnalyticInfo() {
-        return this.analyticInfo;
+    public UZPlaybackInfo getPlaybackInfo() {
+        return this.playbackInfo;
     }
 
     public void setPlayback(@NonNull UZPlayback playback) {
         this.playback = playback;
-        this.analyticInfo = playback.getAnalyticInfo();
+        this.playbackInfo = playback.getPlaybackInfo();
     }
 
     public String getUrlIMAAd() {
@@ -88,7 +88,7 @@ public class UZData {
 
     public void clear() {
         this.playback = null;
-        this.analyticInfo = null;
+        this.playbackInfo = null;
         this.urlIMAAd = null;
     }
 
@@ -135,7 +135,7 @@ public class UZData {
         UZPlayback currentInfo = playList.get(currentPositionOfPlayList);
         if (currentInfo != null) {
             this.playback = currentInfo;
-            this.analyticInfo = currentInfo.getAnalyticInfo();
+            this.playbackInfo = currentInfo.getPlaybackInfo();
         }
 
     }

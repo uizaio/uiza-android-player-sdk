@@ -104,7 +104,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         }
 
         (new Handler()).postDelayed(() -> {
-            updateView(LSApplication.urls[0], false);
+            updateView(LSApplication.urls[0], true);
             onPlay();
         }, 1000);
     }

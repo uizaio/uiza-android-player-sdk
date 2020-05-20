@@ -31,7 +31,7 @@ public class UZTrackingData {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date timestamp;
 
-    public UZTrackingData(UZAnalyticInfo info, String viewerSessionId) {
+    public UZTrackingData(UZPlaybackInfo info, String viewerSessionId) {
         this(info.getAppId(), info.getEntityId(), info.getEntitySource(), viewerSessionId);
     }
 
