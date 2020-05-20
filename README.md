@@ -182,7 +182,19 @@ Don't forget to add in activity life cycle event:
 
 ## How to apply live viewers for UZPlayer
 
-Please see [uiza-android-api-sdk](https://github.com/uizaio/uiza-android-api-sdk/blob/master/README.md)
+Please see [uiza-android-api-sdk](https://github.com/uizaio/uiza-android-api-sdk/blob/master/README.md) and see [sample](https://github.com/uizaio/uiza-android-player-sdk/blob/ef52e8a58bafc9398a560ff431c5b0054b61cd0f/sampleplayer/src/main/java/com/uiza/sampleplayer/PipPlayerActivity.java#L173)
+
+```java
+    private void getLiveViewsTimer(UZPlayback playback, boolean firstRun) {
+        handler.postDelayed(() -> {
+            UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+            }, Timber::e, () -> {
+                getLiveViewsTimer(playback, false);
+            });
+        }, firstRun ? 0 : 5000);
+    }
+```
 
 ## How to customize your skin?
 Only 3 steps, you can customize everything about player skin.

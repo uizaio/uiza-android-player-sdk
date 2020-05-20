@@ -178,6 +178,5 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
                 getLiveViewsTimer(playback, false);
             });
         }, firstRun ? 0 : 5000);
-
     }
 }
