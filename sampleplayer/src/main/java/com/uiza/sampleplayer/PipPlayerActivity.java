@@ -75,17 +75,16 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(true);
-        UZPlayer.setCurrentPlayback(playback);
-        boolean isInitSuccess = uzVideo.play();
-        if (!isInitSuccess) {
-            UZToast.show(this, "Init failed");
-        } else {
-            getLiveViewsTimer(playback, true);
-        }
+        uzVideo.play(playback);
     }
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
+        if (isInitSuccess) {
+            getLiveViewsTimer(data, true);
+        } else {
+            UZToast.show(this, "Init failed");
+        }
     }
 
     @Override
