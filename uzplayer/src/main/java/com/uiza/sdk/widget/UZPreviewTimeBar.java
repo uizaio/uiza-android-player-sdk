@@ -186,7 +186,7 @@ public class UZPreviewTimeBar extends DefaultTimeBar implements PreviewView,
         }
     }
 
-    private int dpToPx(DisplayMetrics displayMetrics, int dps) {
-        return (int) (dps * displayMetrics.density + 0.5f);
+    private int dpToPx(DisplayMetrics displayMetrics, int dp) {
+        return (int) (dp * displayMetrics.density + 0.5f);
     }
 }

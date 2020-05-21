@@ -45,6 +45,6 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/app_name"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_close_black_48" />
+            android:src="@drawable/ic_close_black" />
     </RelativeLayout>
 </RelativeLayout>

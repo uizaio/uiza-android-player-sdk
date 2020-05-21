@@ -56,4 +56,10 @@
     <string name="empty_list">Danh sách rỗng</string>
     <string name="related_list">Related List</string>
     <string name="err_no_internet_tap_to_retry">No internet connection.\nTap to retry.</string>
+    <string name="duration">Duration</string>
+    <string name="name">Name</string>
+    <string name="year">Year</string>
+    <string name="duration_2">Duration 2</string>
+    <string name="rate">Rate</string>
+    <string name="description">Description</string>
 </resources>

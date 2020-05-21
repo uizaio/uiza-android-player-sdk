@@ -51,10 +51,22 @@
         </item>
     </style>
 
+    <style name="UZPreviewTimeBar">
+        <item name="ad_marker_color">@color/light_yellow</item>
+        <item name="buffered_color">@color/light_grey</item>
+        <item name="played_ad_marker_color">@color/light_yellow</item>
+        <item name="played_color">@color/red</item>
+        <item name="bar_height">2dp</item>
+        <item name="previewFrameLayout">@id/preview_frame_layout</item>
+        <item name="scrubber_color">@color/red</item>
+        <item name="unplayed_color">@color/grey</item>
+    </style>
+
     <style name="CustomCastMiniController" parent="CastMiniController">
         <item name="castShowImageThumbnail">true</item>
         <item name="castTitleTextAppearance">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="castSubtitleTextAppearance">@style/TextAppearance.AppCompat.Caption</item>
     </style>
+
     <style name="CustomCastExpandedController" parent="CastExpandedController" />
 </resources>

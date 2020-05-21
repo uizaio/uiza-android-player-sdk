@@ -40,6 +40,6 @@
         android:background="@android:color/transparent"
         android:contentDescription="@null"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_close_black_48"
+        android:src="@drawable/ic_close_black"
         android:tint="@android:color/white" />
 </RelativeLayout>

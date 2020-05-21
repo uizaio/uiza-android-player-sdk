@@ -1,6 +1,5 @@
 package com.uiza.sdk.view;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,7 +8,6 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -1076,7 +1074,7 @@ public class UZVideoView extends VideoViewBase
             if (casty != null) {
                 boolean isMute = casty.toggleMuteVolume();
                 if (ibVolumeIcon != null)
-                    ibVolumeIcon.setImageResource(isMute ? R.drawable.ic_volume_off_white_48 : R.drawable.ic_volume_up_white_48);
+                    ibVolumeIcon.setImageResource(isMute ? R.drawable.ic_volume_off_white_24 : R.drawable.ic_volume_up_white_24);
             }
         } else if (uzPlayerManager != null)
             uzPlayerManager.toggleVolumeMute(ibVolumeIcon);
@@ -1929,10 +1927,9 @@ public class UZVideoView extends VideoViewBase
         UZViewUtils.goneViews(previewFrameLayout, ivThumbnail, uzTimebar);
     }
 
-
     private void showSettingsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         if (inflater != null)
             builder.setCustomTitle(inflater.inflate(R.layout.custom_header_dragview, null));
         // add a list
@@ -1942,9 +1939,10 @@ public class UZVideoView extends VideoViewBase
         for (int i = 0; i < actionCount; i++) {
             actions[i] = ((Button) debugRootView.getChildAt(i)).getText().toString();
         }
-        builder.setAdapter(new ArrayAdapter<>(getContext(), R.layout.uz_simple_list_item, actions), (dialog, which) -> {
-            (debugRootView.getChildAt(which)).performClick();
-        });
+
+        builder.setAdapter(new ArrayAdapter<>(getContext(), R.layout.uz_setting_list_item, actions), (dialog, which) ->
+                (debugRootView.getChildAt(which)).performClick()
+        );
         UZViewUtils.showDialog(builder.create());
     }
 

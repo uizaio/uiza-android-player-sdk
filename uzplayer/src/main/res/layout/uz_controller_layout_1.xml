@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/background_player_controller"
@@ -20,7 +21,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_keyboard_arrow_left_white_48" />
+            android:src="@drawable/ic_keyboard_arrow_left_white" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_title"
@@ -55,10 +56,11 @@
             android:layout_centerVertical="true"
             android:background="@drawable/background_live"
             android:gravity="center"
-            android:paddingLeft="@dimen/padding_5"
-            android:paddingRight="@dimen/padding_5"
+            android:paddingStart="@dimen/padding_5"
+            android:paddingEnd="@dimen/padding_5"
             android:text="@string/live"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            tools:ignore="RelativeOverlap" />
 
         <com.uiza.sdk.widget.UZImageButton
             android:id="@id/iv_live_time"
@@ -68,7 +70,7 @@
             android:layout_toStartOf="@id/tv_live_time"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_timer_white_48" />
+            android:src="@drawable/ic_timer_white_24" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_live_time"
@@ -121,7 +123,8 @@
                     android:id="@id/image_view_thumbnail"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/description" />
             </FrameLayout>
 
             <com.uiza.sdk.widget.UZTextView
@@ -150,13 +153,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/uz_duration"
-                app:ad_marker_color="@color/light_yellow"
-                app:buffered_color="@color/light_grey"
-                app:played_ad_marker_color="@color/light_yellow"
-                app:played_color="@android:color/white"
-                app:previewFrameLayout="@id/preview_frame_layout"
-                app:scrubber_color="@android:color/white"
-                app:unplayed_color="@color/grey" />
+                style="@style/UZPreviewTimeBar" />
         </RelativeLayout>
 
         <LinearLayout
@@ -187,7 +184,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_white_48" />
+                android:src="@drawable/ic_replay_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_rew"
@@ -213,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_skip_previous_white_48" />
+                android:src="@drawable/ic_skip_previous_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_skip_next"
@@ -221,7 +218,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_skip_next_white_48" />
+                android:src="@drawable/ic_skip_next_white" />
 
             <View
                 android:layout_width="0dp"
@@ -234,7 +231,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_playlist_play_white_48" />
+                android:src="@drawable/ic_playlist_play_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_speed"
@@ -242,7 +239,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_directions_run_white_48" />
+                android:src="@drawable/ic_directions_run_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_volume"
@@ -250,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_volume_up_white_48" />
+                android:src="@drawable/ic_volume_up_white_24" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_setting"
@@ -259,7 +256,6 @@
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_settings_white" />
-
         </LinearLayout>
     </LinearLayout>
 

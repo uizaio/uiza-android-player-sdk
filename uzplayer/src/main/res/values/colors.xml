@@ -13,8 +13,7 @@
     <color name="black_65">#A6000000</color>
     <color name="black_85">#D9000000</color>
     <color name="black_95">#EE000000</color>
-    <color name="red">#FF0000</color>
-    <color name="red_2">#E63946</color>
+    <color name="red">#E63946</color>
     <color name="red_trans">#55FF0000</color>
     <color name="light_yellow">#FFFFE0</color>
     <color name="blue">#0000FF</color>
@@ -26,7 +25,7 @@
     <color name="info_video_gray">#999999</color>
     <color name="info_video_description">#888888</color>
     <color name="green">#00ff00</color>
-    <color name="fbutton_color_wet_asphalt">#34495e</color>
+    <color name="fbutton_color_wet_asphalt">#3C536A</color>
     <color name="df_buffered_color">#55ffffff</color>
     <color name="df_played_color">#097cff</color>
     <color name="df_scrubber_color">#ffffff</color>
