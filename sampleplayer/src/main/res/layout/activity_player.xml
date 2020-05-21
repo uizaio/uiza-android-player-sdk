@@ -55,6 +55,7 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/enter_any_linkplay_here"
                     android:lines="8"
+                    android:imeOptions="actionDone"
                     android:padding="5dp"
                     android:textSize="@dimen/txt_14" />
 
@@ -62,6 +63,7 @@
                     android:id="@+id/hsv_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/w_5"
                     android:fillViewport="true">
 
                     <LinearLayout
@@ -116,6 +118,7 @@
                             tools:ignore="ButtonStyle" />
                     </LinearLayout>
                 </HorizontalScrollView>
+
                 <Button
                     android:id="@+id/bt_play"
                     android:layout_width="match_parent"

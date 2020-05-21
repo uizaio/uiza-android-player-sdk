@@ -105,7 +105,7 @@
             android:layout_toStartOf="@id/tv_live_view"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_visibility_white_48" />
+            android:src="@drawable/ic_eyes_show_and_hide" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_live_view"
@@ -192,7 +192,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_play_circle_outline_white_48"
+                android:src="@drawable/ic_play_white"
                 android:tint="@color/red" />
 
             <com.uiza.sdk.widget.UZImageButton
@@ -201,7 +201,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_pause_circle_outline_white_48"
+                android:src="@drawable/ic_pause_white"
                 android:tint="@color/green" />
 
             <com.uiza.sdk.widget.UZImageButton
@@ -218,7 +218,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_10_white_48"
+                android:src="@drawable/ic_replay_30_white_24"
                 app:srcDisabled="@mipmap/ic_disabled_3" />
 
             <com.uiza.sdk.widget.UZImageButton
@@ -227,7 +227,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_10_white_48"
+                android:src="@drawable/ic_forward_30_white_24"
                 app:srcDisabled="@mipmap/ic_disabled_4" />
 
             <com.uiza.sdk.widget.UZImageButton
@@ -270,28 +270,12 @@
                 android:src="@drawable/ic_directions_run_white_48" />
 
             <com.uiza.sdk.widget.UZImageButton
-                android:id="@id/exo_hearing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_audiotrack_white_48" />
-
-            <com.uiza.sdk.widget.UZImageButton
-                android:id="@id/exo_cc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:scaleType="centerInside"
-                android:src="@drawable/ic_closed_caption_white_48" />
-
-            <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_setting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_high_quality_white_48" />
+                android:src="@drawable/ic_settings_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_volume"

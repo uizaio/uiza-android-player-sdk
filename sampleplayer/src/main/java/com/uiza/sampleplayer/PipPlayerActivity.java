@@ -41,7 +41,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_0);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_default);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
@@ -67,11 +67,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
                 uzVideo.toggleStatsForNerds();
         });
         disposables = new CompositeDisposable();
-        if (playbackInfo != null) {
-            boolean isInitSuccess = uzVideo.play(playbackInfo);
-            if (!isInitSuccess)
-                UZToast.show(this, "Init failed");
-        }
+        (new Handler()).postDelayed(this::onPlay, 1000);
     }
 
     private void onPlay() {
@@ -84,8 +80,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
-        if (isInitSuccess && data != null) {
-            getLiveViewsTimer(data, true);
+        if (isInitSuccess) {
+            getLiveViewsTimer(true);
         } else {
             UZToast.show(this, "Init failed");
         }
@@ -176,8 +172,9 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         uzVideo.toggleShowHideController();
     }
 
-    private void getLiveViewsTimer(UZPlayback playback, boolean firstRun) {
-        if (handler != null)
+    private void getLiveViewsTimer(boolean firstRun) {
+        final UZPlayback playback = UZPlayer.getCurrentPlayback();
+        if (handler != null && playback != null)
             handler.postDelayed(() -> {
                 Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
                     uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
@@ -185,7 +182,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
                 if(d != null){
                     disposables.add(d);
                 }
-                getLiveViewsTimer(playback, false);
+                getLiveViewsTimer(false);
             }, firstRun ? 0 : 5000);
     }
 }

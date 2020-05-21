@@ -1,5 +1,6 @@
 package com.uiza.sdk.dialog.hq;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -128,7 +129,7 @@ public class UZTrackSelectionView extends LinearLayout {
 
         // Inflate with the builder's context to ensure the correct style is used.
         LayoutInflater dialogInflater = LayoutInflater.from(builder.getContext());
-        View dialogView = dialogInflater.inflate(R.layout.uz_track_selection_dialog, null);
+        @SuppressLint("InflateParams") View dialogView = dialogInflater.inflate(R.layout.uz_track_selection_dialog, null);
         final UZTrackSelectionView selectionView = dialogView.findViewById(R.id.uz_track_selection_view);
         selectionView.init(trackSelector, rendererIndex);
         AlertDialog dialog = builder

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_player_controller"
@@ -58,28 +59,12 @@
             android:src="@drawable/ic_volume_up_white_48" />
 
         <com.uiza.sdk.widget.UZImageButton
-            android:id="@id/exo_cc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_closed_caption_white_48" />
-
-        <com.uiza.sdk.widget.UZImageButton
-            android:id="@id/exo_hearing"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_audiotrack_white_48" />
-
-        <com.uiza.sdk.widget.UZImageButton
             android:id="@id/exo_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_high_quality_white_48" />
+            android:src="@drawable/ic_settings_white" />
 
         <com.uiza.sdk.widget.UZImageButton
             android:id="@id/exo_fullscreen_toggle_icon"
@@ -106,7 +91,8 @@
             android:paddingLeft="@dimen/padding_5"
             android:paddingRight="@dimen/padding_5"
             android:text="@string/live"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            tools:ignore="RelativeOverlap" />
 
         <com.uiza.sdk.widget.UZImageButton
             android:id="@id/iv_live_time"
@@ -135,7 +121,7 @@
             android:layout_toStartOf="@id/tv_live_view"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_visibility_white_48" />
+            android:src="@drawable/ic_eyes_show_and_hide" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_live_view"
@@ -186,7 +172,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_10_white_48" />
+                android:src="@drawable/ic_replay_30_white_24" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_play"
@@ -194,7 +180,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_play_circle_outline_white_48" />
+                android:src="@drawable/ic_play_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_pause"
@@ -202,7 +188,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="fitXY"
-                android:src="@drawable/ic_pause_circle_outline_white_48" />
+                android:src="@drawable/ic_pause_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_replay"
@@ -218,7 +204,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_10_white_48" />
+                android:src="@drawable/ic_forward_30_white_24" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_skip_next"

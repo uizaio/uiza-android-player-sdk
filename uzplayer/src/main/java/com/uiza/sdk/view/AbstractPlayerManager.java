@@ -724,14 +724,11 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 Timber.e("onPlayerError TYPE_RENDERER");
             else if (error.type == ExoPlaybackException.TYPE_UNEXPECTED)
                 Timber.e("onPlayerError TYPE_UNEXPECTED");
-
-            error.printStackTrace();
             exoPlaybackException = error;
             notifyUpdateButtonVisibility();
             if (uzVideoView == null)
                 return;
             uzVideoView.handleError(ErrorUtils.exceptionPlayback());
-            //LLog.d(TAG, "onPlayerError isConnected: " + ConnectivityUtils.isConnected(context));
             if (ConnectivityUtils.isConnected(context))
                 uzVideoView.tryNextLinkPlay();
             else

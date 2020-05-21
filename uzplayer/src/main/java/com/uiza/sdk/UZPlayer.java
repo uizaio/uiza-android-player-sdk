@@ -26,7 +26,7 @@ public class UZPlayer {
      * init SDK
      */
     public static void init(@NonNull Context context) {
-        init(context, R.layout.uzplayer_skin_1);
+        init(context, R.layout.uzplayer_skin_default);
     }
 
     /**
@@ -91,6 +91,10 @@ public class UZPlayer {
      */
     public static void setCurrentPlayback(UZPlayback playback) {
         UZData.getInstance().setPlayback(playback);
+    }
+
+    public static UZPlayback getCurrentPlayback() {
+        return UZData.getInstance().getPlayback();
     }
 
     public static long getElapsedTime() {

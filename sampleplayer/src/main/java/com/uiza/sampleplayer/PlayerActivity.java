@@ -2,6 +2,7 @@ package com.uiza.sampleplayer;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
@@ -24,6 +26,11 @@ import com.uiza.sdk.widget.UZToast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
+import timber.log.Timber;
 
 /**
  * Demo UZPlayer with UZDragView
@@ -39,6 +46,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private List<UZPlayback> playlist;
     Button btPlay, btnStarts;
     private boolean isLive = false;
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private CompositeDisposable disposables;
 
     public static void setLastCursorEditText(@NonNull EditText editText) {
         if (!editText.getText().toString().isEmpty()) {
@@ -49,7 +58,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         UZPlayer.setUseWithUZDragView(true);
-        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_custom);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_0);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         uzVideo = findViewById(R.id.uz_video_view);
@@ -64,6 +73,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
         uzVideo.setControllerStateCallback(this);
+        disposables = new CompositeDisposable();
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlayback playbackInfo = null;
@@ -131,17 +141,19 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
         playback.setLive(isLive);
-        UZPlayer.setCurrentPlayback(playback);
-        boolean isInitSuccess = uzVideo.play();
-        if (!isInitSuccess) {
-            UZToast.show(this, "Init failed");
-        }
+        uzVideo.play(playback);
+
     }
 
     @Override
     public void isInitResult(boolean isInitSuccess, UZPlayback data) {
         btnStarts.setVisibility(View.VISIBLE);
         uzDragView.setInitResult(isInitSuccess);
+        if (isInitSuccess) {
+            getLiveViewsTimer(true);
+        } else {
+            UZToast.show(this, "Init failed");
+        }
     }
 
     @Override
@@ -178,6 +190,9 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         super.onDestroy();
         uzVideo.onDestroyView();
         UZPlayer.setUseWithUZDragView(false);
+        if(disposables != null)
+            disposables.dispose();
+        handler = null;
     }
 
     @Override
@@ -251,5 +266,19 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     public void onVisibilityChange(boolean isShow) {
         uzDragView.setVisibilityChange(isShow);
+    }
+
+    private void getLiveViewsTimer(boolean firstRun) {
+        final UZPlayback playback = UZPlayer.getCurrentPlayback();
+        if (handler != null && playback != null)
+            handler.postDelayed(() -> {
+                Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                    uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+                }, Timber::e);
+                if(d != null){
+                    disposables.add(d);
+                }
+                getLiveViewsTimer(false);
+            }, firstRun ? 0 : 5000);
     }
 }

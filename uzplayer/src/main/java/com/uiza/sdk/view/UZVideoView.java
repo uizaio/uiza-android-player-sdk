@@ -1,5 +1,6 @@
 package com.uiza.sdk.view;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,6 +9,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -23,6 +25,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -73,8 +76,8 @@ import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
-import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZPlayback;
+import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZTrackingData;
 import com.uiza.sdk.observers.SensorOrientationChangeNotifier;
 import com.uiza.sdk.observers.UZConnectifyService;
@@ -89,8 +92,8 @@ import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
 import com.uiza.sdk.utils.UZData;
 import com.uiza.sdk.utils.UZViewUtils;
-import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.UZImageButton;
+import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.UZTextView;
 import com.uiza.sdk.widget.previewseekbar.PreviewView;
 import com.uiza.sdk.widget.seekbar.UZVerticalSeekBar;
@@ -121,7 +124,7 @@ public class UZVideoView extends VideoViewBase
     protected VideoListener videoListener;
     protected TextOutput textOutput;
     Handler handler = new Handler(Looper.getMainLooper());
-    private int DEFAULT_VALUE_BACKWARD_FORWARD = 10000;//10000 mls
+    private int DEFAULT_VALUE_BACKWARD_FORWARD = 30000;//30000 mls
     private int DEFAULT_VALUE_CONTROLLER_TIMEOUT = 8000;//8000 mls
     private boolean isLiveStream;
     private View bkg;
@@ -409,17 +412,16 @@ public class UZVideoView extends VideoViewBase
      */
     @Override
     public boolean play() {
-        if (UZData.getInstance().getPlayback() == null) {
+        UZPlayback playback = UZData.getInstance().getPlayback();
+        if (playback == null) {
             Timber.e(ErrorConstant.ERR_14);
             return false;
         }
-        Context context = getContext();
-        if (!ConnectivityUtils.isConnected(context)) {
+        if (!ConnectivityUtils.isConnected(getContext())) {
             Timber.e(ErrorConstant.ERR_0);
             return false;
         }
-        UZPlayback playbackInfo = UZData.getInstance().getPlayback();
-        initPlayback(playbackInfo, true);
+        initPlayback(playback, true);
         return true;
     }
 
@@ -431,16 +433,12 @@ public class UZVideoView extends VideoViewBase
      */
     @Override
     public boolean play(@NonNull UZPlayback playback) {
-        Context context = getContext();
-        if (!ConnectivityUtils.isConnected(context)) {
+        if (!ConnectivityUtils.isConnected(getContext())) {
             Timber.e(ErrorConstant.ERR_0);
             return false;
         }
-        UZData.getInstance().setSettingPlayer(false);
-        //
         UZData.getInstance().setPlayback(playback);
-        post(() -> initPlayback(playback, true));
-//        UZData.getInstance().clear();
+        initPlayback(playback, true);
         return true;
     }
 
@@ -541,9 +539,8 @@ public class UZVideoView extends VideoViewBase
         initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail());
         if (uzCallback != null)
             uzCallback.isInitResult(true, UZData.getInstance().getPlayback());
-        trackWatchingTimer(UZData.getInstance().getPlaybackInfo(), true);
+        trackWatchingTimer(true);
         initUZPlayerManager();
-
     }
 
 
@@ -811,7 +808,7 @@ public class UZVideoView extends VideoViewBase
         else if (v == ibVolumeIcon)
             handleClickBtVolume();
         else if (v == ibSettingIcon)
-            handleClickSetting();
+            showSettingsDialog();
         else if (v == ibCcIcon)
             handleClickCC();
         else if (v == ibPlaylistFolderIcon)
@@ -1715,7 +1712,7 @@ public class UZVideoView extends VideoViewBase
         if (isLiveStream) {
             long duration = getDuration();
             long past = duration - currentMls;
-            tvPosition.setText(HYPHEN + StringUtils.convertMlsecondsToHMmSs(past));
+            tvPosition.setText(String.format("%s%s", HYPHEN, StringUtils.convertMlsecondsToHMmSs(past)));
         } else
             tvPosition.setText(StringUtils.convertMlsecondsToHMmSs(currentMls));
     }
@@ -1814,13 +1811,14 @@ public class UZVideoView extends VideoViewBase
             UZViewUtils.goneViews(ibPictureInPictureIcon);
 
         if (isLiveStream) {
-            UZViewUtils.visibleViews(rlLiveInfo);
-            //TODO why set gone not work?
-            setUIVisible(false, ibSpeedIcon, ibRewIcon, ibFfwdIcon);
+            UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
+            UZViewUtils.goneViews(ibSpeedIcon);
+            setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
-            UZViewUtils.goneViews(rlLiveInfo);
+            UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
+            UZViewUtils.visibleViews(ibSpeedIcon);
             //TODO why set visible not work?
-            setUIVisible(true, ibSpeedIcon, ibRewIcon, ibFfwdIcon);
+            setUIVisible(true, ibRewIcon, ibFfwdIcon);
         }
         if (UZAppUtils.isTV(getContext()))
             UZViewUtils.goneViews(ibFullscreenIcon);
@@ -1841,6 +1839,7 @@ public class UZVideoView extends VideoViewBase
         if (mappedTrackInfo == null)
             return;
         for (int i = 0; i < mappedTrackInfo.getRendererCount(); i++) {
+
             TrackGroupArray trackGroups = mappedTrackInfo.getTrackGroups(i);
             if (trackGroups.length != 0) {
                 Button button = new Button(getContext());
@@ -1928,6 +1927,25 @@ public class UZVideoView extends VideoViewBase
 
     public void hideUzTimebar() {
         UZViewUtils.goneViews(previewFrameLayout, ivThumbnail, uzTimebar);
+    }
+
+
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (inflater != null)
+            builder.setCustomTitle(inflater.inflate(R.layout.custom_header_dragview, null));
+        // add a list
+        int actionCount = debugRootView.getChildCount();
+        if (actionCount < 1) return;
+        String[] actions = new String[actionCount];
+        for (int i = 0; i < actionCount; i++) {
+            actions[i] = ((Button) debugRootView.getChildAt(i)).getText().toString();
+        }
+        builder.setAdapter(new ArrayAdapter<>(getContext(), R.layout.uz_simple_list_item, actions), (dialog, which) -> {
+            (debugRootView.getChildAt(which)).performClick();
+        });
+        UZViewUtils.showDialog(builder.create());
     }
 
     private List<UZItem> showUZTrackSelectionDialog(final View view, boolean showDialog) {
@@ -2142,8 +2160,6 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void initDataSource(String linkPlay, String urlIMAAd, String urlThumbnailsPreviewSeekBar) {
-        // hide the cc (subtitle) button
-        UZViewUtils.goneViews(ibCcIcon);
         timestampInitDataSource = System.currentTimeMillis();
         Timber.d("-------------------->initDataSource linkPlay %s", linkPlay);
         TmpParamData.getInstance().setEntitySourceUrl(linkPlay);
@@ -2482,20 +2498,20 @@ public class UZVideoView extends VideoViewBase
         statsForNerdsView.hideTextLiveStreamLatency();
     }
 
-    private void trackWatchingTimer(UZPlaybackInfo pi, boolean firstRun) {
+    private void trackWatchingTimer(boolean firstRun) {
+        final UZPlaybackInfo pi = UZData.getInstance().getPlaybackInfo();
+        Timber.e("pi = %b", pi != null);
         if (pi != null && handler != null) {
             UZTrackingData data = new UZTrackingData(pi, viewerSessionId);
             handler.postDelayed(() -> {
                         Timber.e("is playing: %b", isPlaying());
                         if (isPlaying()) {
-                            disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
-                                Timber.d("send track watching: %s, response: %s", viewerSessionId, responseBody.string());
-                            }, error -> {
-                                Timber.e("send track watching error: %s", error.getMessage());
-                            }));
+                            disposables.add(UZAnalytic.pushEvent(data, res -> Timber.d("send track watching: %s, response: %s", viewerSessionId, res.string()),
+                                    error -> Timber.e("send track watching error: %s", error.getMessage())
+                            ));
                         }
                         Timber.d("Delay 5s");
-                        trackWatchingTimer(pi, false);
+                        trackWatchingTimer(false);
                     }
                     , firstRun ? 0 : 5000); // 5s
         } else {

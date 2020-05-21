@@ -53,7 +53,8 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
 
     @Override
     public void setRunnable() {
-        new Handler().postDelayed(() -> {
+        handler = new Handler();
+        runnable = () -> {
             if (uzVideoView == null || uzVideoView.getUZPlayerView() == null)
                 return;
             if (uzVideoAdPlayerListener.isEnded())
@@ -62,7 +63,11 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
                 handleAdProgress();
             else
                 handleVideoProgress();
-        }, 1000);
+            if (handler != null && runnable != null) {
+                handler.postDelayed(runnable, 1000);
+            }
+        };
+        new Handler().postDelayed(runnable, 0);
     }
 
     private void handleAdProgress() {

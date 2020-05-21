@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -323,7 +324,7 @@ public class UZViewUtils {
                                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
             } else
-                Timber.w("cần làm ở com.com.uiza.com.com.uiza.sdk thấp, thanh navigation ko chịu ẩn");
+                Timber.w("cần làm ở sdk thấp, thanh navigation ko chịu ẩn");
         }
         dialog.show();
         try {
@@ -334,10 +335,9 @@ public class UZViewUtils {
             wlp.gravity = Gravity.BOTTOM;
             //wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
             wlp.dimAmount = 0.65f;
+            wlp.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            wlp.height = ViewGroup.LayoutParams.WRAP_CONTENT;  // (int) (getScreenHeight() * (isFullScreen ? 0.6 : 0.4));
             window.setAttributes(wlp);
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = (int) (getScreenHeight() * (isFullScreen ? 0.5 : 0.3));
-            window.setLayout(width, height);
         } catch (Exception e) {
             //do nothing
             Timber.e(e);

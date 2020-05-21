@@ -16,7 +16,7 @@ import timber.log.Timber;
 public class UZAnalyticClient {
     private final static String BASE_URL = "https://tracking-dev.uizadev.io";
     private Interceptor restRequestInterceptor;
-    private static final int CONNECT_TIMEOUT_TIME = 30; //30s
+    private static final int HTTP_TIMEOUT_TIME = 10; //10s
     private Retrofit retrofit;
 
     private static class UZRestClientHelper {
@@ -28,23 +28,20 @@ public class UZAnalyticClient {
     }
 
     private UZAnalyticClient() {
-        init();
-    }
-
-    private void init() {
         retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(provideHttpClient())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create())
-                .addConverterFactory(new NullOnEmptyConverterFactory())
+                .addConverterFactory(NullOnEmptyConverterFactory.create())
                 .build();
     }
 
     private OkHttpClient provideHttpClient() {
         return new OkHttpClient.Builder()
-                .readTimeout(CONNECT_TIMEOUT_TIME, TimeUnit.SECONDS)
-                .connectTimeout(CONNECT_TIMEOUT_TIME, TimeUnit.SECONDS)
+                .readTimeout(HTTP_TIMEOUT_TIME, TimeUnit.SECONDS)
+                .connectTimeout(HTTP_TIMEOUT_TIME, TimeUnit.SECONDS)
+                .writeTimeout(HTTP_TIMEOUT_TIME, TimeUnit.SECONDS)
                 .addInterceptor(provideInterceptor())
                 .retryOnConnectionFailure(true)
                 .addInterceptor(provideLogging())  // <-- this is the important line!
