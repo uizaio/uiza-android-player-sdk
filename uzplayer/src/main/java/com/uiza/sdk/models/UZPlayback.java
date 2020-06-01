@@ -173,6 +173,16 @@ public class UZPlayback implements Parcelable {
         return urls;
     }
 
+    public void setLinkPlay(String linkPlay) {
+        if (linkPlay.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0) {
+            setHls(linkPlay);
+        } else if (linkPlay.toLowerCase().indexOf(UZMediaExtension.MPD) > 0) {
+            setMpd(linkPlay);
+        } else {
+            setHlsTs(linkPlay);
+        }
+    }
+
     public List<String> getLinkPlays() {
         if (live) {
             //Bat buoc dung linkplay m3u8 cho nay, do bug cua system

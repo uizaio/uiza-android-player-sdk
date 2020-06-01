@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_keyboard_arrow_left_white" />
+            android:src="@drawable/ic_arrow_down" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_live"
@@ -134,7 +134,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_30_white_24" />
+                android:src="@drawable/ic_replay_10_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_play"
@@ -168,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_30_white_24" />
+                android:src="@drawable/ic_forward_10_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_skip_next"
@@ -223,6 +223,18 @@
                     android:layout_marginStart="@dimen/margin_5"
                     android:gravity="bottom"
                     android:textColor="@android:color/white"
+                    android:textStyle="bold"
+                    tools:ignore="RelativeOverlap" />
+
+                <com.uiza.sdk.widget.UZTextView
+                    android:id="@id/uz_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/margin_5"
+                    android:layout_toEndOf="@+id/uz_position"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/light_grey"
                     android:textStyle="bold"
                     tools:ignore="RelativeOverlap" />
 

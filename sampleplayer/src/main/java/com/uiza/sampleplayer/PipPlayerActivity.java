@@ -66,6 +66,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
             if (uzVideo != null)
                 uzVideo.toggleStatsForNerds();
         });
+
         disposables = new CompositeDisposable();
         (new Handler()).postDelayed(this::onPlay, 1000);
     }
@@ -73,7 +74,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     private void onPlay() {
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
-        playback.setHls(etLinkPlay.getText().toString());
+        playback.setLinkPlay(etLinkPlay.getText().toString());
         playback.setLive(true);
         uzVideo.play(playback);
     }
@@ -130,8 +131,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     public void onDestroy() {
         super.onDestroy();
         uzVideo.onDestroyView();
-        if(disposables != null)
-        disposables.dispose();
+        if (disposables != null)
+            disposables.dispose();
         handler = null;
     }
 
@@ -179,7 +180,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
                 Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
                     uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
                 }, Timber::e);
-                if(d != null){
+                if (d != null) {
                     disposables.add(d);
                 }
                 getLiveViewsTimer(false);

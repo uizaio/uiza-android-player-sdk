@@ -33,9 +33,7 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/app_name"
             android:scaleType="centerInside"
-            app:srcCompat="@drawable/animation"
-            android:tint="@color/red"
-            app:useDefaultIB="false" />
+            app:srcCompat="@drawable/ic_arrow_down" />
 
         <com.uiza.sdk.widget.UZTextView
             android:id="@id/tv_title"
@@ -218,7 +216,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_30_white_24"
+                android:src="@drawable/ic_replay_10_white"
                 app:srcDisabled="@mipmap/ic_disabled_3" />
 
             <com.uiza.sdk.widget.UZImageButton
@@ -227,7 +225,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_30_white_24"
+                android:src="@drawable/ic_forward_10_white"
                 app:srcDisabled="@mipmap/ic_disabled_4" />
 
             <com.uiza.sdk.widget.UZImageButton

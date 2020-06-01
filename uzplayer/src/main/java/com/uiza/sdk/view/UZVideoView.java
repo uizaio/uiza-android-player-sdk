@@ -100,6 +100,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -122,9 +123,8 @@ public class UZVideoView extends VideoViewBase
     protected VideoListener videoListener;
     protected TextOutput textOutput;
     Handler handler = new Handler(Looper.getMainLooper());
-    private int DEFAULT_VALUE_BACKWARD_FORWARD = 30000;//30000 mls
+    private int DEFAULT_VALUE_BACKWARD_FORWARD = 10000;//10000 mls
     private int DEFAULT_VALUE_CONTROLLER_TIMEOUT = 8000;//8000 mls
-    private boolean isLiveStream;
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
     private AbstractPlayerManager uzPlayerManager;
@@ -524,15 +524,14 @@ public class UZVideoView extends VideoViewBase
         updateUIEndScreen();
         isHasError = false;
         viewerSessionId = UUID.randomUUID().toString();
-        this.isLiveStream = playback.isLive();
-        if (isLiveStream)
+        if (playback.isLive())
             startTime = -1;
         if (uzPlayerManager != null) {
             releaseUZPlayerManager();
             resetCountTryLinkPlayError();
             showProgress();
         }
-        updateUIDependOnLivestream();
+        updateUIDependOnLiveStream();
         disposables = new CompositeDisposable();
         initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail());
         if (uzCallback != null)
@@ -553,7 +552,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     protected void tryNextLinkPlay() {
-        if (isLiveStream) {
+        if (UZData.getInstance().isCurrentLive()) {
             // try to play 5 times
             if (countTryLinkPlayError >= 5) {
                 if (uzLiveContentCallback != null)
@@ -970,6 +969,7 @@ public class UZVideoView extends VideoViewBase
             Timber.e("playPlaylistPosition error: playlist is null or can not play");
             return;
         }
+
         initPlayback(playback, false);
     }
 
@@ -1124,11 +1124,20 @@ public class UZVideoView extends VideoViewBase
         ibFfwdIcon.performClick();
     }
 
+    public void seekToForward() {
+        if (!isLiveStream())
+            ibFfwdIcon.performClick();
+    }
+
     /*
      ** Seek tu vi tri hien tai tru di bao nhieu mls
      */
     public void seekToBackward(int mls) {
         setDefaultValueBackwardForward(mls);
+        ibRewIcon.performClick();
+    }
+
+    public void seekToBackward() {
         ibRewIcon.performClick();
     }
 
@@ -1200,7 +1209,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public boolean isLiveStream() {
-        return isLiveStream;
+        return UZData.getInstance().isCurrentLive();
     }
 
     public AbstractPlayerManager getUZPlayerManager() {
@@ -1381,7 +1390,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void setSpeed(float speed) {
-        if (isLiveStream)
+        if (UZData.getInstance().isCurrentLive())
             throw new IllegalArgumentException(getContext().getString(R.string.error_speed_live_content));
         if (speed > 3 || speed < -3)
             throw new IllegalArgumentException(getContext().getString(R.string.error_speed_illegal));
@@ -1404,6 +1413,17 @@ public class UZVideoView extends VideoViewBase
         UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
         updateUIPositionOfProgressBar();
         uzPlayerView.setControllerStateCallback(this);
+        uzPlayerView.setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
+            @Override
+            public void onDoubleTapProgressUp(float posX, float posY) {
+                float halfScreen = UZViewUtils.getScreenWidth() / 2.0f;
+                if (posX - 60.0f > halfScreen) {
+                    seekToForward();
+                } else if (posX + 60.0f < halfScreen) {
+                    seekToBackward();
+                }
+            }
+        });
         uzTimebar = uzPlayerView.findViewById(R.id.exo_progress);
         previewFrameLayout = uzPlayerView.findViewById(R.id.preview_frame_layout);
         if (uzTimebar != null) {
@@ -1563,7 +1583,7 @@ public class UZVideoView extends VideoViewBase
         if (ivVideoCover.getVisibility() != GONE) {
             ivVideoCover.setVisibility(GONE);
             ivVideoCover.invalidate();
-            if (isLiveStream) {
+            if (UZData.getInstance().isCurrentLive()) {
                 if (tvLiveTime != null)
                     tvLiveTime.setText(HYPHEN);
                 if (tvLiveView != null)
@@ -1656,7 +1676,7 @@ public class UZVideoView extends VideoViewBase
                 setupChromeCast();
             currentPositionBeforeChangeSkin = getCurrentPosition();
             releaseUZPlayerManager();
-            updateUIDependOnLivestream();
+            updateUIDependOnLiveStream();
             setTitle();
             checkToSetUpResource();
             updateUISizeThumbnail();
@@ -1695,7 +1715,7 @@ public class UZVideoView extends VideoViewBase
 
     private void updateTvDuration() {
         if (tvDuration != null)
-            if (isLiveStream)
+            if (isLiveStream())
                 tvDuration.setText(StringUtils.convertMlsecondsToHMmSs(0));
             else
                 tvDuration.setText(StringUtils.convertMlsecondsToHMmSs(getDuration()));
@@ -1707,7 +1727,7 @@ public class UZVideoView extends VideoViewBase
 
     private void setTextPosition(long currentMls) {
         if (tvPosition == null) return;
-        if (isLiveStream) {
+        if (UZData.getInstance().isCurrentLive()) {
             long duration = getDuration();
             long past = duration - currentMls;
             tvPosition.setText(String.format("%s%s", HYPHEN, StringUtils.convertMlsecondsToHMmSs(past)));
@@ -1723,7 +1743,7 @@ public class UZVideoView extends VideoViewBase
                 setTextPosition(currentMls);
             return;
         }
-        if (isLiveStream) return;
+        if (UZData.getInstance().isCurrentLive()) return;
         if (ibRewIcon != null && ibFfwdIcon != null) {
             if (currentMls == 0) {
                 if (ibRewIcon.isSetSrcDrawableEnabled())
@@ -1802,21 +1822,20 @@ public class UZVideoView extends VideoViewBase
      * ======== END UI =========
      */
 
-    private void updateUIDependOnLivestream() {
+    private void updateUIDependOnLiveStream() {
         if (isCastingChromecast)
             UZViewUtils.goneViews(ibPictureInPictureIcon);
         else if (UZAppUtils.isTablet(getContext()) && UZAppUtils.isTV(getContext()))//only hide ibPictureInPictureIcon if device is TV
             UZViewUtils.goneViews(ibPictureInPictureIcon);
-
-        if (isLiveStream) {
+        if (UZData.getInstance().isCurrentLive()) {
             UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
-            UZViewUtils.goneViews(ibSpeedIcon);
-            setUIVisible(false, ibRewIcon, ibFfwdIcon);
+            UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
+//            setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
             UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
-            UZViewUtils.visibleViews(ibSpeedIcon);
+            UZViewUtils.visibleViews(ibSpeedIcon, tvDuration, ibFfwdIcon, ibRewIcon);
             //TODO why set visible not work?
-            setUIVisible(true, ibRewIcon, ibFfwdIcon);
+//            setUIVisible(true, ibRewIcon, ibFfwdIcon);
         }
         if (UZAppUtils.isTV(getContext()))
             UZViewUtils.goneViews(ibFullscreenIcon);
@@ -1875,7 +1894,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void updateLiveInfoTimeStartLive() {
-        if (!isLiveStream || getContext() == null) return;
+        if (!UZData.getInstance().isCurrentLive() || getContext() == null) return;
         long now = System.currentTimeMillis();
         long duration = now - startTime;
         String s = StringUtils.convertMlsecondsToHMmSs(duration);
@@ -1921,6 +1940,7 @@ public class UZVideoView extends VideoViewBase
                 ibSkipNextIcon, ibSkipPreviousIcon);
         //Có play kiểu gì đi nữa thì cũng phải ibPlayIcon GONE và ibPauseIcon VISIBLE và ibReplayIcon GONE
         setVisibilityOfPlayPauseReplay(false);
+
     }
 
     public void hideUzTimebar() {
@@ -2083,6 +2103,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
+        Timber.e("uzPlayerView = %b", uzPlayerView != null);
         if (uzPlayerView != null)
             uzPlayerView.setOnDoubleTap(onDoubleTap);
     }
@@ -2122,7 +2143,6 @@ public class UZVideoView extends VideoViewBase
             UZData.getInstance().setSettingPlayer(false);
             return;
         }
-        isLiveStream = playback.isLive();
         if (uzPlayerManager != null) {
             releaseUZPlayerManager();
             resetCountTryLinkPlayError();
@@ -2132,9 +2152,9 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void checkToSetUpResource() {
-        UZPlayback playbackInfo = UZData.getInstance().getPlayback();
-        if (playbackInfo != null) {
-            List<String> listLinkPlay = playbackInfo.getLinkPlays();
+        UZPlayback playback = UZData.getInstance().getPlayback();
+        if (playback != null) {
+            List<String> listLinkPlay = playback.getLinkPlays();
             if (listLinkPlay.isEmpty()) {
                 handleErrorNoData();
                 return;
@@ -2149,9 +2169,9 @@ public class UZVideoView extends VideoViewBase
             String linkPlay = listLinkPlay.get(countTryLinkPlayError);
             initDataSource(linkPlay,
                     isCalledFromChangeSkin ? null : UZData.getInstance().getUrlIMAAd(),
-                    playbackInfo.getThumbnail());
+                    playback.getThumbnail());
             if (uzCallback != null)
-                uzCallback.isInitResult(false, playbackInfo);
+                uzCallback.isInitResult(false, playback);
             initUZPlayerManager();
         } else
             handleError(ErrorUtils.exceptionSetup());
@@ -2229,7 +2249,6 @@ public class UZVideoView extends VideoViewBase
             public void onVideoProgress(long currentMls, int s, long duration, int percent) {
                 TmpParamData.getInstance().setPlayerPlayheadTime(s);
                 updateUIIbRewIconDependOnProgress(currentMls, false);
-                Timber.e("onVideoProgress: %d, %d, %d, %d", currentMls, s, duration, percent);
                 if (progressListener != null)
                     progressListener.onVideoProgress(currentMls, s, duration, percent);
             }
@@ -2242,7 +2261,6 @@ public class UZVideoView extends VideoViewBase
 
             @Override
             public void onBufferProgress(long bufferedPosition, int bufferedPercentage, long duration) {
-                Timber.e("onBufferProgress: %d, %d, %d", bufferedPosition, bufferedPercentage, duration);
                 if (progressListener != null)
                     progressListener.onBufferProgress(bufferedPosition, bufferedPercentage, duration);
             }
@@ -2259,7 +2277,7 @@ public class UZVideoView extends VideoViewBase
         TmpParamData.getInstance().setViewTimeToFirstFrame(System.currentTimeMillis());
         updateTvDuration();
         updateUIButtonPlayPauseDependOnIsAutoStart();
-        updateUIDependOnLivestream();
+        updateUIDependOnLiveStream();
         if (isSetUZTimebarBottom)
             UZViewUtils.visibleViews(uzPlayerView);
         resizeContainerView();
@@ -2498,17 +2516,14 @@ public class UZVideoView extends VideoViewBase
 
     private void trackWatchingTimer(boolean firstRun) {
         final UZPlaybackInfo pi = UZData.getInstance().getPlaybackInfo();
-        Timber.e("pi = %b", pi != null);
         if (pi != null && handler != null) {
             UZTrackingData data = new UZTrackingData(pi, viewerSessionId);
             handler.postDelayed(() -> {
-                        Timber.e("is playing: %b", isPlaying());
                         if (isPlaying()) {
                             disposables.add(UZAnalytic.pushEvent(data, res -> Timber.d("send track watching: %s, response: %s", viewerSessionId, res.string()),
                                     error -> Timber.e("send track watching error: %s", error.getMessage())
                             ));
                         }
-                        Timber.d("Delay 5s");
                         trackWatchingTimer(false);
                     }
                     , firstRun ? 0 : 5000); // 5s

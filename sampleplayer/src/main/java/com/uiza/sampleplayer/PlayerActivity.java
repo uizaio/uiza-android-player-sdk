@@ -36,7 +36,7 @@ import timber.log.Timber;
  * Demo UZPlayer with UZDragView
  */
 
-public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZPlayerView.OnSingleTap, UZVideoViewItemClick,
+public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZVideoViewItemClick,
         UZPlayerView.ControllerStateCallback {
 
     HorizontalScrollView llBottom;
@@ -68,7 +68,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         btPlay = findViewById(R.id.bt_play);
         btnStarts = findViewById(R.id.bt_stats_for_nerds);
         uzDragView.setCallback(this);
-        uzDragView.setOnSingleTap(this);
         uzDragView.setScreenRotate(false);
         uzVideo.setUZCallback(this);
         uzVideo.setUZVideoViewItemClick(this);
@@ -112,7 +111,12 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             if (!isInitSuccess)
                 UZToast.show(this, "Init failed");
         }
-
+        uzVideo.setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
+            @Override
+            public void onDoubleTapProgressUp(float posX, float posY) {
+                Timber.e("onDoubleTapProgressUp posX = %f, posY = %f", posX, posY);
+            }
+        });
         (new Handler()).postDelayed(() -> {
             updateView(LSApplication.urls[0], true);
             onPlay();
@@ -129,17 +133,20 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void initPlaylist() {
         playlist = new ArrayList<>();
+        int i = 0;
         for (String url : LSApplication.urls) {
             UZPlayback playback = new UZPlayback();
-            playback.setHls(url);
+            playback.setLinkPlay(url);
+            playback.setLive(i == 0);
             playlist.add(playback);
+            i++;
         }
     }
 
     private void onPlay() {
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
-        playback.setHls(etLinkPlay.getText().toString());
+        playback.setLinkPlay(etLinkPlay.getText().toString());
         playback.setLive(isLive);
         uzVideo.play(playback);
 
@@ -190,7 +197,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         super.onDestroy();
         uzVideo.onDestroyView();
         UZPlayer.setUseWithUZDragView(false);
-        if(disposables != null)
+        if (disposables != null)
             disposables.dispose();
         handler = null;
     }
@@ -258,12 +265,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     }
 
     @Override
-    public void onSingleTapConfirmed(float x, float y) {
-        if (uzDragView.isMaximizeView())
-            uzDragView.post(() -> uzVideo.toggleShowHideController());
-    }
-
-    @Override
     public void onVisibilityChange(boolean isShow) {
         uzDragView.setVisibilityChange(isShow);
     }
@@ -275,7 +276,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
                 Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
                     uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
                 }, Timber::e);
-                if(d != null){
+                if (d != null) {
                     disposables.add(d);
                 }
                 getLiveViewsTimer(false);

@@ -6,11 +6,14 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 import androidx.customview.widget.ViewDragHelper;
 
@@ -39,11 +42,11 @@ public class UZDragView extends LinearLayout {
     private int mCenterX;
     private int screenW;
     private int screenH;
-    private boolean isMaximizeView = true;
+    private boolean maximizeView = true;
     private Callback callback;
     private State state = State.NULL;
     private Part part;
-    private GestureDetector mDetector;
+    private GestureDetectorCompat mDetector;
     private UZPlayerView.OnTouchEvent onTouchEvent;
     private UZPlayerView.OnSingleTap onSingleTap;
     private UZPlayerView.OnDoubleTap onDoubleTap;
@@ -62,16 +65,16 @@ public class UZDragView extends LinearLayout {
                 mDragOffset = (float) top / mDragRange;
             if (mDragOffset >= 1) {
                 mDragOffset = 1;
-                if (isMaximizeView) {
-                    isMaximizeView = false;
+                if (maximizeView) {
+                    maximizeView = false;
                     if (callback != null)
                         callback.onViewSizeChange(false);
                 }
             }
             if (mDragOffset <= 0) {
                 mDragOffset = 0;
-                if (!isMaximizeView && isEnableRevertMaxSize) {
-                    isMaximizeView = true;
+                if (!maximizeView && isEnableRevertMaxSize) {
+                    maximizeView = true;
                     if (callback != null)
                         callback.onViewSizeChange(true);
                 }
@@ -181,7 +184,8 @@ public class UZDragView extends LinearLayout {
     private void initView() {
         mViewDragHelper = ViewDragHelper.create(this, 1.0f, mCallback);
         mViewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
-        mDetector = new GestureDetector(getContext(), new UZGestureListener());
+        mDetector = new GestureDetectorCompat(getContext(), new UZGestureListener());
+
     }
 
     @Override
@@ -197,6 +201,39 @@ public class UZDragView extends LinearLayout {
             sizeWHeaderViewMin = sizeWHeaderViewOriginal / 2;
             sizeHHeaderViewMin = sizeHHeaderViewOriginal / 2;
         });
+        UZVideoView v = findFirstVideoView();
+        if (v != null) {
+            setOnSingleTap((x, y) -> {
+                if (maximizeView) {
+                    post(v::toggleShowHideController);
+                }
+            });
+            setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
+                @Override
+                public void onDoubleTapProgressUp(float posX, float posY) {
+                    float halfScreen = UZViewUtils.getScreenWidth() / 2.0f;
+                    if (posX - 60.0f > halfScreen) {
+                        v.seekToForward();
+                    } else if (posX + 60.0f < halfScreen) {
+                        v.seekToForward();
+                    }
+                }
+            });
+        }
+
+    }
+
+    private UZVideoView findFirstVideoView() {
+        if (headerView instanceof ViewGroup) {
+            ViewGroup hg = (ViewGroup) headerView;
+            for (int i = 0; i < hg.getChildCount(); i++) {
+                View v = hg.getChildAt(i);
+                if (v instanceof UZVideoView) {
+                    return (UZVideoView) v;
+                }
+            }
+        }
+        return null;
     }
 
     private void changeState(State newState) {
@@ -229,7 +266,7 @@ public class UZDragView extends LinearLayout {
     }
 
     private boolean isTouchInSideHeaderView(float touchX, float touchY) {
-        if (isMaximizeView)
+        if (maximizeView)
             return true;
         float d2 = newSizeWHeaderView / 2f;
         float r2 = newSizeHHeaderView / 2f;
@@ -409,7 +446,7 @@ public class UZDragView extends LinearLayout {
     }
 
     public boolean isMaximizeView() {
-        return isMaximizeView;
+        return maximizeView;
     }
 
     public void appear() {
@@ -459,11 +496,11 @@ public class UZDragView extends LinearLayout {
         this.onTouchEvent = onTouchEvent;
     }
 
-    public void setOnSingleTap(UZPlayerView.OnSingleTap onSingleTap) {
+    private void setOnSingleTap(UZPlayerView.OnSingleTap onSingleTap) {
         this.onSingleTap = onSingleTap;
     }
 
-    public void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
+    private void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
         this.onDoubleTap = onDoubleTap;
     }
 
@@ -497,8 +534,17 @@ public class UZDragView extends LinearLayout {
 
         @Override
         public boolean onDown(MotionEvent event) {
-            // don't return false here or else none of the other
-            // gestures will work
+            if (onDoubleTap != null) {
+                onDoubleTap.onDoubleTapProgressDown(event.getX(), event.getY());
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            if (onDoubleTap != null) {
+                onDoubleTap.onDoubleTapProgressUp(e.getX(), e.getY());
+            }
             return true;
         }
 
@@ -521,10 +567,20 @@ public class UZDragView extends LinearLayout {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             if (onDoubleTap != null) {
-                onDoubleTap.onDoubleTap(e.getX(), e.getY());
+                onDoubleTap.onDoubleTapStarted(e.getX(), e.getY());
                 return true;
             }
             return false;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            // Second tap (ACTION_UP) of both taps
+            if (e.getActionMasked() == MotionEvent.ACTION_UP && onDoubleTap != null) {
+                onDoubleTap.onDoubleTapProgressUp(e.getX(), e.getY());
+                return true;
+            }
+            return super.onDoubleTapEvent(e);
         }
 
         @Override

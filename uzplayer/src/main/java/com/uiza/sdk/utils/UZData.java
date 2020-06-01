@@ -68,6 +68,10 @@ public class UZData {
         return playback;
     }
 
+    public boolean isCurrentLive(){
+        return (playback != null && playback.isLive());
+    }
+
     public UZPlaybackInfo getPlaybackInfo() {
         return this.playbackInfo;
     }

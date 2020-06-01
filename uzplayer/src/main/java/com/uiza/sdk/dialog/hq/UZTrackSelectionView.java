@@ -26,7 +26,6 @@ import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
 import com.google.android.exoplayer2.util.Assertions;
 import com.uiza.sdk.R;
-import com.uiza.sdk.utils.UZPlayerUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,16 +97,14 @@ public class UZTrackSelectionView extends LinearLayout {
         defaultView.setSoundEffectsEnabled(false);
         addView(defaultView);
 
-        UZItem uzItemDisableView = new UZItem();
+        UZItem uzItemDisableView = UZItem.create();
         uzItemDisableView.setCheckedTextView(disableView);
         uzItemDisableView.setDescription(disableView.getText().toString());
-        uzItemDisableView.setFormat(new UZItem.Format());
         uzItemList.add(uzItemDisableView);
 
-        UZItem uzItemDefaultView = new UZItem();
+        UZItem uzItemDefaultView = UZItem.create();
         uzItemDefaultView.setCheckedTextView(defaultView);
         uzItemDefaultView.setDescription(defaultView.getText().toString());
-        uzItemDefaultView.setFormat(new UZItem.Format());
         uzItemList.add(uzItemDefaultView);
     }
 
@@ -255,7 +252,8 @@ public class UZTrackSelectionView extends LinearLayout {
                 CheckedTextView trackView = (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
                 trackView.setSoundEffectsEnabled(false);
                 trackView.setBackgroundResource(selectableItemBackgroundResourceId);
-                trackView.setText(trackNameProvider.getTrackName(group.getFormat(trackIndex)));
+                UZItem uzItem = UZItem.create(group.getFormat(trackIndex));
+                trackView.setText(uzItem.getDescription());
                 if (trackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex) == RendererCapabilities.FORMAT_HANDLED) {
                     trackView.setFocusable(true);
                     trackView.setTag(Pair.create(groupIndex, trackIndex));
@@ -266,11 +264,7 @@ public class UZTrackSelectionView extends LinearLayout {
                 }
                 trackViews[groupIndex][trackIndex] = trackView;
                 addView(trackView);
-
-                UZItem uzItem = new UZItem();
                 uzItem.setCheckedTextView(trackView);
-                uzItem.setDescription(trackView.getText().toString());
-                uzItem.setFormat(UZPlayerUtils.getFormatVideo(trackView.getText().toString()));
                 uzItemList.add(uzItem);
             }
         }

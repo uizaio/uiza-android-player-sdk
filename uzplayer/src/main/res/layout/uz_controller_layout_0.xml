@@ -204,7 +204,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_replay_30_white_24" />
+                android:src="@drawable/ic_replay_10_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_ffwd"
@@ -212,7 +212,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_forward_30_white_24" />
+                android:src="@drawable/ic_forward_10_white" />
 
             <com.uiza.sdk.widget.UZImageButton
                 android:id="@id/exo_skip_previous"
