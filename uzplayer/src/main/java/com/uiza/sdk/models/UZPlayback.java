@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.ListUtils;
+import com.uiza.sdk.utils.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -209,14 +210,12 @@ public class UZPlayback implements Parcelable {
 
     public UZPlaybackInfo getPlaybackInfo() {
         String url = getLinkPlay();
-        int index = url.indexOf("?cm=");
-        if (index > 0) {
-            try {
-                String json = new String(Base64.decode(url.substring(index + 4), Base64.DEFAULT));
+        try {
+            String json = StringUtils.parserInfo(url);
+            if (json != null)
                 return JacksonUtils.fromJson(json, UZPlaybackInfo.class);
-            } catch (Exception e) {
-                Timber.e(e);
-            }
+        } catch (Exception e) {
+            Timber.e(e);
         }
         return null;
     }

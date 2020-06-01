@@ -36,6 +36,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.google.android.exoplayer2.C;
@@ -125,6 +126,7 @@ public class UZVideoView extends VideoViewBase
     Handler handler = new Handler(Looper.getMainLooper());
     private int DEFAULT_VALUE_BACKWARD_FORWARD = 10000;//10000 mls
     private int DEFAULT_VALUE_CONTROLLER_TIMEOUT = 8000;//8000 mls
+    private long targetDurationMls = 2000L;
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
     private AbstractPlayerManager uzPlayerManager;
@@ -311,11 +313,11 @@ public class UZVideoView extends VideoViewBase
 
     // Lay pixel dung cho custom UI like youtube, uzTimebar bottom of player controller
     public int getPixelAdded() {
-        return isSetUZTimebarBottom ? (getHeightUZTimeBar() / 2) : 0;
+        return isSetUZTimebarBottom ? (getHeightTimeBar() / 2) : 0;
     }
 
     //return pixel
-    public int getHeightUZTimeBar() {
+    public int getHeightTimeBar() {
         return UZViewUtils.heightOfView(uzTimebar);
     }
 
@@ -1735,6 +1737,7 @@ public class UZVideoView extends VideoViewBase
             tvPosition.setText(StringUtils.convertMlsecondsToHMmSs(currentMls));
     }
 
+
     private void updateUIIbRewIconDependOnProgress(long currentMls, boolean isCalledFromUZTimeBarEvent) {
         if (isCalledFromUZTimeBarEvent)
             setTextPosition(currentMls);
@@ -1987,7 +1990,7 @@ public class UZVideoView extends VideoViewBase
         return null;
     }
 
-    public void setUZTimebarBottom() {
+    public void setTimeBarBottom() {
         if (uzPlayerView == null)
             throw new NullPointerException("uzPlayerView cannot be null");
         if (uzTimebar == null)
@@ -1996,14 +1999,14 @@ public class UZVideoView extends VideoViewBase
             setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT);
     }
 
-    public int getHeightUZVideo() {
+    public int getHeightOfVideo() {
         if (rootView == null) {
             return 0;
         }
         if (isSetUZTimebarBottom) {
             int hRootView = UZViewUtils.heightOfView(rootView);
-            int hUZTimebar = getHeightUZTimeBar();
-            return hRootView - hUZTimebar / 2;
+            int hTimeBar = getHeightTimeBar();
+            return hRootView - hTimeBar / 2;
         } else
             return UZViewUtils.heightOfView(rootView);
     }
@@ -2021,12 +2024,12 @@ public class UZVideoView extends VideoViewBase
 
     public void setMarginDependOnUZTimeBar(View view) {
         if (view == null || uzTimebar == null) return;
-        int heightUZTimebar;
+        int heightTimeBar;
         if (isLandscape)
             UZViewUtils.setMarginPx(view, 0, 0, 0, 0);
         else {
-            heightUZTimebar = getHeightUZTimeBar();
-            UZViewUtils.setMarginPx(view, 0, 0, 0, heightUZTimebar / 2);
+            heightTimeBar = getHeightTimeBar();
+            UZViewUtils.setMarginPx(view, 0, 0, 0, heightTimeBar / 2);
         }
     }
 
@@ -2248,7 +2251,9 @@ public class UZVideoView extends VideoViewBase
             @Override
             public void onVideoProgress(long currentMls, int s, long duration, int percent) {
                 TmpParamData.getInstance().setPlayerPlayheadTime(s);
-                updateUIIbRewIconDependOnProgress(currentMls, false);
+                post(() -> updateUIIbRewIconDependOnProgress(currentMls, false));
+                if (UZData.getInstance().isCurrentLive())
+                    post(() -> updateLiveStatus(currentMls, duration));
                 if (progressListener != null)
                     progressListener.onVideoProgress(currentMls, s, duration, percent);
             }
@@ -2503,6 +2508,20 @@ public class UZVideoView extends VideoViewBase
             this.videoAdPlayerCallback = uzAdPlayerCallback;
         else
             throw new NoClassDefFoundError(ErrorConstant.ERR_506);
+    }
+
+    protected void setTargetDurationMls(long targetDurationMls) {
+        this.targetDurationMls = targetDurationMls;
+    }
+
+    private void updateLiveStatus(long currentMls, long duration) {
+        if (tvLiveStatus == null) return;
+        long timeToEndChunk = duration - currentMls;
+        if (timeToEndChunk <= targetDurationMls * 10) {
+            tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
+        } else {
+            tvLiveStatus.setTextColor(Color.WHITE);
+        }
     }
 
     protected void updateLiveStreamLatency(long latency) {

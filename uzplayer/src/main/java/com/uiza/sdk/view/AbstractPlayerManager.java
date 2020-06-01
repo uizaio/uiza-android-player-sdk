@@ -75,7 +75,7 @@ import timber.log.Timber;
 abstract class AbstractPlayerManager implements PreviewLoader {
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
-    private static final long INVALID_PROGRAM_DATE_TIME = 0;
+    private static final long INVALID_PROGRAM_DATE_TIME = C.INDEX_UNSET;
     protected final String TAG = "TAG" + getClass().getSimpleName();
     private final DataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
@@ -568,18 +568,16 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 uzVideoView.eventListener.onTimelineChanged(timeline, manifest, reason);
             if (manifest instanceof HlsManifest) {
                 HlsMediaPlaylist playlist = ((HlsManifest) manifest).mediaPlaylist;
+                uzVideoView.setTargetDurationMls(C.usToMs(playlist.targetDurationUs));
                 // From the current playing frame to end time of chunk
                 long timeToEndChunk = player.getDuration() - player.getCurrentPosition();
                 long extProgramDateTime = getProgramDateTimeValue(playlist, timeToEndChunk);
-
                 if (extProgramDateTime == INVALID_PROGRAM_DATE_TIME) {
                     uzVideoView.hideTextLiveStreamLatency();
                     return;
                 }
-
                 long elapsedTime = SystemClock.elapsedRealtime() - UZPlayer.getElapsedTime();
                 long currentTime = System.currentTimeMillis() + elapsedTime;
-
                 long latency = currentTime - extProgramDateTime;
                 uzVideoView.updateLiveStreamLatency(latency);
             } else
@@ -591,10 +589,8 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 return INVALID_PROGRAM_DATE_TIME;
             final String emptyStr = "";
             final int tagSize = playlist.tags.size();
-
             long totalTime = 0;
             int playingIndex = tagSize;
-
             // Find the playing frame index
             while (playingIndex > 0) {
                 String tag = playlist.tags.get(playingIndex - 1);
@@ -612,7 +608,6 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 // we should skip to calc latency in this case
                 return INVALID_PROGRAM_DATE_TIME;
             }
-
             // Find the playing frame EXT_X_PROGRAM_DATE_TIME
             String playingDateTime = emptyStr;
             for (int i = playingIndex; i < tagSize; i++) {

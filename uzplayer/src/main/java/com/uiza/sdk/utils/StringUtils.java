@@ -4,8 +4,13 @@ package com.uiza.sdk.utils;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.util.Base64;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.ui.TrackNameProvider;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -116,4 +121,16 @@ public final class StringUtils {
         return isBits ? String.format(Locale.getDefault(), "%.1f %sb", bytes / Math.pow(unit, exp), pre)
                 : String.format(Locale.getDefault(), "%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
+
+    @Nullable
+    public static String parserInfo(@NonNull String url) throws Exception {
+        int fromIndex = url.indexOf("?cm=");
+        if (fromIndex > 0) {
+            int toIndex = url.indexOf("&", fromIndex);
+            String cm = (toIndex > 0) ? url.substring(fromIndex + 4, toIndex) : url.substring(fromIndex + 4);
+            return new String(Base64.decode(cm, Base64.DEFAULT));
+        }
+        return null;
+    }
+
 }
