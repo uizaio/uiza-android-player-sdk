@@ -10,7 +10,7 @@ import timber.log.Timber;
 public class LSApplication extends MultiDexApplication {
 
     public static final String[] urls = new String[]{
-            "https://1775190502.rsc.cdn77.org/live/b938c0a6-e9bc-4b25-9e66-dbf81d755c25/master.m3u8?cm=eyJlbnRpdHlfaWQiOiJiOTM4YzBhNi1lOWJjLTRiMjUtOWU2Ni1kYmY4MWQ3NTVjMjUiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6ImI5NjNiNDY1YzM0ZTRmZmI5YTcxOTIyNDQyZWUwZGNhIn0=",
+            "https://1443866306.rsc.cdn77.org/live/177957b6-e8f6-4bd4-b774-fa954d6315d1/master.m3u8?cm=eyJlbnRpdHlfaWQiOiIxNzc5NTdiNi1lOGY2LTRiZDQtYjc3NC1mYTk1NGQ2MzE1ZDEiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6ImEwYzJiMTM1YzU4ZTQ4ZmJhNDZkMDlmZjA4MGYyYTJkIn0=",
             "https://mnmedias.api.telequebec.tv/m3u8/29880.m3u8",
             "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
             "https://s3-ap-southeast-1.amazonaws.com/cdnetwork-test/drm_sample_byterange/manifest.mpd"};

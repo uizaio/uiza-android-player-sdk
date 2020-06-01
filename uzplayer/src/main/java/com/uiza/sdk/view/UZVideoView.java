@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.google.android.exoplayer2.C;
@@ -1298,8 +1299,10 @@ public class UZVideoView extends VideoViewBase
         return rlLiveInfo;
     }
 
-    public TextView getTvLiveView() {
-        return tvLiveView;
+    public void setLiveCCU(int ccu){
+        if(tvLiveView != null){
+            tvLiveView.setText(getContext().getResources().getQuantityString(R.plurals.viewers, ccu, ccu));
+        }
     }
 
     public TextView getTvLiveTime() {

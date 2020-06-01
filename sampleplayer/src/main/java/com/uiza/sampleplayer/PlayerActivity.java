@@ -274,7 +274,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         if (handler != null && playback != null)
             handler.postDelayed(() -> {
                 Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
-                    uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+                    uzVideo.setLiveCCU(res.getViews());
                 }, Timber::e);
                 if (d != null) {
                     disposables.add(d);
