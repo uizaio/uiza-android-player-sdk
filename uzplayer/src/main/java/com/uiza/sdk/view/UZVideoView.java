@@ -821,7 +821,9 @@ public class UZVideoView extends VideoViewBase
             showUZTrackSelectionDialog(v, true);
         else if (v == rlChromeCast)
             Timber.e("dangerous to remove");
-        else if (v == ibFfwdIcon) {
+        else if (v == tvLiveStatus) {
+            seekToEndLive();
+        } else if (v == ibFfwdIcon) {
             if (isCastingChromecast) {
                 Casty casty = UZData.getInstance().getCasty();
                 if (casty != null)
@@ -1299,9 +1301,9 @@ public class UZVideoView extends VideoViewBase
         return rlLiveInfo;
     }
 
-    public void setLiveCCU(int ccu){
-        if(tvLiveView != null){
-            tvLiveView.setText(getContext().getResources().getQuantityString(R.plurals.viewers, ccu, ccu));
+    public void setLiveCCU(int ccu) {
+        if (tvLiveView != null) {
+            tvLiveView.setText(getContext().getResources().getQuantityString(R.plurals.numberOfViewers, ccu, ccu));
         }
     }
 
@@ -1510,7 +1512,7 @@ public class UZVideoView extends VideoViewBase
     private void setEventForViews() {
         setClickAndFocusEventForViews(ibFullscreenIcon, ibBackScreenIcon, ibVolumeIcon, ibSettingIcon,
                 ibCcIcon, ibPlaylistFolderIcon, ibHearingIcon, ibPictureInPictureIcon, ibFfwdIcon,
-                ibRewIcon, ibPlayIcon, ibPauseIcon, ibReplayIcon, ibSkipNextIcon, ibSkipPreviousIcon, ibSpeedIcon);
+                ibRewIcon, ibPlayIcon, ibPauseIcon, ibReplayIcon, ibSkipNextIcon, ibSkipPreviousIcon, ibSpeedIcon, tvLiveStatus);
     }
 
     private void setClickAndFocusEventForViews(View... views) {
@@ -2522,8 +2524,17 @@ public class UZVideoView extends VideoViewBase
         long timeToEndChunk = duration - currentMls;
         if (timeToEndChunk <= targetDurationMls * 10) {
             tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
+            UZViewUtils.goneViews(tvPosition);
         } else {
             tvLiveStatus.setTextColor(Color.WHITE);
+            UZViewUtils.visibleViews(tvPosition);
+        }
+    }
+
+    private void seekToEndLive() {
+        long timeToEndChunk = getDuration() - getCurrentPosition();
+        if (timeToEndChunk > targetDurationMls * 10) {
+            seekToForward((int)(timeToEndChunk + targetDurationMls));
         }
     }
 
