@@ -16,6 +16,8 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -30,6 +32,9 @@ import com.uiza.sdk.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+
+import timber.log.Timber;
 
 /**
  * A view for making track selections.
@@ -252,7 +257,8 @@ public class UZTrackSelectionView extends LinearLayout {
                 CheckedTextView trackView = (CheckedTextView) inflater.inflate(trackViewLayoutId, this, false);
                 trackView.setSoundEffectsEnabled(false);
                 trackView.setBackgroundResource(selectableItemBackgroundResourceId);
-                UZItem uzItem = UZItem.create(group.getFormat(trackIndex));
+                Format f = group.getFormat(trackIndex);
+                UZItem uzItem = UZItem.create(f, parserNameProvider(f));
                 trackView.setText(uzItem.getDescription());
                 if (trackInfo.getTrackSupport(rendererIndex, groupIndex, trackIndex) == RendererCapabilities.FORMAT_HANDLED) {
                     trackView.setFocusable(true);
@@ -269,6 +275,17 @@ public class UZTrackSelectionView extends LinearLayout {
             }
         }
         updateViewStates();
+    }
+
+    private String parserNameProvider(Format format) {
+        if (format.frameRate == Format.NO_VALUE) {
+            int minRes = Math.min(format.width, format.height);
+            if (minRes < 0) {
+                return trackNameProvider.getTrackName(format);
+            }
+            return String.format(Locale.getDefault(), "%dp", minRes);
+        } else
+            return String.format(Locale.getDefault(), "%dp (%.0f)", Math.min(format.width, format.height), format.frameRate);
     }
 
     private void updateViewStates() {
