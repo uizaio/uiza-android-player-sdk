@@ -20,6 +20,8 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
 
+import timber.log.Timber;
+
 /**
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
@@ -107,10 +109,6 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
         }
         player.prepare(mediaSourceWithAds);
         setPlayWhenReady(uzVideoView.isAutoStart());
-        if (uzVideoView.isLiveStream())
-            playerHelper.seekToDefaultPosition();
-        else
-            seekTo(contentPosition);
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
             //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
@@ -183,6 +181,7 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
 
         @Override
         public void onLoaded() {
+            Timber.e("onLoaded");
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onLoaded();
         }
 

@@ -208,17 +208,17 @@ public class UZDragView extends LinearLayout {
                     post(v::toggleShowHideController);
                 }
             });
-            setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
-                @Override
-                public void onDoubleTapProgressUp(float posX, float posY) {
-                    float halfScreen = UZViewUtils.getScreenWidth() / 2.0f;
-                    if (posX - 60.0f > halfScreen) {
-                        v.seekToForward();
-                    } else if (posX + 60.0f < halfScreen) {
-                        v.seekToForward();
-                    }
-                }
-            });
+//            setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
+//                @Override
+//                public void onDoubleTapProgressUp(float posX, float posY) {
+//                    float halfScreen = UZViewUtils.getScreenWidth() / 2.0f;
+//                    if (posX - 60.0f > halfScreen) {
+//                        v.seekToForward();
+//                    } else if (posX + 60.0f < halfScreen) {
+//                        v.seekToForward();
+//                    }
+//                }
+//            });
         }
 
     }

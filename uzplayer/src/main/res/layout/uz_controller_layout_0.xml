@@ -69,35 +69,20 @@
             android:id="@id/tv_live"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/background_live"
             android:gravity="center"
             android:paddingStart="@dimen/padding_5"
+            android:paddingTop="@dimen/padding_3"
             android:paddingEnd="@dimen/padding_5"
+            android:paddingBottom="@dimen/padding_3"
             android:text="@string/live"
             android:textColor="@android:color/white"
             tools:ignore="RelativeOverlap" />
 
         <com.uiza.sdk.widget.UZImageButton
-            android:id="@id/iv_live_time"
-            android:layout_width="@dimen/w_15"
-            android:layout_height="@dimen/w_15"
-            android:layout_toStartOf="@id/tv_live_time"
-            android:background="@android:color/transparent"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_timer_white_24" />
-
-        <com.uiza.sdk.widget.UZTextView
-            android:id="@id/tv_live_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_5"
-            android:layout_toStartOf="@id/iv_live_view"
-            android:textColor="@android:color/white" />
-
-        <com.uiza.sdk.widget.UZImageButton
             android:id="@id/iv_live_view"
             android:layout_width="@dimen/w_15"
             android:layout_height="@dimen/w_15"
+            android:layout_centerVertical="true"
             android:layout_toStartOf="@id/tv_live_view"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
@@ -108,6 +93,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:text="1000Viewers"
             android:textColor="@android:color/white" />
     </RelativeLayout>
 

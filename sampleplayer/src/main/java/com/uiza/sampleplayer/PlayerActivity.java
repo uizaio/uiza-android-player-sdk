@@ -26,7 +26,6 @@ import com.uiza.sdk.widget.UZToast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -45,7 +44,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private EditText etLinkPlay;
     private List<UZPlayback> playlist;
     Button btPlay, btnStarts;
-    private boolean isLive = false;
     private Handler handler = new Handler(Looper.getMainLooper());
     private CompositeDisposable disposables;
 
@@ -92,10 +90,10 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             initPlaylist();
         }
         btnStarts.setVisibility(View.GONE);
-        findViewById(R.id.bt_0).setOnClickListener(view -> updateView(LSApplication.urls[0], true));
-        findViewById(R.id.bt_1).setOnClickListener(view -> updateView(LSApplication.urls[1], false));
-        findViewById(R.id.bt_2).setOnClickListener(view -> updateView(LSApplication.urls[2], false));
-        findViewById(R.id.bt_3).setOnClickListener(view -> updateView(LSApplication.urls[3], false));
+        findViewById(R.id.bt_0).setOnClickListener(view -> updateView(0));
+        findViewById(R.id.bt_1).setOnClickListener(view -> updateView(1));
+        findViewById(R.id.bt_2).setOnClickListener(view -> updateView(2));
+        findViewById(R.id.bt_3).setOnClickListener(view -> updateView(3));
         findViewById(R.id.bt_4).setOnClickListener(view -> {
             etLinkPlay.setVisibility(View.GONE);
             btPlay.setVisibility(View.GONE);
@@ -118,16 +116,15 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             }
         });
         (new Handler()).postDelayed(() -> {
-            updateView(LSApplication.urls[0], true);
+            updateView(0);
             onPlay();
         }, 1000);
     }
 
-    private void updateView(String url, boolean live) {
+    private void updateView(int index) {
         etLinkPlay.setVisibility(View.VISIBLE);
         btPlay.setVisibility(View.VISIBLE);
-        etLinkPlay.setText(url);
-        isLive = live;
+        etLinkPlay.setText(LSApplication.urls[index]);
         setLastCursorEditText(etLinkPlay);
     }
 
@@ -137,7 +134,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         for (String url : LSApplication.urls) {
             UZPlayback playback = new UZPlayback();
             playback.setLinkPlay(url);
-            playback.setLive(i == 0);
             playlist.add(playback);
             i++;
         }
@@ -147,7 +143,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setLinkPlay(etLinkPlay.getText().toString());
-        playback.setLive(isLive);
         uzVideo.play(playback);
 
     }
@@ -224,7 +219,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void updateUIRevertMaxChange(boolean isEnableRevertMaxSize) {
         if (isEnableRevertMaxSize && uzDragView.isAppear()) {
-            // todo
         }
     }
 
