@@ -1842,9 +1842,11 @@ public class UZVideoView extends VideoViewBase
         if (isLIVE()) {
             UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
+            setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
             UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.visibleViews(ibSpeedIcon, tvDuration, ibFfwdIcon, ibRewIcon);
+            setUIVisible(true, ibRewIcon, ibFfwdIcon);
             //TODO why set visible not work?
         }
         if (UZAppUtils.isTV(getContext()))
