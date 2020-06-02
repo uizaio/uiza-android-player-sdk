@@ -62,8 +62,6 @@
     <string name="duration_2">Duration 2</string>
     <string name="rate">Rate</string>
     <string name="description">Description</string>
-    <plurals name="numberOfViewers">
-        <item quantity="one">%d Viewer</item>
-        <item quantity="other">%d Viewers</item>
-    </plurals>
+    <string name="numberOfViewers">%d Viewers</string>
+    <string name="oneViewer">1 Viewer</string>
 </resources>

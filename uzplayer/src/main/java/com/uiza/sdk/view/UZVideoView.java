@@ -1301,9 +1301,13 @@ public class UZVideoView extends VideoViewBase
         return rlLiveInfo;
     }
 
-    public void setLiveCCU(int ccu) {
+    public void setLiveViewers(int viewers) {
         if (tvLiveView != null) {
-            tvLiveView.setText(getContext().getResources().getQuantityString(R.plurals.numberOfViewers, ccu, ccu));
+            if (viewers == 1) {
+                tvLiveView.setText(getResources().getString(R.string.oneViewer));
+            } else {
+                tvLiveView.setText(getResources().getString(R.string.numberOfViewers, viewers));
+            }
         }
     }
 
@@ -1398,9 +1402,9 @@ public class UZVideoView extends VideoViewBase
 
     public void setSpeed(float speed) {
         if (UZData.getInstance().isCurrentLive())
-            throw new IllegalArgumentException(getContext().getString(R.string.error_speed_live_content));
+            throw new IllegalArgumentException(getResources().getString(R.string.error_speed_live_content));
         if (speed > 3 || speed < -3)
-            throw new IllegalArgumentException(getContext().getString(R.string.error_speed_illegal));
+            throw new IllegalArgumentException(getResources().getString(R.string.error_speed_illegal));
         PlaybackParameters playbackParameters = new PlaybackParameters(speed);
         if (getPlayer() != null)
             getPlayer().setPlaybackParameters(playbackParameters);
@@ -1438,7 +1442,7 @@ public class UZVideoView extends VideoViewBase
                 isSetUZTimebarBottom = false;
                 uzPlayerView.setVisibility(VISIBLE);
             } else {
-                if (uzTimebar.getTag().toString().equals(getContext().getString(R.string.use_bottom_uz_timebar))) {
+                if (uzTimebar.getTag().toString().equals(getResources().getString(R.string.use_bottom_uz_timebar))) {
                     isSetUZTimebarBottom = true;
                     setMarginDependOnUZTimeBar(uzPlayerView.getVideoSurfaceView());
                 } else {
@@ -1560,9 +1564,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void setUrlImgThumbnail(String urlImgThumbnail) {
-        if (TextUtils.isEmpty(urlImgThumbnail))
-            return;
-        if (ivVideoCover == null)
+        if (TextUtils.isEmpty(urlImgThumbnail) || ivVideoCover == null)
             return;
         if (ivVideoCover.getVisibility() != VISIBLE) {
             ivVideoCover.setVisibility(VISIBLE);
@@ -1655,7 +1657,7 @@ public class UZVideoView extends VideoViewBase
     public boolean changeSkin(@LayoutRes int skinId) {
         if (uzPlayerManager == null) return false;
         if (UZData.getInstance().isUseUZDragView())
-            throw new IllegalArgumentException(getContext().getString(R.string.error_change_skin_with_uzdragview));
+            throw new IllegalArgumentException(getResources().getString(R.string.error_change_skin_with_uzdragview));
         if (uzPlayerManager.isPlayingAd()) {
             notifyError(ErrorUtils.exceptionChangeSkin());
             return false;
@@ -2534,7 +2536,7 @@ public class UZVideoView extends VideoViewBase
     private void seekToEndLive() {
         long timeToEndChunk = getDuration() - getCurrentPosition();
         if (timeToEndChunk > targetDurationMls * 10) {
-            seekToForward((int)(timeToEndChunk + targetDurationMls));
+            seekToForward((int) (timeToEndChunk + targetDurationMls));
         }
     }
 
