@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.google.android.exoplayer2.C;
@@ -102,7 +101,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -527,12 +525,13 @@ public class UZVideoView extends VideoViewBase
         updateUIEndScreen();
         isHasError = false;
         viewerSessionId = UUID.randomUUID().toString();
-        if (playback.isLive())
-            startTime = -1;
         if (uzPlayerManager != null) {
             releaseUZPlayerManager();
             resetCountTryLinkPlayError();
             showProgress();
+            if (isLIVE()) {
+                startTime = -1;
+            }
         }
         updateUIDependOnLiveStream();
         disposables = new CompositeDisposable();
@@ -555,7 +554,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     protected void tryNextLinkPlay() {
-        if (UZData.getInstance().isCurrentLive()) {
+        if (isLIVE()) {
             // try to play 5 times
             if (countTryLinkPlayError >= 5) {
                 if (uzLiveContentCallback != null)
@@ -645,7 +644,7 @@ public class UZVideoView extends VideoViewBase
                 uzPlayerManager.resume();
         }
         // try to move to the edge of livestream video
-        if (autoMoveToLiveEdge && isLiveStream())
+        if (autoMoveToLiveEdge && isLIVE())
             seekToLiveEdge();
         else if (positionPIPPlayer > 0L && isInPipMode) {
             seekTo(positionPIPPlayer);
@@ -672,7 +671,7 @@ public class UZVideoView extends VideoViewBase
      * Seek to live edge of a streaming video
      */
     public void seekToLiveEdge() {
-        if (isLiveStream() && getPlayer() != null)
+        if (isLIVE() && getPlayer() != null)
             getPlayer().seekToDefaultPosition();
     }
 
@@ -1130,7 +1129,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void seekToForward() {
-        if (!isLiveStream())
+        if (!isLIVE())
             ibFfwdIcon.performClick();
     }
 
@@ -1213,8 +1212,8 @@ public class UZVideoView extends VideoViewBase
         return ivThumbnail;
     }
 
-    public boolean isLiveStream() {
-        return UZData.getInstance().isCurrentLive();
+    public boolean isLIVE() {
+        return uzPlayerManager != null && uzPlayerManager.isLIVE();
     }
 
     public AbstractPlayerManager getUZPlayerManager() {
@@ -1401,7 +1400,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void setSpeed(float speed) {
-        if (UZData.getInstance().isCurrentLive())
+        if (isLIVE())
             throw new IllegalArgumentException(getResources().getString(R.string.error_speed_live_content));
         if (speed > 3 || speed < -3)
             throw new IllegalArgumentException(getResources().getString(R.string.error_speed_illegal));
@@ -1589,17 +1588,17 @@ public class UZVideoView extends VideoViewBase
     }
 
     protected void removeVideoCover(boolean isFromHandleError) {
+        if(!isFromHandleError)
+            onStateReadyFirst();
         if (ivVideoCover.getVisibility() != GONE) {
             ivVideoCover.setVisibility(GONE);
             ivVideoCover.invalidate();
-            if (UZData.getInstance().isCurrentLive()) {
+            if (isLIVE()) {
                 if (tvLiveTime != null)
                     tvLiveTime.setText(HYPHEN);
                 if (tvLiveView != null)
                     tvLiveView.setText(HYPHEN);
             }
-            if (!isFromHandleError)
-                onStateReadyFirst();
         } else
             //goi changeskin realtime thi no ko vao if nen ko update tvDuration dc
             updateTvDuration();
@@ -1678,6 +1677,7 @@ public class UZVideoView extends VideoViewBase
             findViews();
             resizeContainerView();
             updateUIEachSkin();
+            updateUIDependOnLiveStream();
             setMarginPreviewTimeBar();
             setMarginRlLiveInfo();
             //setup chromecast
@@ -1685,7 +1685,7 @@ public class UZVideoView extends VideoViewBase
                 setupChromeCast();
             currentPositionBeforeChangeSkin = getCurrentPosition();
             releaseUZPlayerManager();
-            updateUIDependOnLiveStream();
+
             setTitle();
             checkToSetUpResource();
             updateUISizeThumbnail();
@@ -1724,7 +1724,7 @@ public class UZVideoView extends VideoViewBase
 
     private void updateTvDuration() {
         if (tvDuration != null)
-            if (isLiveStream())
+            if (isLIVE())
                 tvDuration.setText(StringUtils.convertMlsecondsToHMmSs(0));
             else
                 tvDuration.setText(StringUtils.convertMlsecondsToHMmSs(getDuration()));
@@ -1736,7 +1736,7 @@ public class UZVideoView extends VideoViewBase
 
     private void setTextPosition(long currentMls) {
         if (tvPosition == null) return;
-        if (UZData.getInstance().isCurrentLive()) {
+        if (isLIVE()) {
             long duration = getDuration();
             long past = duration - currentMls;
             tvPosition.setText(String.format("%s%s", HYPHEN, StringUtils.convertMlsecondsToHMmSs(past)));
@@ -1753,7 +1753,7 @@ public class UZVideoView extends VideoViewBase
                 setTextPosition(currentMls);
             return;
         }
-        if (UZData.getInstance().isCurrentLive()) return;
+        if (isLIVE()) return;
         if (ibRewIcon != null && ibFfwdIcon != null) {
             if (currentMls == 0) {
                 if (ibRewIcon.isSetSrcDrawableEnabled())
@@ -1837,15 +1837,15 @@ public class UZVideoView extends VideoViewBase
             UZViewUtils.goneViews(ibPictureInPictureIcon);
         else if (UZAppUtils.isTablet(getContext()) && UZAppUtils.isTV(getContext()))//only hide ibPictureInPictureIcon if device is TV
             UZViewUtils.goneViews(ibPictureInPictureIcon);
-        if (UZData.getInstance().isCurrentLive()) {
+        if (isLIVE()) {
             UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
-//            setUIVisible(false, ibRewIcon, ibFfwdIcon);
+            setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
             UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.visibleViews(ibSpeedIcon, tvDuration, ibFfwdIcon, ibRewIcon);
+            setUIVisible(true, ibRewIcon, ibFfwdIcon);
             //TODO why set visible not work?
-//            setUIVisible(true, ibRewIcon, ibFfwdIcon);
         }
         if (UZAppUtils.isTV(getContext()))
             UZViewUtils.goneViews(ibFullscreenIcon);
@@ -1904,7 +1904,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     private void updateLiveInfoTimeStartLive() {
-        if (!UZData.getInstance().isCurrentLive() || getContext() == null) return;
+        if (!isLIVE() || getContext() == null) return;
         long now = System.currentTimeMillis();
         long duration = now - startTime;
         String s = StringUtils.convertMlsecondsToHMmSs(duration);
@@ -1917,7 +1917,6 @@ public class UZVideoView extends VideoViewBase
     private void updateUIEndScreen() {
         if (getContext() == null) return;
         if (isOnPlayerEnded) {
-            Timber.i("Video or Stream is ended !");
             setVisibilityOfPlayPauseReplay(true);
             showController();
             if (uzPlayerView != null) {
@@ -1948,13 +1947,8 @@ public class UZVideoView extends VideoViewBase
     private void setVisibilityOfPlaylistFolderController(int visibilityOfPlaylistFolderController) {
         UZViewUtils.setVisibilityViews(visibilityOfPlaylistFolderController, ibPlaylistFolderIcon,
                 ibSkipNextIcon, ibSkipPreviousIcon);
-        //Có play kiểu gì đi nữa thì cũng phải ibPlayIcon GONE và ibPauseIcon VISIBLE và ibReplayIcon GONE
         setVisibilityOfPlayPauseReplay(false);
 
-    }
-
-    public void hideUzTimebar() {
-        UZViewUtils.goneViews(previewFrameLayout, ivThumbnail, uzTimebar);
     }
 
     private void showSettingsDialog() {
@@ -2259,7 +2253,7 @@ public class UZVideoView extends VideoViewBase
             public void onVideoProgress(long currentMls, int s, long duration, int percent) {
                 TmpParamData.getInstance().setPlayerPlayheadTime(s);
                 post(() -> updateUIIbRewIconDependOnProgress(currentMls, false));
-                if (UZData.getInstance().isCurrentLive())
+                if (isLIVE())
                     post(() -> updateLiveStatus(currentMls, duration));
                 if (progressListener != null)
                     progressListener.onVideoProgress(currentMls, s, duration, percent);
@@ -2479,10 +2473,6 @@ public class UZVideoView extends VideoViewBase
         getPlayer().addAnalyticsListener(statsForNerdsView);
     }
 
-    public UZChromeCast getUZChromeCast() {
-        return uzChromeCast;
-    }
-
     private void addUIChromecastLayer() {
         rlChromeCast = new RelativeLayout(getContext());
         RelativeLayout.LayoutParams rlChromeCastParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -2536,7 +2526,8 @@ public class UZVideoView extends VideoViewBase
     private void seekToEndLive() {
         long timeToEndChunk = getDuration() - getCurrentPosition();
         if (timeToEndChunk > targetDurationMls * 10) {
-            seekToForward((int) (timeToEndChunk + targetDurationMls));
+//            seekToForward((int) (timeToEndChunk + targetDurationMls));
+            seekToLiveEdge();
         }
     }
 

@@ -300,12 +300,10 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
-                            //LLog.d(TAG, "onSwipeRight");
                             if (onTouchEvent != null) {
                                 onTouchEvent.onSwipeRight();
                             }
                         } else {
-                            //LLog.d(TAG, "onSwipeLeft");
                             if (onTouchEvent != null) {
                                 onTouchEvent.onSwipeLeft();
                             }
@@ -314,12 +312,10 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
                 } else {
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffY > 0) {
-                            //LLog.d(TAG, "onSwipeBottom");
                             if (onTouchEvent != null) {
                                 onTouchEvent.onSwipeBottom();
                             }
                         } else {
-                            //LLog.d(TAG, "onSwipeTop");
                             if (onTouchEvent != null) {
                                 onTouchEvent.onSwipeTop();
                             }

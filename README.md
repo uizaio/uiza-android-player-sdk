@@ -188,7 +188,7 @@ Please see [uiza-android-api-sdk](https://github.com/uizaio/uiza-android-api-sdk
     private void getLiveViewsTimer(UZPlayback playback, boolean firstRun) {
         handler.postDelayed(() -> {
             UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
-                uzVideo.getTvLiveView().setText(String.format(Locale.getDefault(), "%d", res.getViews()));
+                uzVideo.setLiveViewers(res.getViews());
             }, Timber::e, () -> {
                 getLiveViewsTimer(playback, false);
             });

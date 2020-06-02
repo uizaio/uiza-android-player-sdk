@@ -97,7 +97,9 @@
             android:background="@drawable/background_live"
             android:gravity="center"
             android:paddingStart="@dimen/padding_5"
+            android:paddingTop="@dimen/padding_3"
             android:paddingEnd="@dimen/padding_5"
+            android:paddingBottom="@dimen/padding_3"
             android:text="@string/live"
             android:textColor="@android:color/white"
             tools:ignore="RelativeOverlap" />

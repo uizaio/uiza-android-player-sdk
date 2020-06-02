@@ -75,7 +75,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setLinkPlay(etLinkPlay.getText().toString());
-        playback.setLive(true);
         uzVideo.play(playback);
     }
 

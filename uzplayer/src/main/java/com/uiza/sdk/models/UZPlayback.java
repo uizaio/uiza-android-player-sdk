@@ -4,7 +4,6 @@ package com.uiza.sdk.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
@@ -47,10 +46,8 @@ public class UZPlayback implements Parcelable {
     private String hls;
     private String hlsTs;
     private String mpd;
-    private boolean live;
 
     public UZPlayback() {
-        this.live = false;
     }
 
     public UZPlayback(String id, String name, String description, String thumbnail) {
@@ -58,7 +55,6 @@ public class UZPlayback implements Parcelable {
         this.name = name;
         this.description = description;
         this.thumbnail = thumbnail;
-        this.live = false;
     }
 
     protected UZPlayback(Parcel in) {
@@ -72,7 +68,6 @@ public class UZPlayback implements Parcelable {
         hls = in.readString();
         hlsTs = in.readString();
         mpd = in.readString();
-        live = in.readInt() == 1;
     }
 
     @Override
@@ -87,7 +82,6 @@ public class UZPlayback implements Parcelable {
         dest.writeString(hls);
         dest.writeString(hlsTs);
         dest.writeString(mpd);
-        dest.writeInt(live ? 1 : 0);
     }
 
     public void setThumbnail(String thumbnail) {
@@ -119,13 +113,6 @@ public class UZPlayback implements Parcelable {
         return id;
     }
 
-    public boolean isLive() {
-        return live;
-    }
-
-    public void setLive(boolean live) {
-        this.live = live;
-    }
 
     public String getName() {
         return name;
@@ -185,16 +172,11 @@ public class UZPlayback implements Parcelable {
     }
 
     public List<String> getLinkPlays() {
-        if (live) {
-            //Bat buoc dung linkplay m3u8 cho nay, do bug cua system
-            return ListUtils.filter(this.getUrls(), url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0);
-        } else {
-            List<String> listLinkPlay = new ArrayList<>();
-            List<String> urls = getUrls();
-            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.MPD) > 0));
-            listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0));
-            return listLinkPlay;
-        }
+        List<String> listLinkPlay = new ArrayList<>();
+        List<String> urls = getUrls();
+        listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.MPD) > 0));
+        listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0));
+        return listLinkPlay;
     }
 
 
@@ -233,7 +215,7 @@ public class UZPlayback implements Parcelable {
     @Override
     public String toString() {
         return String.format(Locale.getDefault(),
-                "UZPlayback(id: %s, name: %s, description: %s, thumbnail: %s , hls: %s, hls_ts: %s, mpd: %s, live: %b)",
-                id, name, description, thumbnail, hls, hlsTs, mpd, live);
+                "UZPlayback(id: %s, name: %s, description: %s, thumbnail: %s , hls: %s, hls_ts: %s, mpd: %s)",
+                id, name, description, thumbnail, hls, hlsTs, mpd);
     }
 }

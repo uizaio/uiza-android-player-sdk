@@ -11,6 +11,8 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.uiza.sdk.utils.UZAppUtils;
 
+import timber.log.Timber;
+
 public final class UZPlayerNoAdsManager extends AbstractPlayerManager {
 
     public UZPlayerNoAdsManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
@@ -46,10 +48,6 @@ public final class UZPlayerNoAdsManager extends AbstractPlayerManager {
 
         player.prepare(mediaSourceVideo);
         setPlayWhenReady(uzVideoView.isAutoStart());
-        if (uzVideoView.isLiveStream())
-            playerHelper.seekToDefaultPosition();
-        else
-            seekTo(contentPosition);
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
             //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.

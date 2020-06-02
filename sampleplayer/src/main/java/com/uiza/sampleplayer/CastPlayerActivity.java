@@ -52,7 +52,6 @@ public class CastPlayerActivity extends AppCompatActivity implements UZCallback,
         final UZPlayback playback = new UZPlayback();
         playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.setHls(etLinkPlay.getText().toString());
-        playback.setLive(false);
         boolean isInitSuccess = uzVideo.play(playback);
         if (!isInitSuccess) {
             UZToast.show(this, "Init failed");
