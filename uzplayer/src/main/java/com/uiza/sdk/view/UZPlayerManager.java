@@ -181,7 +181,6 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
 
         @Override
         public void onLoaded() {
-            Timber.e("onLoaded");
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onLoaded();
         }
 

@@ -684,8 +684,9 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                         onFirstStateReady();
                         isFirstStateReady = true;
                     }
-                    if (uzVideoView != null)
+                    if (uzVideoView != null) {
                         ((Activity) uzVideoView.getContext()).setResult(Activity.RESULT_OK);
+                    }
                     break;
             }
             notifyUpdateButtonVisibility();

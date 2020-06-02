@@ -1590,6 +1590,8 @@ public class UZVideoView extends VideoViewBase
     }
 
     protected void removeVideoCover(boolean isFromHandleError) {
+        if(!isFromHandleError)
+            onStateReadyFirst();
         if (ivVideoCover.getVisibility() != GONE) {
             ivVideoCover.setVisibility(GONE);
             ivVideoCover.invalidate();
@@ -1599,8 +1601,6 @@ public class UZVideoView extends VideoViewBase
                 if (tvLiveView != null)
                     tvLiveView.setText(HYPHEN);
             }
-            if (!isFromHandleError)
-                onStateReadyFirst();
         } else
             //goi changeskin realtime thi no ko vao if nen ko update tvDuration dc
             updateTvDuration();
@@ -1679,6 +1679,7 @@ public class UZVideoView extends VideoViewBase
             findViews();
             resizeContainerView();
             updateUIEachSkin();
+            updateUIDependOnLiveStream();
             setMarginPreviewTimeBar();
             setMarginRlLiveInfo();
             //setup chromecast
@@ -1686,7 +1687,7 @@ public class UZVideoView extends VideoViewBase
                 setupChromeCast();
             currentPositionBeforeChangeSkin = getCurrentPosition();
             releaseUZPlayerManager();
-            updateUIDependOnLiveStream();
+
             setTitle();
             checkToSetUpResource();
             updateUISizeThumbnail();
@@ -1841,12 +1842,10 @@ public class UZVideoView extends VideoViewBase
         if (isLIVE()) {
             UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
-//            setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
             UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
             UZViewUtils.visibleViews(ibSpeedIcon, tvDuration, ibFfwdIcon, ibRewIcon);
             //TODO why set visible not work?
-//            setUIVisible(true, ibRewIcon, ibFfwdIcon);
         }
         if (UZAppUtils.isTV(getContext()))
             UZViewUtils.goneViews(ibFullscreenIcon);

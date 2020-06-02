@@ -56,7 +56,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         UZPlayer.setUseWithUZDragView(true);
-        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_0);
+        UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_default);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
         uzVideo = findViewById(R.id.uz_video_view);
