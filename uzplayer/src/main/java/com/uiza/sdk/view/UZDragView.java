@@ -7,7 +7,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import androidx.annotation.AttrRes;
@@ -185,7 +184,6 @@ public class UZDragView extends LinearLayout {
         mViewDragHelper = ViewDragHelper.create(this, 1.0f, mCallback);
         mViewDragHelper.setEdgeTrackingEnabled(ViewDragHelper.EDGE_LEFT);
         mDetector = new GestureDetectorCompat(getContext(), new UZGestureListener());
-
     }
 
     @Override
@@ -208,19 +206,7 @@ public class UZDragView extends LinearLayout {
                     post(v::toggleShowHideController);
                 }
             });
-//            setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
-//                @Override
-//                public void onDoubleTapProgressUp(float posX, float posY) {
-//                    float halfScreen = UZViewUtils.getScreenWidth() / 2.0f;
-//                    if (posX - 60.0f > halfScreen) {
-//                        v.seekToForward();
-//                    } else if (posX + 60.0f < halfScreen) {
-//                        v.seekToForward();
-//                    }
-//                }
-//            });
         }
-
     }
 
     private UZVideoView findFirstVideoView() {

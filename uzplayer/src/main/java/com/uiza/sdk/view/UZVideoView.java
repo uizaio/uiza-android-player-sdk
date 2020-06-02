@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.res.ResourcesCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.google.android.exoplayer2.C;
@@ -102,7 +101,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -1919,7 +1917,6 @@ public class UZVideoView extends VideoViewBase
     private void updateUIEndScreen() {
         if (getContext() == null) return;
         if (isOnPlayerEnded) {
-            Timber.i("Video or Stream is ended !");
             setVisibilityOfPlayPauseReplay(true);
             showController();
             if (uzPlayerView != null) {
@@ -1950,13 +1947,8 @@ public class UZVideoView extends VideoViewBase
     private void setVisibilityOfPlaylistFolderController(int visibilityOfPlaylistFolderController) {
         UZViewUtils.setVisibilityViews(visibilityOfPlaylistFolderController, ibPlaylistFolderIcon,
                 ibSkipNextIcon, ibSkipPreviousIcon);
-        //Có play kiểu gì đi nữa thì cũng phải ibPlayIcon GONE và ibPauseIcon VISIBLE và ibReplayIcon GONE
         setVisibilityOfPlayPauseReplay(false);
 
-    }
-
-    public void hideUzTimebar() {
-        UZViewUtils.goneViews(previewFrameLayout, ivThumbnail, uzTimebar);
     }
 
     private void showSettingsDialog() {
@@ -2479,10 +2471,6 @@ public class UZVideoView extends VideoViewBase
     // ===== Stats For Nerds =====
     private void initStatsForNerds() {
         getPlayer().addAnalyticsListener(statsForNerdsView);
-    }
-
-    public UZChromeCast getUZChromeCast() {
-        return uzChromeCast;
     }
 
     private void addUIChromecastLayer() {
