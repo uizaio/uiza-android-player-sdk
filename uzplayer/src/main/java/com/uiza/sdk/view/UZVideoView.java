@@ -1484,7 +1484,7 @@ public class UZVideoView extends VideoViewBase
         ibSkipNextIcon = uzPlayerView.findViewById(R.id.exo_skip_next);
         ibSkipPreviousIcon = uzPlayerView.findViewById(R.id.exo_skip_previous);
         ibSpeedIcon = uzPlayerView.findViewById(R.id.exo_speed);
-        if (!UZAppUtils.hasSupportPIP(getContext()))
+        if (!UZAppUtils.hasSupportPIP(getContext()) || UZData.getInstance().isUseUZDragView())
             UZViewUtils.goneViews(ibPictureInPictureIcon);
         LinearLayout debugLayout = findViewById(R.id.debug_layout);
         debugRootView = findViewById(R.id.controls_root);
