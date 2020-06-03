@@ -72,6 +72,14 @@
             android:src="@drawable/ic_playlist_play_white" />
 
         <com.uiza.sdk.widget.UZImageButton
+            android:id="@id/exo_picture_in_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_pip_white_24" />
+
+        <com.uiza.sdk.widget.UZImageButton
             android:id="@id/exo_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

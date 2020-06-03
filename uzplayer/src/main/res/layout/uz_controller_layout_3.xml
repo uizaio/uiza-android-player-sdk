@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_picture_in_picture_alt_white_48" />-->
+            android:src="@drawable/ic_pip_white_24" />-->
 
         <com.uiza.sdk.widget.UZImageButton
             android:id="@id/exo_fullscreen_toggle_icon"

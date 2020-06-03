@@ -279,7 +279,6 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         @Override
         public boolean onDoubleTapEvent(MotionEvent e) {
             // Second tap (ACTION_UP) of both taps
-            Timber.e("onDoubleTapEvent: isDoubleTap = %b, onDoubleTap = %b",isDoubleTap, onDoubleTap != null);
             if (e.getActionMasked() == MotionEvent.ACTION_UP && isDoubleTap && onDoubleTap != null) {
                 onDoubleTap.onDoubleTapProgressUp(e.getX(), e.getY());
                 return true;

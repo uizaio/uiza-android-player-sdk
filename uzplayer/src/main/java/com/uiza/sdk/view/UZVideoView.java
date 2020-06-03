@@ -217,7 +217,6 @@ public class UZVideoView extends VideoViewBase
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-
     /**
      * Call one time from {@link #onAttachedToWindow}
      * Note: you must call inflate in this method
@@ -643,11 +642,12 @@ public class UZVideoView extends VideoViewBase
             if (ibPlayIcon == null || ibPlayIcon.getVisibility() != VISIBLE)
                 uzPlayerManager.resume();
         }
-        // try to move to the edge of livestream video
-        if (autoMoveToLiveEdge && isLIVE())
-            seekToLiveEdge();
-        else if (positionPIPPlayer > 0L && isInPipMode) {
+
+        if (positionPIPPlayer > 0L && isInPipMode) {
             seekTo(positionPIPPlayer);
+        } else if (autoMoveToLiveEdge && isLIVE()) {
+            // try to move to the edge of livestream video
+            seekToLiveEdge();
         }
         //Makes sure that the media controls pop up on resuming and when going between PIP and non-PIP states.
         setUseController(true);
@@ -688,8 +688,9 @@ public class UZVideoView extends VideoViewBase
         positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
         // in PIP not pause
-        if (uzPlayerManager != null && !enablePIP())
+        if (uzPlayerManager != null && !enablePIP()) {
             uzPlayerManager.pause();
+        }
     }
 
     public boolean enablePIP() {
@@ -874,7 +875,7 @@ public class UZVideoView extends VideoViewBase
 
     @TargetApi(Build.VERSION_CODES.N)
     public void enterPIPMode() {
-        if (UZAppUtils.hasSupportPIP(getContext())) {
+        if (enablePIP()) {
             positionPIPPlayer = getCurrentPosition();
             setUseController(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1152,7 +1153,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     public void togglePlayPause() {
-        if (uzPlayerManager == null || getPlayer() == null) return;
+        if (getPlayer() == null) return;
         if (getPlayer().getPlayWhenReady())
             pause();
         else
@@ -1588,7 +1589,7 @@ public class UZVideoView extends VideoViewBase
     }
 
     protected void removeVideoCover(boolean isFromHandleError) {
-        if(!isFromHandleError)
+        if (!isFromHandleError)
             onStateReadyFirst();
         if (ivVideoCover.getVisibility() != GONE) {
             ivVideoCover.setVisibility(GONE);

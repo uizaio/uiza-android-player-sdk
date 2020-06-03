@@ -16,9 +16,13 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
+
+import java.lang.reflect.Constructor;
+import java.util.Objects;
 
 import timber.log.Timber;
 
@@ -26,8 +30,9 @@ import timber.log.Timber;
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
 //https://medium.com/@takusemba/understands-callbacks-of-exoplayer-c05ac3c322c2
-public final class UZPlayerManager extends AbstractPlayerManager implements AdsMediaSource.MediaSourceFactory {
+public final class UZPlayerManager extends AbstractPlayerManager {
 
+    private String urlIMAAd;
     private ImaAdsLoader adsLoader = null;
     private boolean isOnAdEnded;
     private UZAdPlayerCallback uzAdPlayerCallback;
@@ -35,8 +40,7 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
 
     UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl) {
         super(uzVideo, linkPlay, thumbnailsUrl);
-        if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable())
-            adsLoader = new ImaAdsLoader(context, Uri.parse(urlIMAAd));
+        this.urlIMAAd = urlIMAAd;
         setRunnable();
     }
 
@@ -100,14 +104,18 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // merge ads to media source subtitle
         // Compose the content media source into a new AdsMediaSource with both ads and content.
-        MediaSource mediaSourceWithAds = createMediaSourceWithAds(mediaSourceVideo);
-        // Prepare the player with the source.
         addPlayerListener();
-        if (adsLoader != null) {
-            adsLoader.setPlayer(player);
-            adsLoader.addCallback(uzVideoAdPlayerListener);
+        if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
+            MediaSource mediaSourceWithAds = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
+            if (adsLoader != null) {
+                adsLoader.setPlayer(player);
+                adsLoader.addCallback(uzVideoAdPlayerListener);
+            }
+            player.prepare(mediaSourceWithAds);
+        } else {
+            // No Ads
+            player.prepare(mediaSourceVideo);
         }
-        player.prepare(mediaSourceWithAds);
         setPlayWhenReady(uzVideoView.isAutoStart());
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
@@ -119,11 +127,24 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
         }
     }
 
-    private MediaSource createMediaSourceWithAds(MediaSource mediaSource) {
-        if (adsLoader == null)
-            return mediaSource;
-        return new AdsMediaSource(mediaSource, this, adsLoader,
+    private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+        if (adsLoader == null) {
+            adsLoader = new ImaAdsLoader(context, adTagUri);
+        }
+        AdsMediaSource.MediaSourceFactory adMediaSourceFactory = new AdsMediaSource.MediaSourceFactory() {
+            @Override
+            public MediaSource createMediaSource(Uri uri) {
+                return buildMediaSource(uri);
+            }
+
+            @Override
+            public int[] getSupportedTypes() {
+                return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+            }
+        };
+        return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader,
                 uzVideoView.getUZPlayerView());
+
     }
 
     public void reset() {
@@ -140,18 +161,14 @@ public final class UZPlayerManager extends AbstractPlayerManager implements AdsM
         if (adsLoader != null) {
             adsLoader.setPlayer(null);
             adsLoader.release();
+            adsLoader = null;
+            urlIMAAd = null;
+            try {
+                Objects.requireNonNull(uzVideoView.getUZPlayerView().getOverlayFrameLayout()).removeAllViews();
+            } catch (NullPointerException e) {
+                // Nothing
+            }
         }
-    }
-
-    @Override
-    public MediaSource createMediaSource(Uri uri) {
-        return buildMediaSource(uri);
-    }
-
-    @Override
-    public int[] getSupportedTypes() {
-        // IMA does not support Smooth Streaming ads.
-        return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
     }
 
     void addAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {

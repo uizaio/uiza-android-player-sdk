@@ -63,8 +63,8 @@ import com.uiza.sdk.utils.ListUtils;
 import com.uiza.sdk.utils.StringUtils;
 import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
-import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.UZImageButton;
+import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 
 import java.util.List;
@@ -77,7 +77,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private static final String EXTINF = "#EXTINF:";
     private static final long INVALID_PROGRAM_DATE_TIME = C.INDEX_UNSET;
     protected final String TAG = "TAG" + getClass().getSimpleName();
-    private final DataSource.Factory manifestDataSourceFactory;
+    private final HttpDataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
     protected Context context;
     UZVideoView uzVideoView;
@@ -115,35 +115,26 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
         this.context = uzVideo.getContext();
-        this.videoWidth = 0;
-        this.videoHeight = 0;
-        this.mls = 0;
-        this.bufferPosition = 0;
-        this.bufferPercentage = 0;
         this.uzVideoView = uzVideo;
         this.linkPlay = linkPlay;
         this.isFirstStateReady = false;
         userAgent = UZAppUtils.getUserAgent(this.context);
-        // OPTION 1 OK
-        /* manifestDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
-        mediaDataSourceFactory = new DefaultDataSourceFactory(
-                context,
-                userAgent,
-                new DefaultBandwidthMeter());*/
-
-        // OPTION 2 PLAY LINK REDIRECT
         // Default parameters, except allowCrossProtocolRedirects is true
-        this.manifestDataSourceFactory =
-                new DefaultHttpDataSourceFactory(userAgent, null /* listener */,
-                        DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
-                        DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
-                        true /* allowCrossProtocolRedirects */);
+        this.manifestDataSourceFactory = buildHttpDataSourceFactory();
         this.mediaDataSourceFactory =
                 new DefaultDataSourceFactory(context, null /* listener */, manifestDataSourceFactory);
         //SETUP OTHER
         this.imageView = uzVideo.getIvThumbnail();
         this.uzTimeBar = uzVideo.getUZTimeBar();
         this.thumbnailsUrl = thumbnailsUrl;
+    }
+
+    /**
+     * Returns a {@link HttpDataSource.Factory}.
+     */
+    public HttpDataSource.Factory buildHttpDataSourceFactory() {
+        return new DefaultHttpDataSourceFactory(userAgent, null, DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+                DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, true);
     }
 
     public void init(@NonNull UZVideoView uzVideo) {
@@ -465,8 +456,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                                                                                      String[] keyRequestPropertiesArray, boolean multiSession)
             throws UnsupportedDrmException {
 
-        HttpDataSource.Factory licenseDataSourceFactory = buildHttpDataSourceFactory();
-        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
+        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl, manifestDataSourceFactory);
         if (keyRequestPropertiesArray != null) {
             for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
                 drmCallback.setKeyRequestProperty(keyRequestPropertiesArray[i],
@@ -475,10 +465,6 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         }
         return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null,
                 multiSession);
-    }
-
-    private HttpDataSource.Factory buildHttpDataSourceFactory() {
-        return new DefaultHttpDataSourceFactory(userAgent);
     }
 
     abstract void initSource();
