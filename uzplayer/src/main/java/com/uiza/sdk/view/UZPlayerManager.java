@@ -25,6 +25,8 @@ import com.uiza.sdk.utils.UZAppUtils;
 
 import java.util.Objects;
 
+import timber.log.Timber;
+
 /**
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
  */
@@ -192,6 +194,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     public void release() {
         super.release();
         if (adsLoader != null) {
+            adsLoader.removeCallback(uzVideoAdPlayerListener);
             adsLoader.setPlayer(null);
             adsLoader.release();
             adsLoader = null;
@@ -199,7 +202,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             try {
                 Objects.requireNonNull(uzVideoView.getPlayerView().getOverlayFrameLayout()).removeAllViews();
             } catch (NullPointerException e) {
-                // Nothing
+                Timber.e(e);
             }
         }
     }
