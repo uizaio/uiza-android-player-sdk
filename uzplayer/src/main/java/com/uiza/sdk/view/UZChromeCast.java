@@ -9,6 +9,7 @@ import com.google.android.gms.cast.framework.CastContext;
 import com.google.android.gms.cast.framework.CastState;
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.exceptions.ErrorConstant;
+import com.uiza.sdk.listerner.UZChromeCastListener;
 import com.uiza.sdk.utils.UZAppUtils;
 import com.uiza.sdk.utils.UZData;
 import com.uiza.sdk.utils.UZViewUtils;
@@ -90,15 +91,7 @@ public class UZChromeCast {
             uzMediaRouteButton.post(() -> uzMediaRouteButton.applyTint(color));
     }
 
-    UZMediaRouteButton getUZMediaRouteButton() {
+    UZMediaRouteButton getMediaRouteButton() {
         return uzMediaRouteButton;
-    }
-
-    public interface UZChromeCastListener {
-        void onConnected();
-
-        void onDisconnected();
-
-        void addUIChromecast();
     }
 }

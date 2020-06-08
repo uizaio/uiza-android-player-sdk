@@ -74,6 +74,7 @@ import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
+import com.uiza.sdk.listerner.UZChromeCastListener;
 import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
 import com.uiza.sdk.models.UZPlayback;
@@ -127,8 +128,12 @@ public class UZVideoView extends RelativeLayout
     private static final long DEFAULT_VALUE_TRACKING_LOOP = 5000L;  // 5s
 
     //===================================================================START FOR PLAYLIST/FOLDER
-    protected MetadataOutput metadataOutput;
-    protected TextOutput textOutput;
+    private VideoListener videoListener;
+    private AudioListener audioListener;
+    private Player.EventListener eventListener;
+    private MetadataOutput metadataOutput;
+    private TextOutput textOutput;
+
     private Handler handler = new Handler(Looper.getMainLooper());
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
@@ -147,6 +152,7 @@ public class UZVideoView extends RelativeLayout
     private TextView tvEndScreenMsg;
     private UZPlayerView playerView;
     private long startTime = -1;
+    private long defaultSeekValue = DEFAULT_VALUE_BACKWARD_FORWARD;
     private boolean timeBarAtBottom;
     private UZChromeCast uzChromeCast;
     private boolean isCastingChromecast = false;
@@ -849,16 +855,16 @@ public class UZVideoView extends RelativeLayout
             if (isCastingChromecast) {
                 Casty casty = UZData.getInstance().getCasty();
                 if (casty != null)
-                    casty.getPlayer().seekToForward(DEFAULT_VALUE_BACKWARD_FORWARD);
+                    casty.getPlayer().seekToForward(defaultSeekValue);
             } else if (playerManager != null)
-                playerManager.seekToForward(DEFAULT_VALUE_BACKWARD_FORWARD);
+                playerManager.seekToForward(defaultSeekValue);
         } else if (v == ibRewIcon) {
             if (isCastingChromecast) {
                 Casty casty = UZData.getInstance().getCasty();
                 if (casty != null)
-                    casty.getPlayer().seekToBackward(DEFAULT_VALUE_BACKWARD_FORWARD);
+                    casty.getPlayer().seekToBackward(defaultSeekValue);
             } else if (playerManager != null) {
-                playerManager.seekToBackward(DEFAULT_VALUE_BACKWARD_FORWARD);
+                playerManager.seekToBackward(defaultSeekValue);
                 if (isPlaying()) {
                     isOnPlayerEnded = false;
                     updateUIEndScreen();
@@ -1095,8 +1101,8 @@ public class UZVideoView extends RelativeLayout
                 if (ibVolumeIcon != null)
                     ibVolumeIcon.setImageResource(isMute ? R.drawable.ic_volume_off_white_24 : R.drawable.ic_volume_up_white_24);
             }
-        } else if (playerManager != null)
-            playerManager.toggleVolumeMute(ibVolumeIcon);
+        }
+        toggleVolumeMute();
     }
 
     private void handleClickBackScreen() {
@@ -1128,6 +1134,7 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void setDefaultSeekValue(int mls) {
+        defaultSeekValue = mls;
     }
 
     /*
@@ -1396,8 +1403,29 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void setVolume(float volume) {
-        if (playerManager != null)
-            playerManager.setVolume(volume);
+        if (playerManager == null) return;
+        playerManager.setVolume(volume);
+        if (ibVolumeIcon != null) {
+            if (playerManager.getVolume() != 0f) {
+                ibVolumeIcon.setSrcDrawableEnabled();
+            } else {
+                ibVolumeIcon.setSrcDrawableDisabledCanTouch();
+            }
+        }
+    }
+
+    private float volumeToggle;
+
+    public void toggleVolumeMute() {
+        if (playerManager == null) return;
+        if (playerManager.getVolume() == 0f) {
+            setVolume(volumeToggle);
+            ibVolumeIcon.setSrcDrawableEnabled();
+        } else {
+            volumeToggle = getVolume();
+            setVolume(0f);
+            ibVolumeIcon.setSrcDrawableDisabledCanTouch();
+        }
     }
 
     @Override
@@ -1707,7 +1735,7 @@ public class UZVideoView extends RelativeLayout
 
     private void setupChromeCast() {
         uzChromeCast = new UZChromeCast();
-        uzChromeCast.setUZChromeCastListener(new UZChromeCast.UZChromeCastListener() {
+        uzChromeCast.setUZChromeCastListener(new UZChromeCastListener() {
             @Override
             public void onConnected() {
                 if (playerManager != null)
@@ -1723,7 +1751,7 @@ public class UZVideoView extends RelativeLayout
             @Override
             public void addUIChromecast() {
                 if (llTop != null)
-                    llTop.addView(uzChromeCast.getUZMediaRouteButton());
+                    llTop.addView(uzChromeCast.getMediaRouteButton());
                 addUIChromecastLayer();
             }
         });
@@ -2070,7 +2098,7 @@ public class UZVideoView extends RelativeLayout
     /**
      * @param uzLiveContentCallback
      */
-    public void setUZLiveContentCallback(UZLiveContentCallback uzLiveContentCallback) {
+    public void setLiveContentCallback(UZLiveContentCallback uzLiveContentCallback) {
         this.uzLiveContentCallback = uzLiveContentCallback;
     }
 
@@ -2081,8 +2109,8 @@ public class UZVideoView extends RelativeLayout
         this.uzCallback = uzCallback;
     }
 
-    public void setUizaTVFocusChangeListener(UZTVFocusChangeListener uizaTVFocusChangeListener) {
-        this.uzTVFocusChangeListener = uizaTVFocusChangeListener;
+    public void setTVFocusChangeListener(UZTVFocusChangeListener uzTVFocusChangeListener) {
+        this.uzTVFocusChangeListener = uzTVFocusChangeListener;
         handleFirstViewHasFocus();
     }
 
@@ -2125,29 +2153,43 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void setAudioListener(AudioListener audioListener) {
-        if (playerManager != null) {
-            playerManager.setAudioListener(audioListener);
-        }
+        this.audioListener = audioListener;
     }
 
-    public void setPlayerEventListener(Player.EventListener eventListener) {
-        if (playerManager != null) {
-            playerManager.setEventListener(eventListener);
-        }
+    public AudioListener getAudioListener() {
+        return audioListener;
+    }
+
+    public void setEventListener(Player.EventListener eventListener) {
+        this.eventListener = eventListener;
+    }
+
+    public Player.EventListener getEventListener() {
+        return eventListener;
     }
 
     public void setVideoListener(VideoListener videoListener) {
-        if (playerManager != null) {
-            playerManager.setVideoListener(videoListener);
-        }
+        this.videoListener = videoListener;
+    }
+
+    public VideoListener getVideoListener() {
+        return videoListener;
     }
 
     public void setMetadataOutput(MetadataOutput metadataOutput) {
         this.metadataOutput = metadataOutput;
     }
 
+    public MetadataOutput getMetadataOutput() {
+        return metadataOutput;
+    }
+
     public void setTextOutput(TextOutput textOutput) {
         this.textOutput = textOutput;
+    }
+
+    public TextOutput getTextOutput() {
+        return textOutput;
     }
 
     private void checkData() {
@@ -2407,7 +2449,7 @@ public class UZVideoView extends RelativeLayout
             return;
         if (isCastingChromecast) {
             playerManager.pause();
-            playerManager.setVolume(0f);
+            setVolume(0f);
             UZViewUtils.visibleViews(rlChromeCast, ibPlayIcon);
             UZViewUtils.goneViews(ibPauseIcon);
             //casting player luôn play first với volume not mute
@@ -2416,12 +2458,11 @@ public class UZVideoView extends RelativeLayout
                 playerView.setControllerShowTimeoutMs(0);
         } else {
             playerManager.resume();
-            playerManager.setVolume(0.99f);
+            setVolume(0.99f);
             UZViewUtils.goneViews(rlChromeCast, ibPlayIcon);
             UZViewUtils.visibleViews(ibPauseIcon);
             //TODO iplm volume mute on/off o cast player
             //khi quay lại exoplayer từ cast player thì mặc định sẽ bật lại âm thanh (dù cast player đang mute hay !mute)
-            //uzPlayerManager.setVolume(0.99f)
             if (playerView != null)
                 playerView.setControllerShowTimeoutMs(DEFAULT_VALUE_CONTROLLER_TIMEOUT_MLS);
         }

@@ -18,16 +18,12 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.metadata.Metadata;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -38,8 +34,6 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -62,7 +56,6 @@ import com.uiza.sdk.utils.ListUtils;
 import com.uiza.sdk.utils.StringUtils;
 import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
-import com.uiza.sdk.widget.UZImageButton;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
 
 import java.util.List;
@@ -93,9 +86,9 @@ abstract class AbstractPlayerManager {
     long contentPosition;
     private long targetDurationMls = DEFAULT_TARGET_DURATION_MLS;
     protected SimpleExoPlayer player;
-    protected Player.EventListener eventListener;
-    protected AudioListener audioListener;
-    protected VideoListener videoListener;
+    private UZPlayerEventListener uzPlayerEventListener;
+    private UZVideoEventListener uzVideoEventListener;
+
     protected Handler handler;
     Runnable runnable;
     UZProgressListener progressListener;
@@ -116,7 +109,6 @@ abstract class AbstractPlayerManager {
     private int bufferPercentage;
     private int videoWidth;
     private int videoHeight;
-    private float volumeToggle;
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
 
@@ -172,25 +164,13 @@ abstract class AbstractPlayerManager {
     }
 
     public void release() {
-        if (isPlayerValid()) {
+        if (player != null) {
+            removeListeners();
             player.release();
             player = null;
             handler = null;
             runnable = null;
         }
-    }
-
-
-    public void setEventListener(Player.EventListener eventListener) {
-        this.eventListener = eventListener;
-    }
-
-    public void setVideoListener(VideoListener videoListener) {
-        this.videoListener = videoListener;
-    }
-
-    public void setAudioListener(AudioListener audioListener) {
-        this.audioListener = audioListener;
     }
 
     DefaultTrackSelector getTrackSelector() {
@@ -214,7 +194,7 @@ abstract class AbstractPlayerManager {
     }
 
     void pause() {
-        if (!isPlayerValid()) return;
+        if (player == null) return;
         setPlayWhenReady(false);
         if (isCanAddViewWatchTime) {
             long durationWatched = System.currentTimeMillis() - timestampPlayed;
@@ -224,7 +204,7 @@ abstract class AbstractPlayerManager {
     }
 
     protected void reset() {
-        if (!isPlayerValid()) return;
+        if (player == null) return;
         contentPosition = player.getContentPosition();
         player.release();
         player = null;
@@ -254,10 +234,6 @@ abstract class AbstractPlayerManager {
         return exoPlaybackException;
     }
 
-    private boolean isPlayerValid() {
-        return player != null;
-    }
-
     int getVideoWidth() {
         return videoWidth;
     }
@@ -266,42 +242,22 @@ abstract class AbstractPlayerManager {
         return videoHeight;
     }
 
-    void toggleVolumeMute(UZImageButton exoVolume) {
-        if (!isPlayerValid() || exoVolume == null) return;
-        if (getVolume() == 0f) {
-            setVolume(volumeToggle);
-            exoVolume.setSrcDrawableEnabled();
-        } else {
-            volumeToggle = getVolume();
-            setVolume(0f);
-            exoVolume.setSrcDrawableDisabledCanTouch();
-        }
-    }
-
     float getVolume() {
-        return isPlayerValid() ? player.getVolume() : -1;
+        return player != null ? player.getVolume() : -1;
     }
 
     void setVolume(float volume) {
-        if (!isPlayerValid()) return;
-        player.setVolume(volume);
-        if (uzVideoView == null) return;
-        if (uzVideoView.getIbVolumeIcon() != null) {
-            if (getVolume() != 0f) {
-                uzVideoView.getIbVolumeIcon().setSrcDrawableEnabled();
-            } else {
-                uzVideoView.getIbVolumeIcon().setSrcDrawableDisabledCanTouch();
-            }
-        }
+        if (player != null)
+            player.setVolume(volume);
     }
 
     void setPlayWhenReady(boolean ready) {
-        if (isPlayerValid())
+        if (player != null)
             player.setPlayWhenReady(ready);
     }
 
     boolean seekTo(long positionMs) {
-        if (isPlayerValid()) {
+        if (player != null) {
             player.seekTo(positionMs);
             return true;
         }
@@ -310,13 +266,13 @@ abstract class AbstractPlayerManager {
 
     //forward  10000mls
     void seekToForward(long forward) {
-        if (isPlayerValid())
+        if (player != null)
             player.seekTo(Math.min(player.getCurrentPosition() + forward, player.getDuration()));
     }
 
     //next 10000mls
     void seekToBackward(long backward) {
-        if (isPlayerValid()) {
+        if (player != null) {
             if (player.getCurrentPosition() - backward > 0)
                 player.seekTo(player.getCurrentPosition() - backward);
             else
@@ -325,19 +281,19 @@ abstract class AbstractPlayerManager {
     }
 
     long getCurrentPosition() {
-        return isPlayerValid() ? player.getCurrentPosition() : 0;
+        return player != null ? player.getCurrentPosition() : 0;
     }
 
     private long getDuration() {
-        return isPlayerValid() ? player.getDuration() : 0;
+        return player != null ? player.getDuration() : 0;
     }
 
     protected boolean isVOD() {
-        return isPlayerValid() && !player.isCurrentWindowDynamic();
+        return player != null && !player.isCurrentWindowDynamic();
     }
 
     protected boolean isLIVE() {
-        return isPlayerValid() && player.isCurrentWindowDynamic();
+        return player != null && player.isCurrentWindowDynamic();
     }
 
     protected String getDebugString() {
@@ -348,7 +304,7 @@ abstract class AbstractPlayerManager {
      * Returns a string containing player state debugging information.
      */
     private String getPlayerStateString() {
-        if (!isPlayerValid()) return null;
+        if (player == null) return null;
         String playbackStateString;
         switch (player.getPlaybackState()) {
             case Player.STATE_BUFFERING:
@@ -374,7 +330,7 @@ abstract class AbstractPlayerManager {
      * Returns a string containing video debugging information.
      */
     private String getVideoString() {
-        if (!isPlayerValid()) return null;
+        if (player == null) return null;
         Format format = player.getVideoFormat();
         if (format == null) return null;
         return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
@@ -383,14 +339,14 @@ abstract class AbstractPlayerManager {
     }
 
     int getVideoProfileW() {
-        if (!isPlayerValid()) return 0;
+        if (player == null) return 0;
         Format format = player.getVideoFormat();
         if (format == null) return 0;
         return format.width;
     }
 
     int getVideoProfileH() {
-        if (!isPlayerValid()) return 0;
+        if (player == null) return 0;
         Format format = player.getVideoFormat();
         if (format == null) return 0;
         return format.height;
@@ -444,7 +400,7 @@ abstract class AbstractPlayerManager {
     }
 
     void handleVideoProgress() {
-        if (progressListener != null && isPlayerValid()) {
+        if (progressListener != null && player != null) {
             mls = getCurrentPosition();
             duration = getDuration();
             mls = Math.min(mls, duration);
@@ -500,12 +456,50 @@ abstract class AbstractPlayerManager {
         return drmSessionManager;
     }
 
-    void addPlayerListener() {
-        player.addListener(new UZPlayerEventListener());
-        player.addAudioListener(new UZAudioEventListener());
-        player.addVideoListener(new UZVideoEventListener());
-        player.addMetadataOutput(new UZMetadataOutputListener());
-        player.addTextOutput(new UZTextOutputListener());
+    void initPlayerListeners() {
+        if (uzPlayerEventListener == null) {
+            uzPlayerEventListener = new UZPlayerEventListener();
+            player.addListener(uzPlayerEventListener);
+        }
+        if (uzVideoEventListener == null) {
+            uzVideoEventListener = new UZVideoEventListener();
+            player.addVideoListener(uzVideoEventListener);
+        }
+        if (uzVideoView != null && uzVideoView.getVideoListener() != null) {
+            player.addVideoListener(uzVideoView.getVideoListener());
+        }
+        if (uzVideoView != null && uzVideoView.getMetadataOutput() != null) {
+            player.addMetadataOutput(uzVideoView.getMetadataOutput());
+        }
+        if (uzVideoView != null && uzVideoView.getTextOutput() != null) {
+            player.addTextOutput(uzVideoView.getTextOutput());
+        }
+        if (uzVideoView != null && uzVideoView.getAudioListener() != null) {
+            player.addAudioListener(uzVideoView.getAudioListener());
+        }
+    }
+
+    private void removeListeners() {
+        if (uzPlayerEventListener != null) {
+            player.removeListener(uzPlayerEventListener);
+            uzPlayerEventListener = null;
+        }
+        if (uzVideoEventListener != null) {
+            player.removeVideoListener(uzVideoEventListener);
+            uzVideoEventListener = null;
+        }
+        if (uzVideoView != null && uzVideoView.getVideoListener() != null) {
+            player.removeVideoListener(uzVideoView.getVideoListener());
+        }
+        if (uzVideoView != null && uzVideoView.getMetadataOutput() != null) {
+            player.removeMetadataOutput(uzVideoView.getMetadataOutput());
+        }
+        if (uzVideoView != null && uzVideoView.getTextOutput() != null) {
+            player.removeTextOutput(uzVideoView.getTextOutput());
+        }
+        if (uzVideoView != null && uzVideoView.getAudioListener() != null) {
+            player.removeAudioListener(uzVideoView.getAudioListener());
+        }
     }
 
     private void onFirstStateReady() {
@@ -535,27 +529,8 @@ abstract class AbstractPlayerManager {
         return targetDurationMls;
     }
 
-    class UZAudioEventListener implements AudioListener {
-        @Override
-        public void onAudioSessionId(int audioSessionId) {
-            if (audioListener != null)
-                audioListener.onAudioSessionId(audioSessionId);
-        }
+    private class UZVideoEventListener implements VideoListener {
 
-        @Override
-        public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-            if (audioListener != null)
-                audioListener.onAudioAttributesChanged(audioAttributes);
-        }
-
-        @Override
-        public void onVolumeChanged(float volume) {
-            if (audioListener != null)
-                audioListener.onVolumeChanged(volume);
-        }
-    }
-
-    class UZVideoEventListener implements VideoListener {
         //This is called when the video size changes
         @Override
         public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
@@ -564,47 +539,25 @@ abstract class AbstractPlayerManager {
             videoHeight = height;
             TmpParamData.getInstance().setEntitySourceWidth(width);
             TmpParamData.getInstance().setEntitySourceHeight(height);
-            if (videoListener != null)
-                videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
-                        pixelWidthHeightRatio);
-        }
-
-        @Override
-        public void onSurfaceSizeChanged(int width, int height) {
-            if (videoListener != null)
-                videoListener.onSurfaceSizeChanged(width, height);
         }
 
         //This is called when first frame is rendered
         @Override
         public void onRenderedFirstFrame() {
             exoPlaybackException = null;
-            if (videoListener != null)
-                videoListener.onRenderedFirstFrame();
         }
     }
 
-    class UZMetadataOutputListener implements MetadataOutput {
-
-        //This is called when there is metadata associated with current playback time
-        @Override
-        public void onMetadata(@NonNull Metadata metadata) {
-            if (uzVideoView != null && uzVideoView.metadataOutput != null)
-                uzVideoView.metadataOutput.onMetadata(metadata);
-        }
-    }
-
-    class UZTextOutputListener implements TextOutput {
-
-        @Override
-        public void onCues(@NonNull List<Cue> cues) {
-            if (uzVideoView != null && uzVideoView.textOutput != null)
-                uzVideoView.textOutput.onCues(cues);
-        }
-    }
-
-    class UZPlayerEventListener implements Player.EventListener {
+    private class UZPlayerEventListener implements Player.EventListener {
         private long timestampReBufferStart;
+        private final Player.EventListener eventListener;
+
+        UZPlayerEventListener() {
+            if (uzVideoView != null)
+                eventListener = uzVideoView.getEventListener();
+            else
+                eventListener = null;
+        }
 
         //This is called when the current playlist changes
         @Override

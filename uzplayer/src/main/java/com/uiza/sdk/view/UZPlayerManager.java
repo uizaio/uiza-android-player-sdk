@@ -129,7 +129,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         uzVideoView.getPlayerView().setPlayer(player);
         MediaSource mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
         // Compose the content media source into a new AdsMediaSource with both ads and content.
-        addPlayerListener();
+        initPlayerListeners();
         if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
             MediaSource mediaSourceWithAds = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
             if (adsLoader != null) {
