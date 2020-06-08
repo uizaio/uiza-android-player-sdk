@@ -27,7 +27,6 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -309,7 +308,7 @@ public class UZViewUtils {
     }
 
     public static void showDialog(@NonNull Dialog dialog) {
-        boolean isFullScreen = UZViewUtils.isFullScreen(dialog.getContext());
+        boolean isFullScreen = isFullScreen(dialog.getContext());
         Window window = dialog.getWindow();
         if (window == null) return;
         if (isFullScreen) {

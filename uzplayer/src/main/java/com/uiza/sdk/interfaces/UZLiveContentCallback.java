@@ -1,9 +1,12 @@
 package com.uiza.sdk.interfaces;
 
 public interface UZLiveContentCallback {
-    void onUpdateLiveInfoTimeStartLive(long duration, String hhmmss);
+    default void onUpdateLiveInfoTimeStartLive(long duration, String hhmmss) {
+    }
 
-    void onUpdateLiveInfoCurrentView(long watchnow);
+    default void onUpdateLiveInfoCurrentView(long watchNow) {
+    }
 
-    void onLiveStreamUnAvailable();
+    default void onLiveStreamUnAvailable() {
+    }
 }

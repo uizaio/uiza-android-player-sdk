@@ -19,7 +19,7 @@ class UZLoadControl extends DefaultLoadControl {
     private static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 10000;
 
 
-    UZLoadControl(){
+    UZLoadControl() {
         super(new DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
                 /* minBufferAudioMs= */ DEFAULT_MIN_BUFFER_MS,
                 /* minBufferVideoMs= */ DEFAULT_MAX_BUFFER_MS,

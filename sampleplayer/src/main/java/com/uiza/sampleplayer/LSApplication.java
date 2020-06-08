@@ -26,5 +26,4 @@ public class LSApplication extends MultiDexApplication {
         UZPlayer.init(this);
         UZApi.init(this,"SamplePlayer", BuildConfig.VERSION_NAME);
     }
-
 }

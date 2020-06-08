@@ -109,10 +109,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     }
 
     @Override
-    public void onSkinChange() {
-    }
-
-    @Override
     public void onScreenRotate(boolean isLandscape) {
         if (!isLandscape) {
             int w = UZViewUtils.getScreenWidth();
@@ -120,10 +116,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
             uzVideo.setFreeSize(false);
             uzVideo.setSize(w, h);
         }
-    }
-
-    @Override
-    public void onError(UZException e) {
     }
 
     @Override

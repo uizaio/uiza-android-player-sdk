@@ -18,7 +18,6 @@ import java.util.List;
 import timber.log.Timber;
 
 public class UZToast {
-    private final static String TAG = UZToast.class.getSimpleName();
     private static List<Toast> toastList = new ArrayList<>();
 
     private UZToast() {

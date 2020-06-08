@@ -16,7 +16,8 @@ public class UZPlaybackInfo implements Serializable {
     @JsonProperty("entity_source")
     private String entitySource;
 
-    public UZPlaybackInfo() {}
+    public UZPlaybackInfo() {
+    }
 
     public UZPlaybackInfo(String appId, String entityId, String entitySource) {
         this.appId = appId;

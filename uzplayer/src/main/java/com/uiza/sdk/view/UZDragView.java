@@ -151,11 +151,6 @@ public class UZDragView extends LinearLayout {
                 mViewDragHelper.settleCapturedViewAt(mAutoBackViewX, mAutoBackViewY);
             invalidate();
         }
-
-        @Override
-        public void onEdgeDragStarted(int edgeFlags, int pointerId) {
-        }
-
     };
 
     public UZDragView(@NonNull Context context) {
@@ -499,19 +494,26 @@ public class UZDragView extends LinearLayout {
     public enum Part {TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT}
 
     public interface Callback {
-        void onViewSizeChange(boolean isMaximizeView);
+        default void onViewSizeChange(boolean isMaximizeView) {
+        }
 
-        void onStateChange(State state);
+        default void onStateChange(State state) {
+        }
 
-        void onPartChange(Part part);
+        default void onPartChange(Part part) {
+        }
 
-        void onViewPositionChanged(int left, int top, float dragOffset);
+        default void onViewPositionChanged(int left, int top, float dragOffset) {
+        }
 
-        void onOverScroll(State state, Part part);
+        default void onOverScroll(State state, Part part) {
+        }
 
-        void onEnableRevertMaxSize(boolean isEnableRevertMaxSize);
+        default void onEnableRevertMaxSize(boolean isEnableRevertMaxSize) {
+        }
 
-        void onAppear(boolean isAppear);
+        default void onAppear(boolean isAppear) {
+        }
     }
 
     private class UZGestureListener extends GestureDetector.SimpleOnGestureListener {

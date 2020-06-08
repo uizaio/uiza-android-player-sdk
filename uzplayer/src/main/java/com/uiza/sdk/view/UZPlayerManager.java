@@ -16,15 +16,11 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
 
-import java.lang.reflect.Constructor;
 import java.util.Objects;
-
-import timber.log.Timber;
 
 /**
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
@@ -38,8 +34,45 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private UZAdPlayerCallback uzAdPlayerCallback;
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
 
-    UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl) {
-        super(uzVideo, linkPlay, thumbnailsUrl);
+    public static class Builder {
+        private UZVideoView view;
+        private String playUrl;
+        private String imaAdUrl;
+        private String thumbnailsUrl;
+        private String drmScheme;
+
+        public Builder(UZVideoView view) {
+            this.view = view;
+        }
+
+        public Builder withPlayUrl(String playUrl) {
+            this.playUrl = playUrl;
+            return this;
+        }
+
+        public Builder withIMAAdUrl(String imaAdUrl) {
+            this.imaAdUrl = imaAdUrl;
+            return this;
+        }
+
+        public Builder withThumbnailsUrl(String thumbnailsUrl) {
+            this.thumbnailsUrl = thumbnailsUrl;
+            return this;
+        }
+
+        public Builder withDrmScheme(String drmScheme) {
+            this.drmScheme = drmScheme;
+            return this;
+        }
+
+        public UZPlayerManager build() {
+            return new UZPlayerManager(view, playUrl, imaAdUrl, thumbnailsUrl, drmScheme);
+        }
+    }
+
+
+    private UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl, String drmSchema) {
+        super(uzVideo, linkPlay, thumbnailsUrl, drmSchema);
         this.urlIMAAd = urlIMAAd;
         setRunnable();
     }
@@ -61,7 +94,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideoView == null || uzVideoView.getUZPlayerView() == null)
+            if (uzVideoView == null || uzVideoView.getPlayerView() == null)
                 return;
             if (uzVideoAdPlayerListener.isEnded())
                 onAdEnded();
@@ -93,14 +126,10 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     @Override
     void initSource() {
         isOnAdEnded = false;
-        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager(drmScheme);
-        if (drmScheme != null && drmSessionManager == null) return;
-
+        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager();
+        if (this.drmScheme != null && drmSessionManager == null) return;
         player = buildPlayer(drmSessionManager);
-        playerHelper = new UZPlayerHelper(player);
-
-        uzVideoView.getUZPlayerView().setPlayer(player);
-
+        uzVideoView.getPlayerView().setPlayer(player);
         MediaSource mediaSourceVideo = createMediaSourceVideo();
         // merge ads to media source subtitle
         // Compose the content media source into a new AdsMediaSource with both ads and content.
@@ -132,6 +161,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             adsLoader = new ImaAdsLoader(context, adTagUri);
         }
         AdsMediaSource.MediaSourceFactory adMediaSourceFactory = new AdsMediaSource.MediaSourceFactory() {
+
             @Override
             public MediaSource createMediaSource(Uri uri) {
                 return buildMediaSource(uri);
@@ -143,7 +173,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             }
         };
         return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader,
-                uzVideoView.getUZPlayerView());
+                uzVideoView.getPlayerView());
 
     }
 
@@ -164,14 +194,14 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             adsLoader = null;
             urlIMAAd = null;
             try {
-                Objects.requireNonNull(uzVideoView.getUZPlayerView().getOverlayFrameLayout()).removeAllViews();
+                Objects.requireNonNull(uzVideoView.getPlayerView().getOverlayFrameLayout()).removeAllViews();
             } catch (NullPointerException e) {
                 // Nothing
             }
         }
     }
 
-    void addAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
+    void setAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
         this.uzAdPlayerCallback = uzAdPlayerCallback;
     }
 

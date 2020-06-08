@@ -5,19 +5,27 @@ package com.uiza.sdk.interfaces;
  * nguyen.thanh.minhb@framgia.com
  */
 public interface UZAdPlayerCallback {
-    void onPlay();
+    default void onPlay() {
+    }
 
-    void onVolumeChanged(int i);
+    default void onVolumeChanged(int i) {
+    }
 
-    void onPause();
+    default void onPause() {
+    }
 
-    void onLoaded();
+    default void onLoaded() {
+    }
 
-    void onResume();
+    default void onResume() {
+    }
 
-    void onEnded();
+    default void onEnded() {
+    }
 
-    void onError();
+    default void onError() {
+    }
 
-    void onBuffering();
+    default void onBuffering() {
+    }
 }

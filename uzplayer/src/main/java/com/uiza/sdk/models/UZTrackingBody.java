@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.uiza.sdk.BuildConfig;
 import com.uiza.sdk.analytics.UZAnalytic;
 import com.uiza.sdk.analytics.helps.JsonDateSerializer;
 import com.uiza.sdk.utils.JacksonUtils;

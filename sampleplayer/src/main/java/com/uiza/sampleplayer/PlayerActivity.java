@@ -168,10 +168,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     }
 
     @Override
-    public void onSkinChange() {
-    }
-
-    @Override
     public void onScreenRotate(boolean isLandscape) {
         if (!isLandscape) {
             int w = UZViewUtils.getScreenWidth();
@@ -220,26 +216,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private void updateUIRevertMaxChange(boolean isEnableRevertMaxSize) {
         if (isEnableRevertMaxSize && uzDragView.isAppear()) {
         }
-    }
-
-    @Override
-    public void onViewSizeChange(boolean isMaximizeView) {
-
-    }
-
-    @Override
-    public void onStateChange(UZDragView.State state) {
-
-    }
-
-    @Override
-    public void onPartChange(UZDragView.Part part) {
-
-    }
-
-    @Override
-    public void onViewPositionChanged(int left, int top, float dragOffset) {
-
     }
 
     @Override

@@ -35,6 +35,7 @@
 
 package com.uiza.sdk.widget.seekbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -79,13 +80,17 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         initialize(context, attrs, defStyle, 0);
     }
 
+    public UZVerticalSeekBar(Context context, AttributeSet attrs, int defStyle, int defStyleRes) {
+        super(context, attrs, defStyle);
+        initialize(context, attrs, defStyle, defStyleRes);
+    }
+
     private static boolean isValidRotationAngle(int angle) {
         return (angle == ROTATION_ANGLE_CW_90 || angle == ROTATION_ANGLE_CW_270);
     }
 
     private void initialize(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         ViewCompat.setLayoutDirection(this, ViewCompat.LAYOUT_DIRECTION_LTR);
-
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.UZVerticalSeekBar, defStyleAttr, defStyleRes);
             final int rotationAngle = a.getInteger(R.styleable.UZVerticalSeekBar_seekBarRotation, 0);
@@ -101,6 +106,7 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         super.setThumb(thumb);
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (useViewRotation()) {
@@ -114,7 +120,6 @@ public class UZVerticalSeekBar extends AppCompatSeekBar {
         if (!isEnabled()) {
             return false;
         }
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 setPressed(true);

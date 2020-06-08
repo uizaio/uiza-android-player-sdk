@@ -2,10 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
     <View
         android:layout_width="64dp"
         android:layout_height="8dp"
         android:layout_margin="@dimen/padding_3"
         android:background="@drawable/background_dragview"
-        android:layout_centerInParent="true"/>
+        android:layout_centerInParent="true" />
 </RelativeLayout>

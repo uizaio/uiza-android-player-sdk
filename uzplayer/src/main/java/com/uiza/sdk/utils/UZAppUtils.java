@@ -99,16 +99,6 @@ public class UZAppUtils {
         return false;
     }
 
-    //stop service pip FloatUizaVideoService
-//    public static void stopMiniPlayer(@NonNull Context context) {
-//        if (isMiniPlayerRunning(context))
-//            context.stopService(new Intent(context, UZFloatVideoService.class)); //stop service if running
-//    }
-//
-//    public static boolean isMiniPlayerRunning(@NonNull Context context) {
-//        return checkServiceRunning(context, UZFloatVideoService.class.getName());
-//    }
-
     public static boolean isTablet(@NonNull Context context) {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
@@ -150,11 +140,6 @@ public class UZAppUtils {
             Timber.e(context.getString(R.string.can_not_find_share_app));
         }
     }
-
-//    protected static void communicateContext(@NonNull Context context, String event) {
-//        if (isMiniPlayerRunning(context))
-//            CommunicateMng.postFromActivity(new CommunicateMng.MsgFromActivity(event));
-//    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static void moveTaskToFront(@NonNull Activity activity, boolean mIsRestoredToTop) {

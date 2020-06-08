@@ -3,9 +3,6 @@ package com.uiza.sdk.dialog.hq;
 import android.widget.CheckedTextView;
 
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ui.TrackNameProvider;
-
-import java.util.Locale;
 
 //https://www.image-engineering.de/library/technotes/991-separating-sd-hd-full-hd-4k-and-8k
 public class UZItem {

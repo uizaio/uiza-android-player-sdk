@@ -9,9 +9,6 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ui.TrackNameProvider;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -20,8 +17,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
-
-import timber.log.Timber;
 
 
 public final class StringUtils {

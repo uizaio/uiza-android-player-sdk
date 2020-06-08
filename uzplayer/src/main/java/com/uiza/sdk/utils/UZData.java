@@ -8,8 +8,8 @@ import androidx.annotation.Nullable;
 
 import com.uiza.sdk.R;
 import com.uiza.sdk.chromecast.Casty;
-import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZPlayback;
+import com.uiza.sdk.models.UZPlaybackInfo;
 
 import java.net.URL;
 import java.util.List;
@@ -84,7 +84,6 @@ public class UZData {
     public void setUrlIMAAd(String urlIMAAd) {
         this.urlIMAAd = urlIMAAd;
     }
-
 
     public void clear() {
         this.playback = null;

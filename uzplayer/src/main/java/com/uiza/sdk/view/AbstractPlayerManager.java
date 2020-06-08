@@ -15,6 +15,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -56,6 +57,7 @@ import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.ErrorUtils;
 import com.uiza.sdk.interfaces.DebugCallback;
 import com.uiza.sdk.listerner.UZBufferListener;
+import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.utils.ConnectivityUtils;
 import com.uiza.sdk.utils.Constants;
 import com.uiza.sdk.utils.ImageUtils;
@@ -68,6 +70,7 @@ import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import timber.log.Timber;
@@ -76,17 +79,26 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
     private static final long INVALID_PROGRAM_DATE_TIME = C.INDEX_UNSET;
-    protected final String TAG = "TAG" + getClass().getSimpleName();
+    private static final String PLAYER_STATE_FORMAT = "playWhenReady:%s playbackState:%s window:%s";
+    private static final String BUFFERING = "buffering";
+    private static final String ENDED = "ended";
+    private static final String IDLE = "idle";
+    private static final String READY = "ready";
+    private static final String UNKNOWN = "unknown";
+
     private final HttpDataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
     protected Context context;
     UZVideoView uzVideoView;
+    String drmScheme;
+    private String linkPlay;
+
     long contentPosition;
     protected SimpleExoPlayer player;
-    UZPlayerHelper playerHelper;
+    //    UZPlayerHelper playerHelper;
     protected Handler handler;
     Runnable runnable;
-    VideoViewBase.ProgressListener progressListener;
+    UZProgressListener progressListener;
     private UZBufferListener bufferCallback;
     private long mls = 0;
     protected long duration = 0;
@@ -94,8 +106,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     protected int s = 0;
     private DefaultTrackSelector trackSelector;
     private String userAgent;
-    String drmScheme;
-    private String linkPlay;
+
     private boolean isFirstStateReady;
     private UZPreviewTimeBar uzTimeBar;
     private String thumbnailsUrl;
@@ -110,22 +121,23 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
 
-    AbstractPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl) {
+    AbstractPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl, String drmScheme) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
         this.context = uzVideo.getContext();
         this.uzVideoView = uzVideo;
         this.linkPlay = linkPlay;
+        this.drmScheme = drmScheme;
         this.isFirstStateReady = false;
-        userAgent = UZAppUtils.getUserAgent(this.context);
+        this.userAgent = UZAppUtils.getUserAgent(this.context);
         // Default parameters, except allowCrossProtocolRedirects is true
         this.manifestDataSourceFactory = buildHttpDataSourceFactory();
         this.mediaDataSourceFactory =
                 new DefaultDataSourceFactory(context, null /* listener */, manifestDataSourceFactory);
         //SETUP OTHER
         this.imageView = uzVideo.getIvThumbnail();
-        this.uzTimeBar = uzVideo.getUZTimeBar();
+        this.uzTimeBar = uzVideo.getPreviewTimeBar();
         this.thumbnailsUrl = thumbnailsUrl;
     }
 
@@ -154,7 +166,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         return linkPlay;
     }
 
-    void setProgressListener(VideoViewBase.ProgressListener progressListener) {
+    void setProgressListener(UZProgressListener progressListener) {
         this.progressListener = progressListener;
     }
 
@@ -164,7 +176,8 @@ abstract class AbstractPlayerManager implements PreviewLoader {
 
     public void release() {
         if (isPlayerValid()) {
-            playerHelper.release();
+            player.release();
+            player = null;
             handler = null;
             runnable = null;
         }
@@ -209,8 +222,9 @@ abstract class AbstractPlayerManager implements PreviewLoader {
 
     protected void reset() {
         if (!isPlayerValid()) return;
-        contentPosition = playerHelper.getContentPosition();
-        playerHelper.release();
+        contentPosition = player.getContentPosition();
+        player.release();
+        player = null;
         handler = null;
         runnable = null;
     }
@@ -230,7 +244,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     }
 
     SimpleExoPlayer getPlayer() {
-        return playerHelper.getPlayer();
+        return player;
     }
 
     ExoPlaybackException getExoPlaybackException() {
@@ -238,7 +252,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     }
 
     private boolean isPlayerValid() {
-        return playerHelper != null && playerHelper.isPlayerValid();
+        return player != null;
     }
 
     int getVideoWidth() {
@@ -262,12 +276,12 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     }
 
     float getVolume() {
-        return playerHelper.getVolume();
+        return isPlayerValid() ? player.getVolume() : -1;
     }
 
     void setVolume(float volume) {
         if (!isPlayerValid()) return;
-        playerHelper.setVolume(volume);
+        player.setVolume(volume);
         if (uzVideoView == null) return;
         if (uzVideoView.getIbVolumeIcon() != null) {
             if (getVolume() != 0f) {
@@ -279,37 +293,48 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     }
 
     void setPlayWhenReady(boolean ready) {
-        playerHelper.setPlayWhenReady(ready);
+        if (isPlayerValid())
+            player.setPlayWhenReady(ready);
     }
 
     boolean seekTo(long positionMs) {
-        return playerHelper.seekTo(positionMs);
+        if (isPlayerValid()) {
+            player.seekTo(positionMs);
+            return true;
+        }
+        return false;
     }
 
     //forward  10000mls
     void seekToForward(long forward) {
-        playerHelper.seekToForward(forward);
+        if (isPlayerValid())
+            player.seekTo(Math.min(player.getCurrentPosition() + forward, player.getDuration()));
     }
 
     //next 10000mls
     void seekToBackward(long backward) {
-        playerHelper.seekToBackward(backward);
+        if (isPlayerValid()) {
+            if (player.getCurrentPosition() - backward > 0)
+                player.seekTo(player.getCurrentPosition() - backward);
+            else
+                player.seekTo(0);
+        }
     }
 
     long getCurrentPosition() {
-        return playerHelper.getCurrentPosition();
+        return isPlayerValid() ? player.getCurrentPosition() : 0;
     }
 
     private long getDuration() {
-        return playerHelper.getDuration();
+        return isPlayerValid() ? player.getDuration() : 0;
     }
 
     protected boolean isVOD() {
-        return playerHelper.isVOD();
+        return isPlayerValid() && !player.isCurrentWindowDynamic();
     }
 
     protected boolean isLIVE() {
-        return playerHelper.isLIVE();
+        return isPlayerValid() && player.isCurrentWindowDynamic();
     }
 
     protected String getDebugString() {
@@ -320,37 +345,81 @@ abstract class AbstractPlayerManager implements PreviewLoader {
      * Returns a string containing player state debugging information.
      */
     private String getPlayerStateString() {
-        return playerHelper.getPlayerStateString();
+        if (!isPlayerValid()) return null;
+        String playbackStateString;
+        switch (player.getPlaybackState()) {
+            case Player.STATE_BUFFERING:
+                playbackStateString = BUFFERING;
+                break;
+            case Player.STATE_ENDED:
+                playbackStateString = ENDED;
+                break;
+            case Player.STATE_IDLE:
+                playbackStateString = IDLE;
+                break;
+            case Player.STATE_READY:
+                playbackStateString = READY;
+                break;
+            default:
+                playbackStateString = UNKNOWN;
+                break;
+        }
+        return String.format(PLAYER_STATE_FORMAT, player.getPlayWhenReady(), playbackStateString, player.getCurrentWindowIndex());
     }
 
     /**
      * Returns a string containing video debugging information.
      */
     private String getVideoString() {
-        return playerHelper.getVideoString();
+        if (!isPlayerValid()) return null;
+        Format format = player.getVideoFormat();
+        if (format == null) return null;
+        return "\n" + format.sampleMimeType + "(id:" + format.id + " r:" + format.width + "x"
+                + format.height + getPixelAspectRatioString(format.pixelWidthHeightRatio)
+                + getDecoderCountersBufferCountString(player.getVideoDecoderCounters()) + ")";
     }
 
     int getVideoProfileW() {
-        return playerHelper.getVideoProfileW();
+        if (!isPlayerValid()) return 0;
+        Format format = player.getVideoFormat();
+        if (format == null) return 0;
+        return format.width;
     }
 
     int getVideoProfileH() {
-        return playerHelper.getVideoProfileH();
+        if (!isPlayerValid()) return 0;
+        Format format = player.getVideoFormat();
+        if (format == null) return 0;
+        return format.height;
     }
 
     /**
      * Returns a string containing audio debugging information.
      */
     private String getAudioString() {
-        return playerHelper.getAudioString();
+        if (player == null) return null;
+        Format format = player.getAudioFormat();
+        if (format == null) return null;
+        return "\n" + format.sampleMimeType
+                + "(id:" + format.id
+                + " hz:" + format.sampleRate
+                + " ch:" + format.channelCount
+                + getDecoderCountersBufferCountString(player.getAudioDecoderCounters()) + ")";
     }
 
     protected String getDecoderCountersBufferCountString(DecoderCounters counters) {
-        return playerHelper.getDecoderCountersBufferCountString(counters);
+        if (counters == null) return null;
+        counters.ensureUpdated();
+        return " sib:" + counters.skippedInputBufferCount
+                + " sb:" + counters.skippedOutputBufferCount
+                + " rb:" + counters.renderedOutputBufferCount
+                + " db:" + counters.droppedBufferCount
+                + " mcdb:" + counters.maxConsecutiveDroppedBufferCount
+                + " dk:" + counters.droppedToKeyframeCount;
     }
 
     protected String getPixelAspectRatioString(float pixelAspectRatio) {
-        return playerHelper.getPixelAspectRatioString(pixelAspectRatio);
+        return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? "" : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
     }
 
     MediaSource buildMediaSource(Uri uri) {
@@ -417,7 +486,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 }, drmSessionManager);
     }
 
-    DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager(String drmScheme) {
+    DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager() {
         DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
         if (!TextUtils.isEmpty(drmScheme)) {
             String drmLicenseUrl = Constants.DRM_LICENSE_URL;
