@@ -68,6 +68,10 @@ public class UZData {
         return playback;
     }
 
+    public String getThumbnailsUrl() {
+        return (playback != null) ? playback.getThumbnail() : null;
+    }
+
     public UZPlaybackInfo getPlaybackInfo() {
         return this.playbackInfo;
     }

@@ -7,15 +7,18 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
+import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
@@ -38,7 +41,6 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         private UZVideoView view;
         private String playUrl;
         private String imaAdUrl;
-        private String thumbnailsUrl;
         private String drmScheme;
 
         public Builder(UZVideoView view) {
@@ -55,24 +57,19 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             return this;
         }
 
-        public Builder withThumbnailsUrl(String thumbnailsUrl) {
-            this.thumbnailsUrl = thumbnailsUrl;
-            return this;
-        }
-
         public Builder withDrmScheme(String drmScheme) {
             this.drmScheme = drmScheme;
             return this;
         }
 
         public UZPlayerManager build() {
-            return new UZPlayerManager(view, playUrl, imaAdUrl, thumbnailsUrl, drmScheme);
+            return new UZPlayerManager(view, playUrl, imaAdUrl, drmScheme);
         }
     }
 
 
-    private UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String thumbnailsUrl, String drmSchema) {
-        super(uzVideo, linkPlay, thumbnailsUrl, drmSchema);
+    private UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String drmSchema) {
+        super(uzVideo, linkPlay, drmSchema);
         this.urlIMAAd = urlIMAAd;
         setRunnable();
     }
@@ -126,12 +123,11 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     @Override
     void initSource() {
         isOnAdEnded = false;
-        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = buildDrmSessionManager();
+        DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = buildDrmSessionManager();
         if (this.drmScheme != null && drmSessionManager == null) return;
-        player = buildPlayer(drmSessionManager);
+        player = buildPlayer();
         uzVideoView.getPlayerView().setPlayer(player);
-        MediaSource mediaSourceVideo = createMediaSourceVideo();
-        // merge ads to media source subtitle
+        MediaSource mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
         // Compose the content media source into a new AdsMediaSource with both ads and content.
         addPlayerListener();
         if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
@@ -160,11 +156,18 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         if (adsLoader == null) {
             adsLoader = new ImaAdsLoader(context, adTagUri);
         }
-        AdsMediaSource.MediaSourceFactory adMediaSourceFactory = new AdsMediaSource.MediaSourceFactory() {
+        MediaSourceFactory adMediaSourceFactory = new MediaSourceFactory() {
+            DrmSessionManager<?> drmSessionManager;
+
+            @Override
+            public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
+                this.drmSessionManager = drmSessionManager;
+                return this;
+            }
 
             @Override
             public MediaSource createMediaSource(Uri uri) {
-                return buildMediaSource(uri);
+                return buildMediaSource(uri, drmSessionManager);
             }
 
             @Override
@@ -210,49 +213,59 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         private boolean isEnded;
 
         @Override
-        public void onPlay() {
+        public void onPlay(AdMediaInfo mediaInfo) {
             isPlayingAd = true;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPlay();
         }
 
         @Override
-        public void onVolumeChanged(int i) {
+        public void onVolumeChanged(AdMediaInfo mediaInfo, int i) {
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onVolumeChanged(i);
         }
 
         @Override
-        public void onPause() {
+        public void onPause(AdMediaInfo mediaInfo) {
             isPlayingAd = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPause();
         }
 
         @Override
-        public void onLoaded() {
+        public void onAdProgress(AdMediaInfo adMediaInfo, VideoProgressUpdate videoProgressUpdate) {
+            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onAdProgress(videoProgressUpdate);
+        }
+
+        @Override
+        public void onLoaded(AdMediaInfo mediaInfo) {
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onLoaded();
         }
 
         @Override
-        public void onResume() {
+        public void onResume(AdMediaInfo mediaInfo) {
             isPlayingAd = true;
             isEnded = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onResume();
         }
 
         @Override
-        public void onEnded() {
+        public void onEnded(AdMediaInfo mediaInfo) {
             isPlayingAd = false;
             isEnded = true;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onEnded();
         }
 
         @Override
-        public void onError() {
+        public void onContentComplete() {
+            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onContentComplete();
+        }
+
+        @Override
+        public void onError(AdMediaInfo mediaInfo) {
             isPlayingAd = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onError();
         }
 
         @Override
-        public void onBuffering() {
+        public void onBuffering(AdMediaInfo mediaInfo) {
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onBuffering();
         }
 

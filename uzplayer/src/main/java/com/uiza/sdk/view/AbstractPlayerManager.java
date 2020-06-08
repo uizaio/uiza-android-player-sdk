@@ -7,14 +7,12 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -24,10 +22,10 @@ import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
-import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
-import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -60,14 +58,12 @@ import com.uiza.sdk.listerner.UZBufferListener;
 import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.utils.ConnectivityUtils;
 import com.uiza.sdk.utils.Constants;
-import com.uiza.sdk.utils.ImageUtils;
 import com.uiza.sdk.utils.ListUtils;
 import com.uiza.sdk.utils.StringUtils;
 import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
 import com.uiza.sdk.widget.UZImageButton;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
-import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 
 import java.util.List;
 import java.util.Locale;
@@ -75,7 +71,7 @@ import java.util.UUID;
 
 import timber.log.Timber;
 
-abstract class AbstractPlayerManager implements PreviewLoader {
+abstract class AbstractPlayerManager {
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
     private static final long INVALID_PROGRAM_DATE_TIME = C.INDEX_UNSET;
@@ -85,6 +81,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private static final String IDLE = "idle";
     private static final String READY = "ready";
     private static final String UNKNOWN = "unknown";
+    public static final long DEFAULT_TARGET_DURATION_MLS = 2000L; // 2s
 
     private final HttpDataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
@@ -94,11 +91,15 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private String linkPlay;
 
     long contentPosition;
+    private long targetDurationMls = DEFAULT_TARGET_DURATION_MLS;
     protected SimpleExoPlayer player;
-    //    UZPlayerHelper playerHelper;
+    protected Player.EventListener eventListener;
+    protected AudioListener audioListener;
+    protected VideoListener videoListener;
     protected Handler handler;
     Runnable runnable;
     UZProgressListener progressListener;
+
     private UZBufferListener bufferCallback;
     private long mls = 0;
     protected long duration = 0;
@@ -109,8 +110,6 @@ abstract class AbstractPlayerManager implements PreviewLoader {
 
     private boolean isFirstStateReady;
     private UZPreviewTimeBar uzTimeBar;
-    private String thumbnailsUrl;
-    private ImageView imageView;
     private boolean isCanAddViewWatchTime;
     private long timestampPlayed;
     private long bufferPosition;
@@ -121,7 +120,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
 
-    AbstractPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String thumbnailsUrl, String drmScheme) {
+    AbstractPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String drmScheme) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
@@ -136,9 +135,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         this.mediaDataSourceFactory =
                 new DefaultDataSourceFactory(context, null /* listener */, manifestDataSourceFactory);
         //SETUP OTHER
-        this.imageView = uzVideo.getIvThumbnail();
         this.uzTimeBar = uzVideo.getPreviewTimeBar();
-        this.thumbnailsUrl = thumbnailsUrl;
     }
 
     /**
@@ -183,11 +180,17 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         }
     }
 
-    public void loadPreview(long currentPosition, long max) {
-        if (!isPlayerValid()) return;
-        setPlayWhenReady(false);
-        if (thumbnailsUrl != null)
-            ImageUtils.loadThumbnail(imageView, thumbnailsUrl, currentPosition);
+
+    public void setEventListener(Player.EventListener eventListener) {
+        this.eventListener = eventListener;
+    }
+
+    public void setVideoListener(VideoListener videoListener) {
+        this.videoListener = videoListener;
+    }
+
+    public void setAudioListener(AudioListener audioListener) {
+        this.audioListener = audioListener;
     }
 
     DefaultTrackSelector getTrackSelector() {
@@ -422,19 +425,19 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? "" : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
     }
 
-    MediaSource buildMediaSource(Uri uri) {
+    MediaSource buildMediaSource(Uri uri, DrmSessionManager<?> drmSessionManager) {
         @C.ContentType int type = Util.inferContentType(uri);
         switch (type) {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                        manifestDataSourceFactory).createMediaSource(uri);
+                        manifestDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
             case C.TYPE_SS:
                 return new SsMediaSource.Factory(new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                        manifestDataSourceFactory).createMediaSource(uri);
+                        manifestDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
             case C.TYPE_HLS:
-                return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+                return new HlsMediaSource.Factory(mediaDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
             case C.TYPE_OTHER:
-                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
             default:
                 throw new IllegalStateException("Unsupported type: " + type);
         }
@@ -464,43 +467,35 @@ abstract class AbstractPlayerManager implements PreviewLoader {
             debugCallback.onUpdateButtonVisibilities();
     }
 
-    MediaSource createMediaSourceVideo() {
-        return buildMediaSource(Uri.parse(linkPlay));
+    MediaSource createMediaSourceVideo(DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager) {
+        return buildMediaSource(Uri.parse(linkPlay), drmSessionManager);
     }
 
-    SimpleExoPlayer buildPlayer(DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+    SimpleExoPlayer buildPlayer() {
         @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
                 DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
         DefaultRenderersFactory renderersFactory =
                 new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
-        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector,
-                new UZLoadControl() {
-                    @Override
-                    public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
-                        if (bufferCallback != null)
-                            bufferCallback.onBufferChanged(bufferedDurationUs, playbackSpeed);
-                        return super.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
-                    }
-                }, drmSessionManager);
+        trackSelector = new DefaultTrackSelector(context, videoTrackSelectionFactory);
+        SimpleExoPlayer.Builder builder = new SimpleExoPlayer.Builder(context, renderersFactory);
+        builder.setTrackSelector(trackSelector).setLoadControl(new UZLoadControl() {
+            @Override
+            public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
+                if (bufferCallback != null)
+                    bufferCallback.onBufferChanged(bufferedDurationUs, playbackSpeed);
+                return super.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
+            }
+        });
+        return builder.build();
     }
 
-    DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager() {
-        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
+    DefaultDrmSessionManager<ExoMediaCrypto> buildDrmSessionManager() {
+        DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = null;
         if (!TextUtils.isEmpty(drmScheme)) {
             String drmLicenseUrl = Constants.DRM_LICENSE_URL;
-            String errorStringId = "An unknown DRM error occurred";
-            try {
-                UUID drmSchemeUuid = Util.getDrmUuid(drmScheme);
-                drmSessionManager =
-                        buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl, null,
-                                false);
-            } catch (UnsupportedDrmException e) {
-                Timber.e(e, "UnsupportedDrmException");
-            }
-            if (drmSessionManager == null)
-                Timber.e("Error drmSessionManager: %s", errorStringId);
+            UUID drmSchemeUuid = Util.getDrmUuid(drmScheme);
+            drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl);
         }
         return drmSessionManager;
     }
@@ -521,19 +516,11 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         uzVideoView.removeVideoCover(false);
     }
 
-    private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl,
-                                                                                     String[] keyRequestPropertiesArray, boolean multiSession)
-            throws UnsupportedDrmException {
-
-        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl, manifestDataSourceFactory);
-        if (keyRequestPropertiesArray != null) {
-            for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
-                drmCallback.setKeyRequestProperty(keyRequestPropertiesArray[i],
-                        keyRequestPropertiesArray[i + 1]);
-            }
-        }
-        return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null,
-                multiSession);
+    private DefaultDrmSessionManager<ExoMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl) {
+        return new DefaultDrmSessionManager.Builder()
+                .setMultiSession(false)
+                .setUuidAndExoMediaDrmProvider(uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+                .build(new HttpMediaDrmCallback(licenseUrl, manifestDataSourceFactory));
     }
 
     abstract void initSource();
@@ -544,23 +531,27 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         return null; // template no support
     }
 
+    public long getTargetDurationMls() {
+        return targetDurationMls;
+    }
+
     class UZAudioEventListener implements AudioListener {
         @Override
         public void onAudioSessionId(int audioSessionId) {
-            if (uzVideoView != null && uzVideoView.audioListener != null)
-                uzVideoView.audioListener.onAudioSessionId(audioSessionId);
+            if (audioListener != null)
+                audioListener.onAudioSessionId(audioSessionId);
         }
 
         @Override
         public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-            if (uzVideoView != null && uzVideoView.audioListener != null)
-                uzVideoView.audioListener.onAudioAttributesChanged(audioAttributes);
+            if (audioListener != null)
+                audioListener.onAudioAttributesChanged(audioAttributes);
         }
 
         @Override
         public void onVolumeChanged(float volume) {
-            if (uzVideoView != null && uzVideoView.audioListener != null)
-                uzVideoView.audioListener.onVolumeChanged(volume);
+            if (audioListener != null)
+                audioListener.onVolumeChanged(volume);
         }
     }
 
@@ -573,23 +564,23 @@ abstract class AbstractPlayerManager implements PreviewLoader {
             videoHeight = height;
             TmpParamData.getInstance().setEntitySourceWidth(width);
             TmpParamData.getInstance().setEntitySourceHeight(height);
-            if (uzVideoView != null && uzVideoView.videoListener != null)
-                uzVideoView.videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
+            if (videoListener != null)
+                videoListener.onVideoSizeChanged(width, height, unappliedRotationDegrees,
                         pixelWidthHeightRatio);
         }
 
         @Override
         public void onSurfaceSizeChanged(int width, int height) {
-            if (uzVideoView != null && uzVideoView.videoListener != null)
-                uzVideoView.videoListener.onSurfaceSizeChanged(width, height);
+            if (videoListener != null)
+                videoListener.onSurfaceSizeChanged(width, height);
         }
 
         //This is called when first frame is rendered
         @Override
         public void onRenderedFirstFrame() {
             exoPlaybackException = null;
-            if (uzVideoView != null && uzVideoView.videoListener != null)
-                uzVideoView.videoListener.onRenderedFirstFrame();
+            if (videoListener != null)
+                videoListener.onRenderedFirstFrame();
         }
     }
 
@@ -597,7 +588,7 @@ abstract class AbstractPlayerManager implements PreviewLoader {
 
         //This is called when there is metadata associated with current playback time
         @Override
-        public void onMetadata(Metadata metadata) {
+        public void onMetadata(@NonNull Metadata metadata) {
             if (uzVideoView != null && uzVideoView.metadataOutput != null)
                 uzVideoView.metadataOutput.onMetadata(metadata);
         }
@@ -606,24 +597,25 @@ abstract class AbstractPlayerManager implements PreviewLoader {
     class UZTextOutputListener implements TextOutput {
 
         @Override
-        public void onCues(List<Cue> cues) {
+        public void onCues(@NonNull List<Cue> cues) {
             if (uzVideoView != null && uzVideoView.textOutput != null)
                 uzVideoView.textOutput.onCues(cues);
         }
     }
 
     class UZPlayerEventListener implements Player.EventListener {
-        private long timestampRebufferStart;
+        private long timestampReBufferStart;
 
         //This is called when the current playlist changes
         @Override
-        public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+        public void onTimelineChanged(Timeline timeline, int reason) {
             if (uzVideoView == null) return;
-            if (uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onTimelineChanged(timeline, manifest, reason);
+            if (eventListener != null)
+                eventListener.onTimelineChanged(timeline, reason);
+            Object manifest = player.getCurrentManifest();
             if (manifest instanceof HlsManifest) {
                 HlsMediaPlaylist playlist = ((HlsManifest) manifest).mediaPlaylist;
-                uzVideoView.setTargetDurationMls(C.usToMs(playlist.targetDurationUs));
+                targetDurationMls = C.usToMs(playlist.targetDurationUs);
                 // From the current playing frame to end time of chunk
                 long timeToEndChunk = player.getDuration() - player.getCurrentPosition();
                 long extProgramDateTime = getProgramDateTimeValue(playlist, timeToEndChunk);
@@ -686,15 +678,15 @@ abstract class AbstractPlayerManager implements PreviewLoader {
         @Override
         public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
             notifyUpdateButtonVisibility();
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onTracksChanged(trackGroups, trackSelections);
+            if (eventListener != null)
+                eventListener.onTracksChanged(trackGroups, trackSelections);
         }
 
         //This is called when ExoPlayer starts or stops loading sources(TS files, fMP4 files…)
         @Override
         public void onLoadingChanged(boolean isLoading) {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onLoadingChanged(isLoading);
+            if (eventListener != null)
+                eventListener.onLoadingChanged(isLoading);
         }
 
         //This is called when either playWhenReady or playbackState changes
@@ -707,10 +699,10 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                         if (playWhenReady) {
                             TmpParamData.getInstance()
                                     .setViewRebufferDuration(
-                                            System.currentTimeMillis() - timestampRebufferStart);
-                            timestampRebufferStart = 0;
+                                            System.currentTimeMillis() - timestampReBufferStart);
+                            timestampReBufferStart = 0;
                         } else {
-                            timestampRebufferStart = System.currentTimeMillis();
+                            timestampReBufferStart = System.currentTimeMillis();
                             TmpParamData.getInstance().addViewRebufferCount();
                         }
                     }
@@ -747,20 +739,20 @@ abstract class AbstractPlayerManager implements PreviewLoader {
             notifyUpdateButtonVisibility();
             if (progressListener != null)
                 progressListener.onPlayerStateChanged(playWhenReady, playbackState);
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onPlayerStateChanged(playWhenReady, playbackState);
+            if (eventListener != null)
+                eventListener.onPlayerStateChanged(playWhenReady, playbackState);
         }
 
         @Override
         public void onRepeatModeChanged(int repeatMode) {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onRepeatModeChanged(repeatMode);
+            if (eventListener != null)
+                eventListener.onRepeatModeChanged(repeatMode);
         }
 
         @Override
         public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onShuffleModeEnabledChanged(shuffleModeEnabled);
+            if (eventListener != null)
+                eventListener.onShuffleModeEnabledChanged(shuffleModeEnabled);
         }
 
         //This is called then a error happens
@@ -784,29 +776,29 @@ abstract class AbstractPlayerManager implements PreviewLoader {
                 uzVideoView.tryNextLinkPlay();
             else
                 uzVideoView.pause();
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onPlayerError(error);
+            if (eventListener != null)
+                eventListener.onPlayerError(error);
         }
 
         //This is called when a position discontinuity occurs without a change to the timeline
         @Override
         public void onPositionDiscontinuity(int reason) {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onPositionDiscontinuity(reason);
+            if (eventListener != null)
+                eventListener.onPositionDiscontinuity(reason);
         }
 
         //This is called when the current playback parameters change
         @Override
         public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onPlaybackParametersChanged(playbackParameters);
+            if (eventListener != null)
+                eventListener.onPlaybackParametersChanged(playbackParameters);
         }
 
         //This is called when seek finishes
         @Override
         public void onSeekProcessed() {
-            if (uzVideoView != null && uzVideoView.eventListener != null)
-                uzVideoView.eventListener.onSeekProcessed();
+            if (eventListener != null)
+                eventListener.onSeekProcessed();
         }
     }
 }

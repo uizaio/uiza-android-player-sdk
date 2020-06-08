@@ -95,6 +95,7 @@ import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.widget.UZImageButton;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
 import com.uiza.sdk.widget.UZTextView;
+import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 import com.uiza.sdk.widget.previewseekbar.PreviewView;
 import com.uiza.sdk.widget.seekbar.UZVerticalSeekBar;
 
@@ -113,7 +114,7 @@ import timber.log.Timber;
  * View of UZPlayer
  */
 public class UZVideoView extends RelativeLayout
-        implements PreviewView.OnPreviewChangeListener, View.OnClickListener, View.OnFocusChangeListener,
+        implements PreviewLoader, PreviewView.OnPreviewChangeListener, View.OnClickListener, View.OnFocusChangeListener,
         UZPlayerView.ControllerStateCallback, SensorOrientationChangeNotifier.Listener {
 
     private static final String HYPHEN = "-";
@@ -124,15 +125,11 @@ public class UZVideoView extends RelativeLayout
      */
     private static final int DEFAULT_VALUE_CONTROLLER_TIMEOUT_MLS = 8000; // 8s
     private static final long DEFAULT_VALUE_TRACKING_LOOP = 5000L;  // 5s
-    private static final long DEFAULT_TARGET_DURATION_MLS = 2000L; // 2s
+
     //===================================================================START FOR PLAYLIST/FOLDER
-    protected AudioListener audioListener;
     protected MetadataOutput metadataOutput;
-    protected Player.EventListener eventListener;
-    protected VideoListener videoListener;
     protected TextOutput textOutput;
     private Handler handler = new Handler(Looper.getMainLooper());
-    private long targetDurationMls = DEFAULT_TARGET_DURATION_MLS;
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
     private UZPlayerManager playerManager;
@@ -325,7 +322,7 @@ public class UZVideoView extends RelativeLayout
         return (getPlayer() == null) ? -1 : getPlayer().getBufferedPercentage();
     }
 
-    // Lay pixel dung cho custom UI like youtube, uzTimebar bottom of player controller
+    // Lay pixel dung cho custom UI like youtube, timeBar bottom of player controller
     public int getPixelAdded() {
         return timeBarAtBottom ? (getHeightTimeBar() / 2) : 0;
     }
@@ -710,13 +707,16 @@ public class UZVideoView extends RelativeLayout
         positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
         // in PIP not pause
-        if (playerManager != null && !enablePIP()) {
+        if (playerManager != null && !isPIPEnable()) {
             playerManager.pause();
         }
     }
 
-    public boolean enablePIP() {
-        return (pipIcon != null) && (pipIcon.getVisibility() == VISIBLE) && UZAppUtils.hasSupportPIP(getContext());
+    public boolean isPIPEnable() {
+        return (pipIcon != null)
+                && !isCastingChromecast()
+                && UZAppUtils.hasSupportPIP(getContext())
+                && !UZData.getInstance().isUseUZDragView();
     }
 
     @Override
@@ -805,7 +805,7 @@ public class UZVideoView extends RelativeLayout
             UZViewUtils.showDefaultControls((Activity) getContext());
             isLandscape = false;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, false);
-            if (!isCastingChromecast() && UZAppUtils.hasSupportPIP(getContext()))
+            if (isPIPEnable())
                 UZViewUtils.visibleViews(pipIcon);
         }
         TmpParamData.getInstance().setPlayerIsFullscreen(isLandscape);
@@ -897,7 +897,7 @@ public class UZVideoView extends RelativeLayout
 
     @TargetApi(Build.VERSION_CODES.N)
     public void enterPIPMode() {
-        if (enablePIP()) {
+        if (isPIPEnable()) {
             positionPIPPlayer = getCurrentPosition();
             setUseController(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -1046,13 +1046,6 @@ public class UZVideoView extends RelativeLayout
                     @Override
                     public void onClickItem(UZPlayback playback, int position) {
                         playPlaylistPosition(position);
-                    }
-
-                    @Override
-                    public void onFocusChange(UZPlayback playback, int position) {
-                    }
-
-                    public void onDismiss() {
                     }
                 });
         UZViewUtils.showDialog(uzPlaylistFolderDlg);
@@ -2132,15 +2125,21 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void setAudioListener(AudioListener audioListener) {
-        this.audioListener = audioListener;
+        if (playerManager != null) {
+            playerManager.setAudioListener(audioListener);
+        }
     }
 
     public void setPlayerEventListener(Player.EventListener eventListener) {
-        this.eventListener = eventListener;
+        if (playerManager != null) {
+            playerManager.setEventListener(eventListener);
+        }
     }
 
     public void setVideoListener(VideoListener videoListener) {
-        this.videoListener = videoListener;
+        if (playerManager != null) {
+            playerManager.setVideoListener(videoListener);
+        }
     }
 
     public void setMetadataOutput(MetadataOutput metadataOutput) {
@@ -2197,12 +2196,10 @@ public class UZVideoView extends RelativeLayout
 
     private void initDataSource(String linkPlay, String urlIMAAd, String urlThumbnailsPreviewSeekBar) {
         timestampInitDataSource = System.currentTimeMillis();
-        Timber.d("-------------------->initDataSource linkPlay %s", linkPlay);
         TmpParamData.getInstance().setEntitySourceUrl(linkPlay);
         playerManager = new UZPlayerManager.Builder(this)
                 .withPlayUrl(linkPlay)
                 .withIMAAdUrl(urlIMAAd)
-                .withThumbnailsUrl(urlThumbnailsPreviewSeekBar)
                 .build();
         playerManager.setAdPlayerCallback(new UZAdPlayerCallback() {
             @Override
@@ -2224,7 +2221,7 @@ public class UZVideoView extends RelativeLayout
         if (timeBar != null) {
             boolean disable = TextUtils.isEmpty(urlThumbnailsPreviewSeekBar);
             timeBar.setEnabled(!disable);
-            timeBar.setPreviewLoader(playerManager);
+            timeBar.setPreviewLoader(this);
         }
         playerManager.setProgressListener(new UZProgressListener() {
             @Override
@@ -2265,6 +2262,15 @@ public class UZVideoView extends RelativeLayout
         playerManager.setDebugCallback(this::updateUIButtonVisibilities);
 
         playerManager.setBufferCallback((bufferedDurationUs, playbackSpeed) -> statsForNerdsView.setBufferedDurationUs(bufferedDurationUs));
+    }
+
+    @Override
+    public void loadPreview(long currentPosition, long max) {
+        if (playerManager == null) return;
+        playerManager.setPlayWhenReady(false);
+        String thumbnailsUrl = UZData.getInstance().getThumbnailsUrl();
+        if (!TextUtils.isEmpty(thumbnailsUrl) && ivThumbnail != null)
+            ImageUtils.loadThumbnail(ivThumbnail, thumbnailsUrl, currentPosition);
     }
 
     protected void onStateReadyFirst() {
@@ -2483,13 +2489,14 @@ public class UZVideoView extends RelativeLayout
             throw new NoClassDefFoundError(ErrorConstant.ERR_506);
     }
 
-    protected void setTargetDurationMls(long targetDurationMls) {
-        this.targetDurationMls = targetDurationMls;
+    protected long getTargetDurationMls() {
+        return (playerManager != null) ? playerManager.getTargetDurationMls() : UZPlayerManager.DEFAULT_TARGET_DURATION_MLS;
     }
 
     private void updateLiveStatus(long currentMls, long duration) {
         if (tvLiveStatus == null) return;
         long timeToEndChunk = duration - currentMls;
+        long targetDurationMls = getTargetDurationMls();
         if (timeToEndChunk <= targetDurationMls * 10) {
             tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
             UZViewUtils.goneViews(tvPosition);
@@ -2501,6 +2508,7 @@ public class UZVideoView extends RelativeLayout
 
     private void seekToEndLive() {
         long timeToEndChunk = getDuration() - getCurrentPosition();
+        long targetDurationMls = getTargetDurationMls();
         if (timeToEndChunk > targetDurationMls * 10) {
             seekToLiveEdge();
         }

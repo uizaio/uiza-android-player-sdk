@@ -11,6 +11,8 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 
+import timber.log.Timber;
+
 public class GlideThumbnailTransformationPB extends BitmapTransformation {
     public static final int MAX_LINES = 7;
     public static final int MAX_COLUMNS = 7;
@@ -38,7 +40,12 @@ public class GlideThumbnailTransformationPB extends BitmapTransformation {
     protected Bitmap transform(@NonNull BitmapPool pool, @NonNull Bitmap toTransform, int outWidth, int outHeight) {
         int width = toTransform.getWidth() / MAX_COLUMNS;
         int height = toTransform.getHeight() / MAX_LINES;
-        return Bitmap.createBitmap(toTransform, x * width, y * height, width, height);
+        try {
+            return Bitmap.createBitmap(toTransform, x * width, y * height, width, height);
+        }catch (IllegalArgumentException e){
+            Timber.e(e);
+        }
+        return toTransform;
     }
 
     @Override
