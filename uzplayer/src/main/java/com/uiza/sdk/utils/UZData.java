@@ -78,7 +78,7 @@ public class UZData {
 
     public void setPlayback(@NonNull UZPlayback playback) {
         this.playback = playback;
-        this.playbackInfo = playback.getPlaybackInfo();
+        this.playbackInfo = StringUtils.parserInfo(playback.getDefaultLinkPlay());
     }
 
     public String getUrlIMAAd() {
@@ -108,7 +108,7 @@ public class UZData {
     @Nullable
     public String getHost() {
         if (playback == null) return null;
-        URL url = playback.getPlayUrl();
+        URL url = playback.getDefaultPlayUrl();
         if (url == null) return null;
         return url.getHost();
     }
@@ -135,10 +135,10 @@ public class UZData {
 
     public void setCurrentPositionOfPlayList(int currentPositionOfPlayList) {
         this.currentPositionOfPlayList = currentPositionOfPlayList;
-        UZPlayback currentInfo = playList.get(currentPositionOfPlayList);
-        if (currentInfo != null) {
-            this.playback = currentInfo;
-            this.playbackInfo = currentInfo.getPlaybackInfo();
+        UZPlayback currentPlayback = playList.get(currentPositionOfPlayList);
+        if (currentPlayback != null) {
+            this.playback = currentPlayback;
+            this.playbackInfo = StringUtils.parserInfo(currentPlayback.getDefaultLinkPlay());
         }
 
     }

@@ -243,7 +243,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         final UZPlayback playback = UZPlayer.getCurrentPlayback();
         if (handler != null && playback != null)
             handler.postDelayed(() -> {
-                Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                Disposable d = UZApi.getLiveViewers(playback.getDefaultLinkPlay(), res -> {
                     uzVideo.setLiveViewers(res.getViews());
                 }, Timber::e);
                 if (d != null) {

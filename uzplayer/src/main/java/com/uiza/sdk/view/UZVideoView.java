@@ -543,7 +543,7 @@ public class UZVideoView extends RelativeLayout
         }
         updateUIDependOnLiveStream();
         disposables = new CompositeDisposable();
-        initDataSource(playback.getLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail());
+        initDataSource(playback.getDefaultLinkPlay(), UZData.getInstance().getUrlIMAAd(), playback.getThumbnail());
         if (uzCallback != null)
             uzCallback.isInitResult(true, UZData.getInstance().getPlayback());
         trackWatchingTimer(true);
@@ -2213,7 +2213,7 @@ public class UZVideoView extends RelativeLayout
     private void checkToSetUpResource() {
         UZPlayback playback = UZData.getInstance().getPlayback();
         if (playback != null) {
-            List<String> listLinkPlay = playback.getLinkPlays();
+            List<String> listLinkPlay = playback.getUrls();
             if (listLinkPlay.isEmpty()) {
                 handleErrorNoData();
                 return;

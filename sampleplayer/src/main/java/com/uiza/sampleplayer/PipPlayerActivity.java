@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
-import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.models.UZPlayback;
@@ -22,8 +21,6 @@ import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZPlayerView;
 import com.uiza.sdk.view.UZVideoView;
 import com.uiza.sdk.widget.UZToast;
-
-import java.util.Locale;
 
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
@@ -56,7 +53,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
             playbackInfo = getIntent().getParcelableExtra("extra_playback_info");
         }
         if (playbackInfo != null)
-            etLinkPlay.setText(playbackInfo.getLinkPlay());
+            etLinkPlay.setText(playbackInfo.getDefaultLinkPlay());
         else
             etLinkPlay.setText(LSApplication.urls[0]);
 
@@ -168,7 +165,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         final UZPlayback playback = UZPlayer.getCurrentPlayback();
         if (handler != null && playback != null)
             handler.postDelayed(() -> {
-                Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                Disposable d = UZApi.getLiveViewers(playback.getDefaultLinkPlay(), res -> {
                     uzVideo.setLiveViewers(res.getViews());
                 }, Timber::e);
                 if (d != null) {
