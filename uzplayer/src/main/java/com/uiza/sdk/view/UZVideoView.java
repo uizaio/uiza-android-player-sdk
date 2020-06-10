@@ -37,7 +37,6 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
@@ -97,6 +96,7 @@ import com.uiza.sdk.utils.UZData;
 import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.widget.UZImageButton;
 import com.uiza.sdk.widget.UZPreviewTimeBar;
+import com.uiza.sdk.widget.UZSwitch;
 import com.uiza.sdk.widget.UZTextView;
 import com.uiza.sdk.widget.previewseekbar.PreviewLoader;
 import com.uiza.sdk.widget.previewseekbar.PreviewView;
@@ -151,7 +151,7 @@ public class UZVideoView extends RelativeLayout
     private UZImageButton ibFullscreenIcon, ibPauseIcon, ibPlayIcon, ibReplayIcon, ibRewIcon, ibFfwdIcon, ibBackScreenIcon, ibVolumeIcon,
             ibSettingIcon, ibCcIcon, ibPlaylistFolderIcon //playlist folder
             , ibHearingIcon, pipIcon, ibSkipPreviousIcon, ibSkipNextIcon, ibSpeedIcon, ivLiveTime, ivLiveView, ibsCast;
-    private SwitchCompat toggleTimeShift;
+    private UZSwitch toggleTimeShift;
     private TextView tvEndScreenMsg;
     private UZPlayerView playerView;
     private long startTime = -1;

@@ -232,7 +232,7 @@
                     android:textStyle="bold"
                     tools:ignore="RelativeOverlap" />
 
-                <androidx.appcompat.widget.SwitchCompat
+                <com.uiza.sdk.widget.UZSwitch
                     android:id="@id/toggle_time_shift"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -240,11 +240,6 @@
                     android:layout_marginEnd="@dimen/margin_5"
                     android:layout_toStartOf="@+id/exo_fullscreen_toggle_icon"
                     android:checked="false"
-                    android:thumb="@drawable/uz_witch_thumb"
-                    app:showText="false"
-                    app:splitTrack="false"
-                    app:switchPadding="@dimen/padding_2"
-                    app:track="@drawable/uz_switch_track"
                     tools:ignore="RelativeOverlap" />
 
                 <com.uiza.sdk.widget.UZImageButton
