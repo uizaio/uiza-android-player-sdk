@@ -35,7 +35,7 @@ public class UZData {
     private boolean useUZDragView;
     //dialog share
     private List<ResolveInfo> resolveInfoList;
-    private boolean isSettingPlayer;
+    private boolean settingPlayer;
 
     private UZData() {
     }
@@ -166,11 +166,11 @@ public class UZData {
     //end dialog share
 
     public boolean isSettingPlayer() {
-        return isSettingPlayer;
+        return this.settingPlayer;
     }
 
     public void setSettingPlayer(boolean settingPlayer) {
-        isSettingPlayer = settingPlayer;
+        this.settingPlayer = settingPlayer;
     }
 
     // Bill Pugh Singleton Implementation

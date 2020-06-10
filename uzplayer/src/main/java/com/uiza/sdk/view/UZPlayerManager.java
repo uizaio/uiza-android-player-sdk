@@ -38,7 +38,9 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private boolean isOnAdEnded;
     private UZAdPlayerCallback uzAdPlayerCallback;
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
-
+    MediaSource mediaSourceVideo;
+    MediaSource mediaSourceTimeShift;
+    private boolean isTimeShift = false;
     public static class Builder {
         private UZVideoView view;
         private String playUrl;
@@ -129,20 +131,21 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         if (this.drmScheme != null && drmSessionManager == null) return;
         player = buildPlayer();
         uzVideoView.getPlayerView().setPlayer(player);
-        MediaSource mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
+        mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
+        mediaSourceTimeShift = createMediaSourceTimeShift(drmSessionManager);
         // Compose the content media source into a new AdsMediaSource with both ads and content.
         initPlayerListeners();
         if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
-            MediaSource mediaSourceWithAds = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
+            mediaSourceVideo = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
+            if(mediaSourceTimeShift != null){
+                mediaSourceTimeShift = createAdsMediaSource(mediaSourceTimeShift, Uri.parse(urlIMAAd));
+            }
             if (adsLoader != null) {
                 adsLoader.setPlayer(player);
                 adsLoader.addCallback(uzVideoAdPlayerListener);
             }
-            player.prepare(mediaSourceWithAds);
-        } else {
-            // No Ads
-            player.prepare(mediaSourceVideo);
         }
+        player.prepare(mediaSourceVideo);
         setPlayWhenReady(uzVideoView.isAutoStart());
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
@@ -152,6 +155,14 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             mediaSessionConnector.setPlayer(player);
             mediaSession.setActive(true);
         }
+    }
+
+    boolean switchTimeShift(boolean useTimeShift){
+        if(mediaSourceTimeShift != null){
+            player.prepare(useTimeShift ? mediaSourceTimeShift :mediaSourceVideo);
+            return true;
+        }
+        return false;
     }
 
     private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {

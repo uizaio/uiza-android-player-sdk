@@ -82,7 +82,8 @@ abstract class AbstractPlayerManager {
     UZVideoView uzVideoView;
     String drmScheme;
     private String linkPlay;
-
+    private String linkPlayTimeShift;
+    private boolean maybeTimeShift = false;
     long contentPosition;
     private long targetDurationMls = DEFAULT_TARGET_DURATION_MLS;
     protected SimpleExoPlayer player;
@@ -119,6 +120,8 @@ abstract class AbstractPlayerManager {
         this.context = uzVideo.getContext();
         this.uzVideoView = uzVideo;
         this.linkPlay = linkPlay;
+        this.linkPlayTimeShift = StringUtils.timeShiftLink(linkPlay);
+        this.maybeTimeShift = !this.linkPlayTimeShift.equals(linkPlay);
         this.drmScheme = drmScheme;
         this.isFirstStateReady = false;
         this.userAgent = UZAppUtils.getUserAgent(this.context);
@@ -154,6 +157,8 @@ abstract class AbstractPlayerManager {
     String getLinkPlay() {
         return linkPlay;
     }
+
+    String getLinkPlayTimeShift() { return linkPlayTimeShift; }
 
     void setProgressListener(UZProgressListener progressListener) {
         this.progressListener = progressListener;
@@ -286,6 +291,10 @@ abstract class AbstractPlayerManager {
 
     private long getDuration() {
         return player != null ? player.getDuration() : 0;
+    }
+
+    public boolean isMaybeTimeShift() {
+        return maybeTimeShift;
     }
 
     protected boolean isVOD() {
@@ -425,6 +434,10 @@ abstract class AbstractPlayerManager {
 
     MediaSource createMediaSourceVideo(DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager) {
         return buildMediaSource(Uri.parse(linkPlay), drmSessionManager);
+    }
+
+    MediaSource createMediaSourceTimeShift(DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager){
+        return maybeTimeShift ? buildMediaSource(Uri.parse(linkPlayTimeShift), drmSessionManager) : null;
     }
 
     SimpleExoPlayer buildPlayer() {
@@ -711,6 +724,7 @@ abstract class AbstractPlayerManager {
         //This is called then a error happens
         @Override
         public void onPlayerError(ExoPlaybackException error) {
+            hideProgress();
             if (error == null)
                 return;
             Timber.e(error, "onPlayerError ");

@@ -132,7 +132,7 @@ public final class StringUtils {
         return null;
     }
 
-    public static UZPlaybackInfo parserInfo(String linkPlay){
+    public static UZPlaybackInfo parserInfo(String linkPlay) {
         try {
             String json = parserJsonInfo(linkPlay);
             if (json != null)
@@ -141,5 +141,17 @@ public final class StringUtils {
             Timber.e(e);
         }
         return null;
+    }
+
+    /**
+     * get TimeShift Link from linkPlay
+     * @param linkPlay
+     * @return timeshift Link Play
+     */
+    public static String timeShiftLink(String linkPlay) {
+        if (linkPlay.contains("/extras/")) {
+            return linkPlay.replace("/extras/", "/");
+        }
+        return linkPlay;
     }
 }

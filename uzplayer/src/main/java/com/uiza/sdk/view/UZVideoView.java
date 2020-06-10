@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -36,6 +37,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
@@ -149,6 +151,7 @@ public class UZVideoView extends RelativeLayout
     private UZImageButton ibFullscreenIcon, ibPauseIcon, ibPlayIcon, ibReplayIcon, ibRewIcon, ibFfwdIcon, ibBackScreenIcon, ibVolumeIcon,
             ibSettingIcon, ibCcIcon, ibPlaylistFolderIcon //playlist folder
             , ibHearingIcon, pipIcon, ibSkipPreviousIcon, ibSkipNextIcon, ibSpeedIcon, ivLiveTime, ivLiveView, ibsCast;
+    private SwitchCompat toggleTimeShift;
     private TextView tvEndScreenMsg;
     private UZPlayerView playerView;
     private long startTime = -1;
@@ -198,7 +201,6 @@ public class UZVideoView extends RelativeLayout
     private UZCallback uzCallback;
     private UZTVFocusChangeListener uzTVFocusChangeListener;
     private UZPlayerView.ControllerStateCallback controllerStateCallback;
-    //    private boolean isGetClickedPip;
     private long timestampInitDataSource;
     //=============================================================================================START EVENTBUS
     private boolean isCalledFromConnectionEventBus = false;
@@ -206,7 +208,6 @@ public class UZVideoView extends RelativeLayout
     private long lastCurrentPosition;
     private boolean isCastPlayerPlayingFirst;
     private StatsForNerdsView statsForNerdsView;
-    //    private UZAdPlayerCallback videoAdPlayerCallback;
     private String viewerSessionId;
     private CompositeDisposable disposables;
     private boolean isInit = false;
@@ -969,7 +970,7 @@ public class UZVideoView extends RelativeLayout
     }
 
     protected boolean isPlayPlaylistFolder() {
-        return UZData.getInstance().getPlayList() != null;
+        return !ListUtils.isEmpty(UZData.getInstance().getPlayList());
     }
 
     private void playPlaylistPosition(int position) {
@@ -1069,8 +1070,8 @@ public class UZVideoView extends RelativeLayout
         autoSwitchPreviousLinkVideo();
     }
 
-    public boolean replay() {
-        if (playerManager == null) return false;
+    public void replay() {
+        if (playerManager == null) return;
         TmpParamData.getInstance().addPlayerViewCount();
         //TODO Chỗ này đáng lẽ chỉ clear value của tracking khi đảm bảo rằng seekTo(0) true
         boolean result = playerManager.seekTo(0);
@@ -1082,7 +1083,6 @@ public class UZVideoView extends RelativeLayout
         }
         if (isCastingChromecast)
             replayChromeCast();
-        return result;
     }
 
     private void replayChromeCast() {
@@ -1529,6 +1529,7 @@ public class UZVideoView extends RelativeLayout
         } else {
             debugLayout.setVisibility(View.GONE);
         }
+        toggleTimeShift = playerView.findViewById(R.id.toggle_time_shift);
         rlLiveInfo = playerView.findViewById(R.id.rl_live_info);
         tvLiveStatus = playerView.findViewById(R.id.tv_live);
         tvLiveView = playerView.findViewById(R.id.tv_live_view);
@@ -1547,12 +1548,19 @@ public class UZVideoView extends RelativeLayout
         //set visibility first, so scared if removed
         setVisibilityOfPlaylistFolderController(GONE);
         statsForNerdsView = findViewById(R.id.stats_for_nerds);
+        if(toggleTimeShift != null){
+            toggleTimeShift.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if(!playerManager.switchTimeShift(isChecked)){
+                    toggleTimeShift.setChecked(false);
+                }
+            });
+        }
     }
 
     private void setEventForViews() {
         setClickAndFocusEventForViews(ibFullscreenIcon, ibBackScreenIcon, ibVolumeIcon, ibSettingIcon,
                 ibCcIcon, ibPlaylistFolderIcon, ibHearingIcon, pipIcon, ibFfwdIcon,
-                ibRewIcon, ibPlayIcon, ibPauseIcon, ibReplayIcon, ibSkipNextIcon, ibSkipPreviousIcon, ibSpeedIcon, tvLiveStatus);
+                ibRewIcon, ibPlayIcon, ibPauseIcon, ibReplayIcon, ibSkipNextIcon, ibSkipPreviousIcon, ibSpeedIcon, tvLiveStatus, toggleTimeShift);
     }
 
     private void setClickAndFocusEventForViews(View... views) {
@@ -1874,11 +1882,11 @@ public class UZVideoView extends RelativeLayout
         else if (UZAppUtils.isTablet(getContext()) && UZAppUtils.isTV(getContext()))//only hide ibPictureInPictureIcon if device is TV
             UZViewUtils.goneViews(pipIcon);
         if (isLIVE()) {
-            UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
+            UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView, toggleTimeShift);
             UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
             setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
-            UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
+            UZViewUtils.goneViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView, toggleTimeShift);
             UZViewUtils.visibleViews(ibSpeedIcon, tvDuration, ibFfwdIcon, ibRewIcon);
             setUIVisible(true, ibRewIcon, ibFfwdIcon);
             //TODO why set visible not work?
@@ -1984,7 +1992,6 @@ public class UZVideoView extends RelativeLayout
         UZViewUtils.setVisibilityViews(visibilityOfPlaylistFolderController, ibPlaylistFolderIcon,
                 ibSkipNextIcon, ibSkipPreviousIcon);
         setVisibilityOfPlayPauseReplay(false);
-
     }
 
     private void showSettingsDialog() {
@@ -2302,7 +2309,6 @@ public class UZVideoView extends RelativeLayout
             }
         });
         playerManager.setDebugCallback(this::updateUIButtonVisibilities);
-
         playerManager.setBufferCallback((bufferedDurationUs, playbackSpeed) -> statsForNerdsView.setBufferedDurationUs(bufferedDurationUs));
     }
 
@@ -2553,6 +2559,10 @@ public class UZVideoView extends RelativeLayout
         if (timeToEndChunk > targetDurationMls * 10) {
             seekToLiveEdge();
         }
+    }
+
+    private boolean isTimeShift(){
+        return toggleTimeShift != null && toggleTimeShift.isChecked();
     }
 
     protected void updateLiveStreamLatency(long latency) {
