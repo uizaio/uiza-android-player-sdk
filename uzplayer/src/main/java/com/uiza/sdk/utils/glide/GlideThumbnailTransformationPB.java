@@ -42,7 +42,7 @@ public class GlideThumbnailTransformationPB extends BitmapTransformation {
         int height = toTransform.getHeight() / MAX_LINES;
         try {
             return Bitmap.createBitmap(toTransform, x * width, y * height, width, height);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             Timber.e(e);
         }
         return toTransform;

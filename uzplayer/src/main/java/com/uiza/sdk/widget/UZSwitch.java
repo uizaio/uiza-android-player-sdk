@@ -5,7 +5,9 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.widget.Switch;
+
 import androidx.core.content.res.ResourcesCompat;
+
 import com.uiza.sdk.R;
 
 public class UZSwitch extends Switch {
@@ -31,7 +33,7 @@ public class UZSwitch extends Switch {
     private void changeColor(boolean isChecked) {
         int thumbColor;
         int trackColor;
-        if(isChecked) {
+        if (isChecked) {
             thumbColor = ResourcesCompat.getColor(getResources(), R.color.red, getContext().getTheme());
             trackColor = Color.argb(200, 230, 57, 70);
         } else {
@@ -41,8 +43,7 @@ public class UZSwitch extends Switch {
         try {
             getThumbDrawable().setColorFilter(thumbColor, PorterDuff.Mode.MULTIPLY);
             getTrackDrawable().setColorFilter(trackColor, PorterDuff.Mode.MULTIPLY);
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }

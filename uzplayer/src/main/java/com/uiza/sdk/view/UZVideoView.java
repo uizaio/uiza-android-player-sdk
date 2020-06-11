@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -25,7 +26,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -41,23 +41,24 @@ import androidx.core.content.ContextCompat;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.audio.AudioListener;
-import com.google.android.exoplayer2.metadata.MetadataOutput;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaTrack;
 import com.uiza.sdk.BuildConfig;
 import com.uiza.sdk.R;
+import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.analytics.UZAnalytic;
 import com.uiza.sdk.animations.AnimationUtils;
 import com.uiza.sdk.chromecast.Casty;
@@ -74,6 +75,7 @@ import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.interfaces.UZCallback;
 import com.uiza.sdk.interfaces.UZLiveContentCallback;
+import com.uiza.sdk.interfaces.UZManagerCallback;
 import com.uiza.sdk.interfaces.UZVideoViewItemClick;
 import com.uiza.sdk.listerner.UZChromeCastListener;
 import com.uiza.sdk.listerner.UZProgressListener;
@@ -117,7 +119,7 @@ import timber.log.Timber;
  * View of UZPlayer
  */
 public class UZVideoView extends RelativeLayout
-        implements PreviewLoader, PreviewView.OnPreviewChangeListener, View.OnClickListener, View.OnFocusChangeListener,
+        implements UZManagerCallback, PreviewLoader, PreviewView.OnPreviewChangeListener, View.OnClickListener, View.OnFocusChangeListener,
         UZPlayerView.ControllerStateCallback, SensorOrientationChangeNotifier.Listener {
 
     private static final String HYPHEN = "-";
@@ -128,14 +130,11 @@ public class UZVideoView extends RelativeLayout
      */
     private static final int DEFAULT_VALUE_CONTROLLER_TIMEOUT_MLS = 8000; // 8s
     private static final long DEFAULT_VALUE_TRACKING_LOOP = 5000L;  // 5s
+    public static final long DEFAULT_TARGET_DURATION_MLS = 2000L; // 2s
 
     //===================================================================START FOR PLAYLIST/FOLDER
-    private VideoListener videoListener;
-    private AudioListener audioListener;
-    private Player.EventListener eventListener;
-    private MetadataOutput metadataOutput;
-    private TextOutput textOutput;
-
+    //
+    private long targetDurationMls = DEFAULT_TARGET_DURATION_MLS;
     private Handler handler = new Handler(Looper.getMainLooper());
     private View bkg;
     private RelativeLayout rootView, rlChromeCast;
@@ -202,6 +201,7 @@ public class UZVideoView extends RelativeLayout
     private UZTVFocusChangeListener uzTVFocusChangeListener;
     private UZPlayerView.ControllerStateCallback controllerStateCallback;
     private long timestampInitDataSource;
+    boolean isFirstStateReady = false;
     //=============================================================================================START EVENTBUS
     private boolean isCalledFromConnectionEventBus = false;
     //last current position lúc từ exoplayer switch sang cast player
@@ -553,7 +553,7 @@ public class UZVideoView extends RelativeLayout
 
     private void initPlayerManager() {
         if (playerManager != null) {
-            playerManager.init(this);
+            playerManager.register(this);
             if (isRefreshFromChangeSkin) {
                 playerManager.seekTo(currentPositionBeforeChangeSkin);
                 isRefreshFromChangeSkin = false;
@@ -963,6 +963,7 @@ public class UZVideoView extends RelativeLayout
         return useController;
     }
 
+    @Override
     public void setUseController(boolean useController) {
         this.useController = useController;
         if (playerView != null)
@@ -1023,7 +1024,38 @@ public class UZVideoView extends RelativeLayout
         }
     }
 
-    protected void onPlayerEnded() {
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+        if (manifest instanceof HlsManifest) {
+            HlsMediaPlaylist playlist = ((HlsManifest) manifest).mediaPlaylist;
+            targetDurationMls = C.usToMs(playlist.targetDurationUs);
+            // From the current playing frame to end time of chunk
+            long timeToEndChunk = getDuration() - getCurrentPosition();
+            long extProgramDateTime = ConvertUtils.getProgramDateTime(playlist, timeToEndChunk);
+            if (extProgramDateTime == C.INDEX_UNSET) {
+                hideTextLiveStreamLatency();
+                return;
+            }
+            long elapsedTime = SystemClock.elapsedRealtime() - UZPlayer.getElapsedTime();
+            long currentTime = System.currentTimeMillis() + elapsedTime;
+            long latency = currentTime - extProgramDateTime;
+            updateLiveStreamLatency(latency);
+        } else
+            hideTextLiveStreamLatency();
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+        hideProgress();
+        handleError(ErrorUtils.exceptionPlayback());
+        if (ConnectivityUtils.isConnected(getContext()))
+            tryNextLinkPlay();
+        else
+            pause();
+    }
+
+    @Override
+    public void onPlayerEnded() {
         if (isPlaying()) {
             isOnPlayerEnded = true;
             if (isPlayPlaylistFolder() && isAutoSwitchItemPlaylistFolder) {
@@ -1032,6 +1064,35 @@ public class UZVideoView extends RelativeLayout
             } else {
                 updateUIEndScreen();
             }
+        }
+        hideProgress();
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+            case Player.STATE_IDLE:
+                showProgress();
+                break;
+            case Player.STATE_ENDED:
+                onPlayerEnded();
+                break;
+            case Player.STATE_READY:
+                hideProgress();
+                if (playWhenReady) {
+                    // media actually playing
+                    hideLayoutMsg();
+                    resetCountTryLinkPlayError();
+                    if (timeBar != null)
+                        timeBar.hidePreview();
+                }
+                ((Activity) getContext()).setResult(Activity.RESULT_OK);
+                if (!isFirstStateReady) {
+                    removeVideoCover(false);
+                    isFirstStateReady = true;
+                }
+                break;
         }
     }
 
@@ -1216,12 +1277,9 @@ public class UZVideoView extends RelativeLayout
         handleClickSkipPrevious();
     }
 
+    @Override
     public PlayerView getPlayerView() {
         return playerView;
-    }
-
-    public ProgressBar getProgressBar() {
-        return progressBar;
     }
 
     public ImageView getIvThumbnail() {
@@ -1548,9 +1606,9 @@ public class UZVideoView extends RelativeLayout
         //set visibility first, so scared if removed
         setVisibilityOfPlaylistFolderController(GONE);
         statsForNerdsView = findViewById(R.id.stats_for_nerds);
-        if(toggleTimeShift != null){
+        if (toggleTimeShift != null) {
             toggleTimeShift.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if(!playerManager.switchTimeShift(isChecked)){
+                if (!playerManager.switchTimeShift(isChecked)) {
                     toggleTimeShift.setChecked(false);
                 }
             });
@@ -1632,7 +1690,7 @@ public class UZVideoView extends RelativeLayout
         }
     }
 
-    protected void removeVideoCover(boolean isFromHandleError) {
+    private void removeVideoCover(boolean isFromHandleError) {
         if (!isFromHandleError)
             onStateReadyFirst();
         if (ivVideoCover.getVisibility() != GONE) {
@@ -2078,13 +2136,13 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void hideProgress() {
-        if (playerManager != null)
-            playerManager.hideProgress();
+//        if (isCastingChromecast())
+//            return;
+        progressBar.setVisibility(View.GONE);
     }
 
     public void showProgress() {
-        if (playerManager != null)
-            playerManager.showProgress();
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void updateUIPlayerInfo() {
@@ -2159,46 +2217,6 @@ public class UZVideoView extends RelativeLayout
             playerView.setOnLongPressed(onLongPressed);
     }
 
-    public void setAudioListener(AudioListener audioListener) {
-        this.audioListener = audioListener;
-    }
-
-    public AudioListener getAudioListener() {
-        return audioListener;
-    }
-
-    public void setEventListener(Player.EventListener eventListener) {
-        this.eventListener = eventListener;
-    }
-
-    public Player.EventListener getEventListener() {
-        return eventListener;
-    }
-
-    public void setVideoListener(VideoListener videoListener) {
-        this.videoListener = videoListener;
-    }
-
-    public VideoListener getVideoListener() {
-        return videoListener;
-    }
-
-    public void setMetadataOutput(MetadataOutput metadataOutput) {
-        this.metadataOutput = metadataOutput;
-    }
-
-    public MetadataOutput getMetadataOutput() {
-        return metadataOutput;
-    }
-
-    public void setTextOutput(TextOutput textOutput) {
-        this.textOutput = textOutput;
-    }
-
-    public TextOutput getTextOutput() {
-        return textOutput;
-    }
-
     private void checkData() {
         UZData.getInstance().setSettingPlayer(true);
         isHasError = false;
@@ -2246,10 +2264,11 @@ public class UZVideoView extends RelativeLayout
     private void initDataSource(String linkPlay, String urlIMAAd, String urlThumbnailsPreviewSeekBar) {
         timestampInitDataSource = System.currentTimeMillis();
         TmpParamData.getInstance().setEntitySourceUrl(linkPlay);
-        playerManager = new UZPlayerManager.Builder(this)
+        playerManager = new UZPlayerManager.Builder(getContext())
                 .withPlayUrl(linkPlay)
                 .withIMAAdUrl(urlIMAAd)
                 .build();
+        isFirstStateReady = false;
         playerManager.setAdPlayerCallback(new UZAdPlayerCallback() {
             @Override
             public void onPlay() {
@@ -2362,7 +2381,7 @@ public class UZVideoView extends RelativeLayout
                 isCalledFromConnectionEventBus = true;
                 playerManager.setResumeIfConnectionError();
                 if (!activityIsPausing) {
-                    playerManager.init(this);
+                    playerManager.register(this);
                     if (isCalledFromConnectionEventBus) {
                         playerManager.setRunnable();
                         isCalledFromConnectionEventBus = false;
@@ -2536,14 +2555,9 @@ public class UZVideoView extends RelativeLayout
             throw new NoClassDefFoundError(ErrorConstant.ERR_506);
     }
 
-    protected long getTargetDurationMls() {
-        return (playerManager != null) ? playerManager.getTargetDurationMls() : UZPlayerManager.DEFAULT_TARGET_DURATION_MLS;
-    }
-
     private void updateLiveStatus(long currentMls, long duration) {
         if (tvLiveStatus == null) return;
         long timeToEndChunk = duration - currentMls;
-        long targetDurationMls = getTargetDurationMls();
         if (timeToEndChunk <= targetDurationMls * 10) {
             tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
             UZViewUtils.goneViews(tvPosition);
@@ -2555,22 +2569,21 @@ public class UZVideoView extends RelativeLayout
 
     private void seekToEndLive() {
         long timeToEndChunk = getDuration() - getCurrentPosition();
-        long targetDurationMls = getTargetDurationMls();
         if (timeToEndChunk > targetDurationMls * 10) {
             seekToLiveEdge();
         }
     }
 
-    private boolean isTimeShift(){
+    private boolean isTimeShift() {
         return toggleTimeShift != null && toggleTimeShift.isChecked();
     }
 
-    protected void updateLiveStreamLatency(long latency) {
+    public void updateLiveStreamLatency(long latency) {
         statsForNerdsView.showTextLiveStreamLatency();
         statsForNerdsView.setTextLiveStreamLatency(StringUtils.groupingSeparatorLong(latency));
     }
 
-    protected void hideTextLiveStreamLatency() {
+    public void hideTextLiveStreamLatency() {
         statsForNerdsView.hideTextLiveStreamLatency();
     }
 

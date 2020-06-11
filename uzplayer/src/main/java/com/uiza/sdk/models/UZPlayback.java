@@ -4,9 +4,8 @@ package com.uiza.sdk.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
 
-import com.uiza.sdk.utils.StringUtils;
+import androidx.annotation.NonNull;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -163,13 +162,14 @@ public class UZPlayback implements Parcelable {
             setMpd(linkPlay);
         } else if (linkPlay.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0) {
             setHls(linkPlay);
-        } else   {
+        } else {
             setOther(linkPlay);
         }
     }
 
     /**
      * default: dash -> hls -> single file
+     *
      * @return string of url
      */
     public String getDefaultLinkPlay() {
@@ -200,6 +200,6 @@ public class UZPlayback implements Parcelable {
     public String toString() {
         return String.format(Locale.getDefault(),
                 "UZPlayback(id: %s, name: %s, description: %s, thumbnail: %s, mpd: %s, hls: %s, other: %s)",
-                id, name, description, thumbnail,mpd, hls, other);
+                id, name, description, thumbnail, mpd, hls, other);
     }
 }

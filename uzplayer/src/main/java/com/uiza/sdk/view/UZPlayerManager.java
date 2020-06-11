@@ -1,5 +1,6 @@
 package com.uiza.sdk.view;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -40,15 +41,15 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
     MediaSource mediaSourceVideo;
     MediaSource mediaSourceTimeShift;
-    private boolean isTimeShift = false;
+
     public static class Builder {
-        private UZVideoView view;
+        private Context context;
         private String playUrl;
         private String imaAdUrl;
         private String drmScheme;
 
-        public Builder(UZVideoView view) {
-            this.view = view;
+        public Builder(Context context) {
+            this.context = context;
         }
 
         public Builder withPlayUrl(String playUrl) {
@@ -67,19 +68,19 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         }
 
         public UZPlayerManager build() {
-            return new UZPlayerManager(view, playUrl, imaAdUrl, drmScheme);
+            return new UZPlayerManager(context, playUrl, imaAdUrl, drmScheme);
         }
     }
 
 
-    private UZPlayerManager(@NonNull UZVideoView uzVideo, String linkPlay, String urlIMAAd, String drmSchema) {
-        super(uzVideo, linkPlay, drmSchema);
+    private UZPlayerManager(@NonNull Context context, String linkPlay, String urlIMAAd, String drmSchema) {
+        super(context, linkPlay, drmSchema);
         this.urlIMAAd = urlIMAAd;
         setRunnable();
     }
 
     private void onAdEnded() {
-        if (!isOnAdEnded && uzVideoView != null) {
+        if (!isOnAdEnded) {
             isOnAdEnded = true;
             if (progressListener != null)
                 progressListener.onAdEnded();
@@ -95,13 +96,13 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (uzVideoView == null || uzVideoView.getPlayerView() == null)
+            if (managerCallback == null || managerCallback.getPlayerView() == null)
                 return;
             if (uzVideoAdPlayerListener.isEnded())
                 onAdEnded();
-            if (isPlayingAd())
+            if (isPlayingAd()) {
                 handleAdProgress();
-            else
+            } else
                 handleVideoProgress();
             if (handler != null && runnable != null) {
                 handler.postDelayed(runnable, 1000);
@@ -111,13 +112,12 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     }
 
     private void handleAdProgress() {
-        hideProgress();
         isOnAdEnded = false;
-        uzVideoView.setUseController(false);
+        managerCallback.setUseController(false);
         if (progressListener != null) {
-            VideoProgressUpdate videoProgressUpdate = adsLoader.getAdProgress();
-            duration = (int) videoProgressUpdate.getDuration();
-            s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
+            VideoProgressUpdate vpu = adsLoader.getAdProgress();
+            duration = (int) vpu.getDuration();
+            s = (int) (vpu.getCurrentTime()) + 1;//add 1 second
             if (duration != 0)
                 percent = (int) (s * 100 / duration);
             progressListener.onAdProgress(s, (int) duration, percent);
@@ -130,14 +130,14 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = buildDrmSessionManager();
         if (this.drmScheme != null && drmSessionManager == null) return;
         player = buildPlayer();
-        uzVideoView.getPlayerView().setPlayer(player);
+        managerCallback.getPlayerView().setPlayer(player);
         mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
         mediaSourceTimeShift = createMediaSourceTimeShift(drmSessionManager);
         // Compose the content media source into a new AdsMediaSource with both ads and content.
         initPlayerListeners();
         if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
             mediaSourceVideo = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
-            if(mediaSourceTimeShift != null){
+            if (mediaSourceTimeShift != null) {
                 mediaSourceTimeShift = createAdsMediaSource(mediaSourceTimeShift, Uri.parse(urlIMAAd));
             }
             if (adsLoader != null) {
@@ -146,7 +146,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             }
         }
         player.prepare(mediaSourceVideo);
-        setPlayWhenReady(uzVideoView.isAutoStart());
+        setPlayWhenReady(managerCallback.isAutoStart());
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
             //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
@@ -157,9 +157,10 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         }
     }
 
-    boolean switchTimeShift(boolean useTimeShift){
-        if(mediaSourceTimeShift != null){
-            player.prepare(useTimeShift ? mediaSourceTimeShift :mediaSourceVideo);
+    boolean switchTimeShift(boolean useTimeShift) {
+        if (mediaSourceTimeShift != null) {
+            player.prepare(useTimeShift ? mediaSourceTimeShift : mediaSourceVideo);
+            player.setPlayWhenReady(true);
             return true;
         }
         return false;
@@ -189,7 +190,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             }
         };
         return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader,
-                uzVideoView.getPlayerView());
+                managerCallback.getPlayerView());
 
     }
 
@@ -211,7 +212,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             adsLoader = null;
             urlIMAAd = null;
             try {
-                Objects.requireNonNull(uzVideoView.getPlayerView().getOverlayFrameLayout()).removeAllViews();
+                Objects.requireNonNull(managerCallback.getPlayerView().getOverlayFrameLayout()).removeAllViews();
             } catch (NullPointerException e) {
                 Timber.e(e);
             }

@@ -8,6 +8,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
 
 import com.google.android.exoplayer2.ui.PlayerControlView;
@@ -56,11 +57,11 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
         this(context, null);
     }
 
-    public UZPlayerView(Context context, AttributeSet attrs) {
+    public UZPlayerView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public UZPlayerView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public UZPlayerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (!isInEditMode())
             setControllerVisibilityListener(this);

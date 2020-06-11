@@ -145,6 +145,7 @@ public final class StringUtils {
 
     /**
      * get TimeShift Link from linkPlay
+     *
      * @param linkPlay
      * @return timeshift Link Play
      */
