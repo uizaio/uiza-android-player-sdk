@@ -71,14 +71,14 @@ public class CastyPlayer {
                 seek(remoteMediaClient.getMediaStatus().getStreamPosition() + forward);
             }
         }
-    }//next 10000mls
-
-    public void seekToBackward(long backward) {
+    }
+    //rewind 10000mls
+    public void seekToRewind(long rewind) {
         if (remoteMediaClient == null) return;
-        if (remoteMediaClient.getMediaStatus().getStreamPosition() - backward > 0)
-            seek(remoteMediaClient.getMediaStatus().getStreamPosition() - backward);
+        if (remoteMediaClient.getMediaStatus().getStreamPosition() - rewind > 0)
+            seek(remoteMediaClient.getMediaStatus().getStreamPosition() - rewind);
         else
-            seek(remoteMediaClient.hasMediaSession() ? 0 : (currentMedia.getStreamDuration() - backward));
+            seek(remoteMediaClient.hasMediaSession() ? 0 : (currentMedia.getStreamDuration() - rewind));
 
     }
 

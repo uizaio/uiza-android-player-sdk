@@ -1,9 +1,13 @@
 package com.uiza.sdk.view;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -131,14 +135,24 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         player.prepare(mediaSourceVideo);
         setPlayWhenReady(managerCallback.isAutoStart());
         notifyUpdateButtonVisibility();
-        if (UZAppUtils.hasSupportPIP(context)) {
-            //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
-            mediaSession = new MediaSessionCompat(context, context.getPackageName());
-            MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
-            mediaSessionConnector.setPlayer(player);
-            mediaSession.setCallback(mediasSessionCallback);
-            mediaSession.setActive(true);
+        if (managerCallback.isPIPEnable()) {
+            initializeMediaSession();
         }
+    }
+
+    private void initializeMediaSession() {
+        //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
+        mediaSession = new MediaSessionCompat(context, context.getPackageName());
+        MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
+        mediaSessionConnector.setPlayer(player);
+        mediaSession.setCallback(mediasSessionCallback);
+        if(context instanceof Activity)
+            MediaControllerCompat.setMediaController((Activity)context, mediaSession.getController());
+        MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, managerCallback.getTitle())
+                .build();
+        mediaSession.setMetadata(metadata);
+        mediaSession.setActive(true);
     }
 
     private MediaSessionCompat.Callback mediasSessionCallback = new MediaSessionCompat.Callback() {

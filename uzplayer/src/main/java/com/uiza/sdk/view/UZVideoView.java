@@ -123,7 +123,7 @@ public class UZVideoView extends RelativeLayout
         UZPlayerView.ControllerStateCallback, SensorOrientationChangeNotifier.Listener {
 
     private static final String HYPHEN = "-";
-    private static final long DEFAULT_VALUE_BACKWARD_FORWARD = 10000L; // 10s
+    private static final long FAST_FORWARD_REWIND_INTERVAL = 10000L; // 10s
     /**
      * The timeout in milliseconds. A non-positive value will cause the
      * controller to remain visible indefinitely.
@@ -154,7 +154,7 @@ public class UZVideoView extends RelativeLayout
     private TextView tvEndScreenMsg;
     private UZPlayerView playerView;
     private long startTime = -1;
-    private long defaultSeekValue = DEFAULT_VALUE_BACKWARD_FORWARD;
+    private long defaultSeekValue = FAST_FORWARD_REWIND_INTERVAL;
     private boolean timeBarAtBottom;
     private UZChromeCast uzChromeCast;
     private boolean isCastingChromecast = false;
@@ -493,6 +493,7 @@ public class UZVideoView extends RelativeLayout
             UZViewUtils.visibleViews(ibPauseIcon);
             ibPauseIcon.requestFocus();
         }
+        setKeepScreenOn(true);
     }
 
     public void pause() {
@@ -505,6 +506,7 @@ public class UZVideoView extends RelativeLayout
             playerManager.pause();
         }
         UZViewUtils.goneViews(ibPauseIcon);
+        setKeepScreenOn(false);
         if (ibPlayIcon != null) {
             UZViewUtils.visibleViews(ibPlayIcon);
             ibPlayIcon.requestFocus();
@@ -626,7 +628,11 @@ public class UZVideoView extends RelativeLayout
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
         positionPIPPlayer = getCurrentPosition();
         isInPipMode = !isInPictureInPictureMode;
-        if (!isPlaying()) {
+        if(isInPictureInPictureMode){
+            // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.
+            setUseController(false);
+        } else {
+            // Restore the full-screen UI.
             setUseController(true);
         }
     }
@@ -718,6 +724,7 @@ public class UZVideoView extends RelativeLayout
         }
     }
 
+    @Override
     public boolean isPIPEnable() {
         return (pipIcon != null)
                 && !isCastingChromecast()
@@ -864,7 +871,7 @@ public class UZVideoView extends RelativeLayout
             if (isCastingChromecast) {
                 Casty casty = UZData.getInstance().getCasty();
                 if (casty != null)
-                    casty.getPlayer().seekToBackward(defaultSeekValue);
+                    casty.getPlayer().seekToRewind(defaultSeekValue);
             } else if (playerManager != null) {
                 playerManager.seekToBackward(defaultSeekValue);
                 if (isPlaying()) {
@@ -1057,6 +1064,7 @@ public class UZVideoView extends RelativeLayout
     @Override
     public void onPlayerEnded() {
         if (isPlaying()) {
+            setKeepScreenOn(false);
             isOnPlayerEnded = true;
             if (isPlayPlaylistFolder() && isAutoSwitchItemPlaylistFolder) {
                 hideController();

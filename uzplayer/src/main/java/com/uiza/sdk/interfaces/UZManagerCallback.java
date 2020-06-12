@@ -3,8 +3,13 @@ package com.uiza.sdk.interfaces;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.uiza.sdk.utils.UZData;
 
 public interface UZManagerCallback {
+
+    default String getTitle() { return UZData.getInstance().getEntityName(); }
+
+    boolean isPIPEnable();
 
     PlayerView getPlayerView();
 
