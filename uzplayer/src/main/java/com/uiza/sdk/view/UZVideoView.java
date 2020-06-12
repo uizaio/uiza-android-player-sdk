@@ -712,8 +712,8 @@ public class UZVideoView extends RelativeLayout
         activityIsPausing = true;
         positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
-        // in PIP not pause
-        if (playerManager != null && !isPIPEnable()) {
+        // in PIP to continue
+        if (playerManager != null && !isInPipMode) {
             playerManager.pause();
         }
     }
