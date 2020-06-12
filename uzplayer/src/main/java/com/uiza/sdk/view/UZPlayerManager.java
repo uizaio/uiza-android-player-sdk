@@ -90,7 +90,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
     @Override
     protected boolean isPlayingAd() {
-        return uzVideoAdPlayerListener != null && uzVideoAdPlayerListener.isPlayingAd();
+        return player!= null && player.isPlayingAd();
     }
 
     @Override
@@ -99,12 +99,9 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         runnable = () -> {
             if (managerCallback == null || managerCallback.getPlayerView() == null)
                 return;
-            if (uzVideoAdPlayerListener.isEnded())
-                onAdEnded();
-            if (isPlayingAd()) {
-                handleAdProgress();
-            } else
+            if (!isPlayingAd()) {
                 handleVideoProgress();
+            }
             if (handler != null && runnable != null) {
                 handler.postDelayed(runnable, 1000);
             }
@@ -112,26 +109,11 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         new Handler().postDelayed(runnable, 0);
     }
 
-    private void handleAdProgress() {
-        isOnAdEnded = false;
-        managerCallback.setUseController(false);
-        if (progressListener != null) {
-            VideoProgressUpdate vpu = adsLoader.getAdProgress();
-            duration = (int) vpu.getDuration();
-            s = (int) (vpu.getCurrentTime()) + 1;//add 1 second
-            if (duration != 0)
-                percent = (int) (s * 100 / duration);
-            progressListener.onAdProgress(s, (int) duration, percent);
-        }
-    }
-
     @Override
     void initSource() {
         isOnAdEnded = false;
         DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = buildDrmSessionManager();
         if (this.drmScheme != null && drmSessionManager == null) return;
-        player = buildPlayer();
-        managerCallback.getPlayerView().setPlayer(player);
         mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
         mediaSourceTimeShift = createMediaSourceTimeShift(drmSessionManager);
         // Compose the content media source into a new AdsMediaSource with both ads and content.
@@ -214,14 +196,6 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
     }
 
-    public void reset() {
-        if (player != null) {
-            contentPosition = player.getContentPosition();
-            player.release();
-            player = null;
-        }
-    }
-
     @Override
     public void release() {
         if(mediaSession != null)
@@ -241,12 +215,9 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     }
 
     private class UZVideoAdPlayerListener implements VideoAdPlayer.VideoAdPlayerCallback {
-        private boolean isPlayingAd;
-        private boolean isEnded;
 
         @Override
         public void onPlay(AdMediaInfo mediaInfo) {
-            isPlayingAd = true;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPlay();
         }
 
@@ -257,13 +228,20 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
         @Override
         public void onPause(AdMediaInfo mediaInfo) {
-            isPlayingAd = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPause();
         }
 
         @Override
         public void onAdProgress(AdMediaInfo adMediaInfo, VideoProgressUpdate videoProgressUpdate) {
+            isOnAdEnded = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onAdProgress(videoProgressUpdate);
+            if (progressListener != null) {
+                duration = (int) videoProgressUpdate.getDuration();
+                s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
+                if (duration != 0)
+                    percent = (int) (s * 100 / duration);
+                progressListener.onAdProgress(s, (int) duration, percent);
+            }
         }
 
         @Override
@@ -273,15 +251,12 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
         @Override
         public void onResume(AdMediaInfo mediaInfo) {
-            isPlayingAd = true;
-            isEnded = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onResume();
         }
 
         @Override
         public void onEnded(AdMediaInfo mediaInfo) {
-            isPlayingAd = false;
-            isEnded = true;
+            onAdEnded();
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onEnded();
         }
 
@@ -292,21 +267,12 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
         @Override
         public void onError(AdMediaInfo mediaInfo) {
-            isPlayingAd = false;
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onError();
         }
 
         @Override
         public void onBuffering(AdMediaInfo mediaInfo) {
             if (uzAdPlayerCallback != null) uzAdPlayerCallback.onBuffering();
-        }
-
-        public boolean isPlayingAd() {
-            return isPlayingAd;
-        }
-
-        public boolean isEnded() {
-            return isEnded;
         }
     }
 }

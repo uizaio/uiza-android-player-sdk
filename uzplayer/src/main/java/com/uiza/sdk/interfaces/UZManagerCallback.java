@@ -13,8 +13,6 @@ public interface UZManagerCallback {
 
     boolean isAutoStart();
 
-    void setUseController(boolean useController);
-
     // progress
     void onTimelineChanged(Timeline timeline, Object manifest, int reason);
 

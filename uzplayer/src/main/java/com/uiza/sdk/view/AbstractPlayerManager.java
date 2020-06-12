@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -75,14 +76,13 @@ abstract class AbstractPlayerManager {
     private String linkPlayTimeShift;
     private boolean maybeTimeShift;
     long contentPosition;
-    protected SimpleExoPlayer player;
+    protected final SimpleExoPlayer player;
     private UZPlayerEventListener uzPlayerEventListener;
     private UZVideoEventListener uzVideoEventListener;
 
     protected Handler handler;
     Runnable runnable;
     UZProgressListener progressListener;
-
     private UZBufferListener bufferCallback;
     private long mls = 0;
     protected long duration = 0;
@@ -99,7 +99,7 @@ abstract class AbstractPlayerManager {
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
 
-    AbstractPlayerManager(@NonNull Context context, String linkPlay, String drmScheme) {
+    protected AbstractPlayerManager(@NonNull Context context, String linkPlay, String drmScheme) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
@@ -109,6 +109,7 @@ abstract class AbstractPlayerManager {
         this.maybeTimeShift = !this.linkPlayTimeShift.equals(linkPlay);
         this.drmScheme = drmScheme;
         this.userAgent = UZAppUtils.getUserAgent(this.context);
+        this.player = createPlayer();
         // Default parameters, except allowCrossProtocolRedirects is true
         this.manifestDataSourceFactory = buildHttpDataSourceFactory();
         this.mediaDataSourceFactory =
@@ -124,9 +125,10 @@ abstract class AbstractPlayerManager {
     }
 
     public void register(@NonNull UZManagerCallback callback) {
-        this.reset();
         this.unregister();
         this.managerCallback = callback;
+        if(managerCallback.getPlayerView() != null)
+            managerCallback.getPlayerView().setPlayer(player);
         initSource();
     }
 
@@ -155,12 +157,9 @@ abstract class AbstractPlayerManager {
     }
 
     public void release() {
-        if (player != null) {
-            player.stop();
-            removeListeners();
-            player.release();
-            player = null;
-        }
+        player.stop();
+        removeListeners();
+        player.release();
         handler = null;
         runnable = null;
         try {
@@ -193,7 +192,6 @@ abstract class AbstractPlayerManager {
     }
 
     void pause() {
-        if (player == null) return;
         setPlayWhenReady(false);
         if (isCanAddViewWatchTime) {
             long durationWatched = System.currentTimeMillis() - timestampPlayed;
@@ -203,17 +201,12 @@ abstract class AbstractPlayerManager {
     }
 
     void stop() {
-        if(player != null){
-            player.stop();
-        }
+        player.stop();
     }
 
     protected void reset() {
-        if (player != null) {
-            contentPosition = player.getContentPosition();
-            player.release();
-            player = null;
-        }
+        contentPosition = player.getContentPosition();
+        player.release();
         handler = null;
         runnable = null;
     }
@@ -268,20 +261,18 @@ abstract class AbstractPlayerManager {
 
     //next 10000mls
     void seekToBackward(long backward) {
-        if (player != null) {
-            if (player.getCurrentPosition() - backward > 0)
-                player.seekTo(player.getCurrentPosition() - backward);
-            else
-                player.seekTo(0);
-        }
+        if (player.getCurrentPosition() - backward > 0)
+            player.seekTo(player.getCurrentPosition() - backward);
+        else
+            player.seekTo(0);
     }
 
     long getCurrentPosition() {
-        return player != null ? player.getCurrentPosition() : 0;
+        return player.getCurrentPosition();
     }
 
     private long getDuration() {
-        return player != null ? player.getDuration() : 0;
+        return player.getDuration();
     }
 
     public boolean isMaybeTimeShift() {
@@ -409,7 +400,6 @@ abstract class AbstractPlayerManager {
             s = Math.round(mls / 1000.0f);
             progressListener.onVideoProgress(mls, s, duration, percent);
             //buffer changing
-            if (player == null) return;
             if (bufferPosition != player.getBufferedPosition()
                     || bufferPercentage != player.getBufferedPercentage()) {
                 bufferPosition = player.getBufferedPosition();
@@ -432,23 +422,17 @@ abstract class AbstractPlayerManager {
         return maybeTimeShift ? buildMediaSource(Uri.parse(linkPlayTimeShift), drmSessionManager) : null;
     }
 
-    SimpleExoPlayer buildPlayer() {
+    SimpleExoPlayer createPlayer() {
         @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
                 DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
         DefaultRenderersFactory renderersFactory =
                 new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
         trackSelector = new DefaultTrackSelector(context, videoTrackSelectionFactory);
-        SimpleExoPlayer.Builder builder = new SimpleExoPlayer.Builder(context, renderersFactory);
-        builder.setTrackSelector(trackSelector).setLoadControl(new UZLoadControl() {
-            @Override
-            public boolean shouldContinueLoading(long bufferedDurationUs, float playbackSpeed) {
-                if (bufferCallback != null)
-                    bufferCallback.onBufferChanged(bufferedDurationUs, playbackSpeed);
-                return super.shouldContinueLoading(bufferedDurationUs, playbackSpeed);
-            }
-        });
-        return builder.build();
+        return new SimpleExoPlayer.Builder(context, renderersFactory)
+                .setTrackSelector(trackSelector)
+                .setLoadControl(UZLoadControl.createControl(bufferCallback))
+                .build();
     }
 
     DefaultDrmSessionManager<ExoMediaCrypto> buildDrmSessionManager() {

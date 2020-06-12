@@ -194,7 +194,6 @@ public class UZVideoView extends RelativeLayout
      * ======== START EVENT =====
      */
     private UZLiveContentCallback uzLiveContentCallback;
-    private UZProgressListener progressListener;
     private PreviewView.OnPreviewChangeListener onPreviewChangeListener;
     private UZVideoViewItemClick uzVideoViewItemClick;
     private UZCallback uzCallback;
@@ -965,7 +964,6 @@ public class UZVideoView extends RelativeLayout
         return useController;
     }
 
-    @Override
     public void setUseController(boolean useController) {
         this.useController = useController;
         if (playerView != null)
@@ -1082,6 +1080,7 @@ public class UZVideoView extends RelativeLayout
                 break;
             case Player.STATE_READY: // can start playback
                 hideProgress();
+                updateTvDuration();
                 if (playWhenReady) {
                     // media actually playing
                     hideLayoutMsg();
@@ -2019,7 +2018,6 @@ public class UZVideoView extends RelativeLayout
     }
 
     private void updateUIEndScreen() {
-        if (getContext() == null) return;
         if (isOnPlayerEnded) {
             setVisibilityOfPlayPauseReplay(true);
             showController();
@@ -2181,10 +2179,6 @@ public class UZVideoView extends RelativeLayout
         handleFirstViewHasFocus();
     }
 
-    public void setProgressListener(UZProgressListener progressListener) {
-        this.progressListener = progressListener;
-    }
-
     public void setOnPreviewChangeListener(PreviewView.OnPreviewChangeListener onPreviewChangeListener) {
         this.onPreviewChangeListener = onPreviewChangeListener;
     }
@@ -2271,23 +2265,6 @@ public class UZVideoView extends RelativeLayout
                 .withIMAAdUrl(urlIMAAd)
                 .build();
         isFirstStateReady = false;
-        playerManager.setAdPlayerCallback(new UZAdPlayerCallback() {
-            @Override
-            public void onPlay() {
-                updateTvDuration();
-            }
-
-            @Override
-            public void onEnded() {
-                updateTvDuration();
-            }
-
-            @Override
-            public void onError() {
-                updateTvDuration();
-            }
-
-        });
         if (timeBar != null) {
             boolean disable = TextUtils.isEmpty(urlThumbnailsPreviewSeekBar);
             timeBar.setEnabled(!disable);
@@ -2295,38 +2272,10 @@ public class UZVideoView extends RelativeLayout
         }
         playerManager.setProgressListener(new UZProgressListener() {
             @Override
-            public void onAdEnded() {
-                setUseController(isUseController());
-                if (progressListener != null)
-                    progressListener.onAdEnded();
-            }
-
-            @Override
-            public void onAdProgress(int s, int duration, int percent) {
-                if (progressListener != null)
-                    progressListener.onAdProgress(s, duration, percent);
-            }
-
-            @Override
             public void onVideoProgress(long currentMls, int s, long duration, int percent) {
-                TmpParamData.getInstance().setPlayerPlayheadTime(s);
                 post(() -> updateUIIbRewIconDependOnProgress(currentMls, false));
                 if (isLIVE())
                     post(() -> updateLiveStatus(currentMls, duration));
-                if (progressListener != null)
-                    progressListener.onVideoProgress(currentMls, s, duration, percent);
-            }
-
-            @Override
-            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                if (progressListener != null)
-                    progressListener.onPlayerStateChanged(playWhenReady, playbackState);
-            }
-
-            @Override
-            public void onBufferProgress(long bufferedPosition, int bufferedPercentage, long duration) {
-                if (progressListener != null)
-                    progressListener.onBufferProgress(bufferedPosition, bufferedPercentage, duration);
             }
         });
         playerManager.setDebugCallback(this::updateUIButtonVisibilities);
@@ -2342,7 +2291,7 @@ public class UZVideoView extends RelativeLayout
             ImageUtils.loadThumbnail(ivThumbnail, thumbnailsUrl, currentPosition);
     }
 
-    protected void onStateReadyFirst() {
+    private void onStateReadyFirst() {
         long pageLoadTime = System.currentTimeMillis() - timestampBeforeInitNewSession;
         TmpParamData.getInstance().setPageLoadTime(pageLoadTime);
         TmpParamData.getInstance().setViewStart(System.currentTimeMillis());
