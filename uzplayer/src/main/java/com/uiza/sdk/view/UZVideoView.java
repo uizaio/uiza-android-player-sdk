@@ -802,14 +802,16 @@ public class UZVideoView extends RelativeLayout
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        if(playerView == null) return;
         resizeContainerView();
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            UZViewUtils.hideDefaultControls((Activity) getContext());
+       int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            UZViewUtils.hideSystemUiFullScreen(playerView);
             isLandscape = true;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, true);
             UZViewUtils.goneViews(pipIcon);
         } else {
-            UZViewUtils.showDefaultControls((Activity) getContext());
+            UZViewUtils.hideSystemUi(playerView);
             isLandscape = false;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, false);
             if (isPIPEnable())
@@ -1071,14 +1073,14 @@ public class UZVideoView extends RelativeLayout
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         switch (playbackState) {
-            case Player.STATE_BUFFERING:
-            case Player.STATE_IDLE:
+            case Player.STATE_BUFFERING: // more data needs to load
+            case Player.STATE_IDLE: // nothing to play media
                 showProgress();
                 break;
             case Player.STATE_ENDED:
                 onPlayerEnded();
                 break;
-            case Player.STATE_READY:
+            case Player.STATE_READY: // can start playback
                 hideProgress();
                 if (playWhenReady) {
                     // media actually playing

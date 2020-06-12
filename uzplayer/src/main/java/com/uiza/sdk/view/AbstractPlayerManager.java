@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -50,6 +51,7 @@ import com.uiza.sdk.utils.UZAppUtils;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 import timber.log.Timber;
@@ -154,12 +156,18 @@ abstract class AbstractPlayerManager {
 
     public void release() {
         if (player != null) {
+            player.stop();
             removeListeners();
             player.release();
             player = null;
         }
         handler = null;
         runnable = null;
+        try {
+            Objects.requireNonNull(managerCallback.getPlayerView().getOverlayFrameLayout()).removeAllViews();
+        } catch (NullPointerException e) {
+            Timber.e(e);
+        }
     }
 
     DefaultTrackSelector getTrackSelector() {
@@ -177,7 +185,9 @@ abstract class AbstractPlayerManager {
     }
 
     void resume() {
-        setPlayWhenReady(true);
+        if(linkPlay != null) {
+            setPlayWhenReady(true);
+        }
         timestampPlayed = System.currentTimeMillis();
         isCanAddViewWatchTime = true;
     }
@@ -189,6 +199,12 @@ abstract class AbstractPlayerManager {
             long durationWatched = System.currentTimeMillis() - timestampPlayed;
             TmpParamData.getInstance().addViewWatchTime(durationWatched);
             isCanAddViewWatchTime = false;
+        }
+    }
+
+    void stop() {
+        if(player != null){
+            player.stop();
         }
     }
 

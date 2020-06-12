@@ -41,6 +41,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
     MediaSource mediaSourceVideo;
     MediaSource mediaSourceTimeShift;
+    MediaSessionCompat mediaSession;
 
     public static class Builder {
         private Context context;
@@ -150,12 +151,31 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         notifyUpdateButtonVisibility();
         if (UZAppUtils.hasSupportPIP(context)) {
             //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
-            MediaSessionCompat mediaSession = new MediaSessionCompat(context, context.getPackageName());
+            mediaSession = new MediaSessionCompat(context, context.getPackageName());
             MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
             mediaSessionConnector.setPlayer(player);
+            mediaSession.setCallback(mediasSessionCallback);
             mediaSession.setActive(true);
         }
     }
+
+    private MediaSessionCompat.Callback mediasSessionCallback = new MediaSessionCompat.Callback() {
+        @Override
+        public void onPause() {
+            super.onPause();
+            pause();
+        }
+        @Override
+        public void onStop() {
+            super.onStop();
+            stop();
+        }
+        @Override
+        public void onPlay() {
+            super.onPlay();
+            resume();
+        }
+    };
 
     boolean switchTimeShift(boolean useTimeShift) {
         if (mediaSourceTimeShift != null) {
@@ -204,19 +224,16 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
     @Override
     public void release() {
-        super.release();
+        if(mediaSession != null)
+            mediaSession.release();
         if (adsLoader != null) {
             adsLoader.removeCallback(uzVideoAdPlayerListener);
             adsLoader.setPlayer(null);
             adsLoader.release();
             adsLoader = null;
             urlIMAAd = null;
-            try {
-                Objects.requireNonNull(managerCallback.getPlayerView().getOverlayFrameLayout()).removeAllViews();
-            } catch (NullPointerException e) {
-                Timber.e(e);
-            }
         }
+        super.release();
     }
 
     void setAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
