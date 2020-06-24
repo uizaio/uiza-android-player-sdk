@@ -2069,7 +2069,7 @@ public class UZVideoView extends RelativeLayout
         if (playerManager != null && playerManager.isTimeShiftSupport()) {
             actions.add(new SettingItem(getResources().getString(R.string.time_shift), playerManager.isTimeShiftOn(), isChecked -> {
                 if (dlg != null) {
-                   postDelayed(() ->  dlg.dismiss(), 1000);
+                   postDelayed(() ->  dlg.dismiss(), 800);
                 }
                 return playerManager.switchTimeShift(isChecked);
             }));
@@ -2518,11 +2518,9 @@ public class UZVideoView extends RelativeLayout
     private void updateLiveStatus(long currentMls, long duration) {
         if (tvLiveStatus == null) return;
         long timeToEndChunk = duration - currentMls;
-        if(playerManager !=null){
+        if(playerManager != null){
             if(playerManager.isTimeShiftSupport() && !playerManager.isTimeShiftOn()){
                 UZViewUtils.goneViews(timeBar, ivVideoCover);
-            } else {
-                UZViewUtils.visibleViews(timeBar);
             }
         }
         if (timeToEndChunk <= targetDurationMls * 10) {

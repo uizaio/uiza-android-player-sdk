@@ -426,13 +426,12 @@ abstract class AbstractPlayerManager {
                 String linkPlayExt = linkPlay.replace(fileName, timeShift);
                 createMediaSourceVideoExt(linkPlayExt);
                 extIsTimeShift = true;
-                setTimeShiftOn(false);
             } else {
                 String linkPlayExt = linkPlay.replace(timeShift, "extras/" + timeShift);
                 createMediaSourceVideoExt(linkPlayExt);
                 extIsTimeShift = false;
-                setTimeShiftOn(true);
             }
+            setTimeShiftOn(!extIsTimeShift);
         }
     }
 
