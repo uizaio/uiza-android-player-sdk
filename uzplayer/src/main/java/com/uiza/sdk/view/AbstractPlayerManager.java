@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
@@ -26,7 +25,9 @@ import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -34,7 +35,6 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
@@ -46,7 +46,7 @@ import com.uiza.sdk.interfaces.UZManagerCallback;
 import com.uiza.sdk.listerner.UZBufferListener;
 import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.utils.Constants;
-import com.uiza.sdk.utils.StringUtils;
+import com.uiza.sdk.utils.ConvertUtils;
 import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
 
@@ -73,13 +73,13 @@ abstract class AbstractPlayerManager {
     UZManagerCallback managerCallback;
     String drmScheme;
     private String linkPlay;
-    private String linkPlayTimeShift;
-    private boolean maybeTimeShift;
     long contentPosition;
     protected final SimpleExoPlayer player;
     private UZPlayerEventListener uzPlayerEventListener;
     private UZVideoEventListener uzVideoEventListener;
-
+    private boolean timeShiftSupport = false;
+    private boolean extIsTimeShift = false;
+    private boolean timeShiftOn = false;
     protected Handler handler;
     Runnable runnable;
     UZProgressListener progressListener;
@@ -98,6 +98,9 @@ abstract class AbstractPlayerManager {
     private int videoHeight;
     private DebugCallback debugCallback;
     private ExoPlaybackException exoPlaybackException;
+    MediaSource mediaSourceVideo;
+    MediaSource mediaSourceVideoExt;
+    DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
     protected AbstractPlayerManager(@NonNull Context context, String linkPlay, String drmScheme) {
         TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
@@ -105,8 +108,6 @@ abstract class AbstractPlayerManager {
         this.isCanAddViewWatchTime = true;
         this.context = context;
         this.linkPlay = linkPlay;
-        this.linkPlayTimeShift = StringUtils.timeShiftLink(linkPlay);
-        this.maybeTimeShift = !this.linkPlayTimeShift.equals(linkPlay);
         this.drmScheme = drmScheme;
         this.userAgent = UZAppUtils.getUserAgent(this.context);
         this.player = createPlayer();
@@ -114,6 +115,7 @@ abstract class AbstractPlayerManager {
         this.manifestDataSourceFactory = buildHttpDataSourceFactory();
         this.mediaDataSourceFactory =
                 new DefaultDataSourceFactory(context, null /* listener */, manifestDataSourceFactory);
+        this.drmSessionManager = buildDrmSessionManager();
     }
 
     /**
@@ -127,12 +129,12 @@ abstract class AbstractPlayerManager {
     public void register(@NonNull UZManagerCallback callback) {
         this.unregister();
         this.managerCallback = callback;
-        if(managerCallback.getPlayerView() != null)
+        if (managerCallback.getPlayerView() != null)
             managerCallback.getPlayerView().setPlayer(player);
         initSource();
     }
 
-    public void unregister(){
+    public void unregister() {
         this.managerCallback = null;
     }
 
@@ -142,10 +144,6 @@ abstract class AbstractPlayerManager {
 
     String getLinkPlay() {
         return linkPlay;
-    }
-
-    String getLinkPlayTimeShift() {
-        return linkPlayTimeShift;
     }
 
     void setProgressListener(UZProgressListener progressListener) {
@@ -184,7 +182,7 @@ abstract class AbstractPlayerManager {
     }
 
     void resume() {
-        if(linkPlay != null) {
+        if (linkPlay != null) {
             setPlayWhenReady(true);
         }
         timestampPlayed = System.currentTimeMillis();
@@ -273,10 +271,6 @@ abstract class AbstractPlayerManager {
 
     private long getDuration() {
         return player.getDuration();
-    }
-
-    public boolean isMaybeTimeShift() {
-        return maybeTimeShift;
     }
 
     protected boolean isVOD() {
@@ -414,12 +408,44 @@ abstract class AbstractPlayerManager {
             debugCallback.onUpdateButtonVisibilities();
     }
 
-    MediaSource createMediaSourceVideo(DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager) {
-        return buildMediaSource(Uri.parse(linkPlay), drmSessionManager);
+    void createMediaSourceVideo() {
+        mediaSourceVideo = buildMediaSource(Uri.parse(linkPlay), drmSessionManager);
     }
 
-    MediaSource createMediaSourceTimeShift(DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager) {
-        return maybeTimeShift ? buildMediaSource(Uri.parse(linkPlayTimeShift), drmSessionManager) : null;
+    void createMediaSourceVideoExt(String linkPlayExt) {
+        mediaSourceVideoExt = buildMediaSource(Uri.parse(linkPlayExt), drmSessionManager);
+    }
+
+    private void updateMediaSourceExt(HlsManifest manifest) {
+        HlsMasterPlaylist playlist = ((HlsManifest) manifest).masterPlaylist;
+        String timeShift = ConvertUtils.getTimeShiftUrl(playlist);
+        timeShiftSupport = !TextUtils.isEmpty(timeShift);
+        if (timeShiftSupport && mediaSourceVideoExt == null) {
+            if (timeShift.contains("extras/")) {
+                String fileName = timeShift.replace("extras/", "");
+                String linkPlayExt = linkPlay.replace(fileName, timeShift);
+                createMediaSourceVideoExt(linkPlayExt);
+                extIsTimeShift = true;
+                setTimeShiftOn(false);
+            } else {
+                String linkPlayExt = linkPlay.replace(timeShift, "extras/" + timeShift);
+                createMediaSourceVideoExt(linkPlayExt);
+                extIsTimeShift = false;
+                setTimeShiftOn(true);
+            }
+        }
+    }
+
+    public boolean isTimeShiftSupport() {
+        return timeShiftSupport;
+    }
+
+    public boolean isExtIsTimeShift() {
+        return extIsTimeShift;
+    }
+
+    public boolean isTimeShiftOn() {
+        return timeShiftOn;
     }
 
     SimpleExoPlayer createPlayer() {
@@ -478,6 +504,10 @@ abstract class AbstractPlayerManager {
 
     abstract void setRunnable();
 
+    void setTimeShiftOn(boolean timeShiftOn) {
+        this.timeShiftOn = timeShiftOn;
+    }
+
     List<String> getSubtitleList() {
         return null; // template no support
     }
@@ -518,6 +548,12 @@ abstract class AbstractPlayerManager {
         //This is called when either playWhenReady or playbackState changes
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            if (playbackState == Player.STATE_READY) {
+                Object manifest = player.getCurrentManifest();
+                if (manifest instanceof HlsManifest) {
+                    updateMediaSourceExt((HlsManifest) manifest);
+                }
+            }
             notifyUpdateButtonVisibility();
             if (managerCallback != null)
                 managerCallback.onPlayerStateChanged(playWhenReady, playbackState);

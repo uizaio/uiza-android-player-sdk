@@ -7,7 +7,9 @@ import com.uiza.sdk.utils.UZData;
 
 public interface UZManagerCallback {
 
-    default String getTitle() { return UZData.getInstance().getEntityName(); }
+    default String getTitle() {
+        return UZData.getInstance().getEntityName();
+    }
 
     boolean isPIPEnable();
 

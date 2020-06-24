@@ -186,7 +186,8 @@ public class UZViewUtils {
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
         );
     }
-    public static void hideSystemUi(@NonNull PlayerView playerView){
+
+    public static void hideSystemUi(@NonNull PlayerView playerView) {
         playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 & ~View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY

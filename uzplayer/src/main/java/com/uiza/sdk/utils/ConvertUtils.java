@@ -4,12 +4,14 @@ import android.content.res.Resources;
 import android.text.TextUtils;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.source.hls.playlist.HlsMasterPlaylist;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 
 public class ConvertUtils {
 
     private static final String EXT_X_PROGRAM_DATE_TIME = "#EXT-X-PROGRAM-DATE-TIME:";
     private static final String EXTINF = "#EXTINF:";
+    private static final String EXT_X_UZ_TIMESHIFT = "#EXT-X-UZ-TIMESHIFT:";
 
     private ConvertUtils() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -33,6 +35,17 @@ public class ConvertUtils {
     public static int px2sp(float pxValue) {
         final float fontScale = Resources.getSystem().getDisplayMetrics().scaledDensity;
         return (int) (pxValue / fontScale + 0.5f);
+    }
+
+    public static String getTimeShiftUrl(HlsMasterPlaylist playlist) {
+        if (playlist == null || ListUtils.isEmpty(playlist.tags))
+            return null;
+        for (String tag : playlist.tags) {
+            if (tag.contains(EXT_X_UZ_TIMESHIFT)) {
+                return tag.replace(EXT_X_UZ_TIMESHIFT, "");
+            }
+        }
+        return null;
     }
 
     public static long getProgramDateTime(HlsMediaPlaylist playlist, long timeToEndChunk) {

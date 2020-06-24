@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -17,9 +16,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -27,10 +24,6 @@ import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
-
-import java.util.Objects;
-
-import timber.log.Timber;
 
 /**
  * Manages the {@link ExoPlayer}, the IMA plugin and all video playback.
@@ -43,8 +36,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private boolean isOnAdEnded;
     private UZAdPlayerCallback uzAdPlayerCallback;
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
-    MediaSource mediaSourceVideo;
-    MediaSource mediaSourceTimeShift;
+
     MediaSessionCompat mediaSession;
 
     public static class Builder {
@@ -94,7 +86,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
     @Override
     protected boolean isPlayingAd() {
-        return player!= null && player.isPlayingAd();
+        return player != null && player.isPlayingAd();
     }
 
     @Override
@@ -116,21 +108,13 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     @Override
     void initSource() {
         isOnAdEnded = false;
-        DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = buildDrmSessionManager();
         if (this.drmScheme != null && drmSessionManager == null) return;
-        mediaSourceVideo = createMediaSourceVideo(drmSessionManager);
-        mediaSourceTimeShift = createMediaSourceTimeShift(drmSessionManager);
+        createMediaSourceVideo();
         // Compose the content media source into a new AdsMediaSource with both ads and content.
         initPlayerListeners();
-        if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable()) {
-            mediaSourceVideo = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
-            if (mediaSourceTimeShift != null) {
-                mediaSourceTimeShift = createAdsMediaSource(mediaSourceTimeShift, Uri.parse(urlIMAAd));
-            }
-            if (adsLoader != null) {
-                adsLoader.setPlayer(player);
-                adsLoader.addCallback(uzVideoAdPlayerListener);
-            }
+        if (adsLoader != null) {
+            adsLoader.setPlayer(player);
+            adsLoader.addCallback(uzVideoAdPlayerListener);
         }
         player.prepare(mediaSourceVideo);
         setPlayWhenReady(managerCallback.isAutoStart());
@@ -140,14 +124,30 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         }
     }
 
+    @Override
+    void createMediaSourceVideo() {
+        super.createMediaSourceVideo();
+        if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable() && mediaSourceVideo != null) {
+            mediaSourceVideo = createAdsMediaSource(mediaSourceVideo, Uri.parse(urlIMAAd));
+        }
+    }
+
+    @Override
+    void createMediaSourceVideoExt(String linkPlayExt) {
+        super.createMediaSourceVideoExt(linkPlayExt);
+        if (!TextUtils.isEmpty(urlIMAAd) && UZAppUtils.isAdsDependencyAvailable() && mediaSourceVideoExt != null) {
+            mediaSourceVideoExt = createAdsMediaSource(mediaSourceVideoExt, Uri.parse(urlIMAAd));
+        }
+    }
+
     private void initializeMediaSession() {
         //Use Media Session Connector from the EXT library to enable MediaSession Controls in PIP.
         mediaSession = new MediaSessionCompat(context, context.getPackageName());
         MediaSessionConnector mediaSessionConnector = new MediaSessionConnector(mediaSession);
         mediaSessionConnector.setPlayer(player);
         mediaSession.setCallback(mediasSessionCallback);
-        if(context instanceof Activity)
-            MediaControllerCompat.setMediaController((Activity)context, mediaSession.getController());
+        if (context instanceof Activity)
+            MediaControllerCompat.setMediaController((Activity) context, mediaSession.getController());
         MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, managerCallback.getTitle())
                 .build();
@@ -161,11 +161,13 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             super.onPause();
             pause();
         }
+
         @Override
         public void onStop() {
             super.onStop();
             stop();
         }
+
         @Override
         public void onPlay() {
             super.onPlay();
@@ -173,10 +175,15 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         }
     };
 
+
     boolean switchTimeShift(boolean useTimeShift) {
-        if (mediaSourceTimeShift != null) {
-            player.prepare(useTimeShift ? mediaSourceTimeShift : mediaSourceVideo);
+        if (mediaSourceVideoExt != null) {
+            if (isExtIsTimeShift())
+                player.prepare(useTimeShift ? mediaSourceVideoExt : mediaSourceVideo);
+            else
+                player.prepare(useTimeShift ? mediaSourceVideo : mediaSourceVideoExt);
             player.setPlayWhenReady(true);
+            setTimeShiftOn(useTimeShift);
             return true;
         }
         return false;
@@ -212,7 +219,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
     @Override
     public void release() {
-        if(mediaSession != null)
+        if (mediaSession != null)
             mediaSession.release();
         if (adsLoader != null) {
             adsLoader.removeCallback(uzVideoAdPlayerListener);

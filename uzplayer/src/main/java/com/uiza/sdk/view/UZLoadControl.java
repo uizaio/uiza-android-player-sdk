@@ -36,7 +36,7 @@ class UZLoadControl extends DefaultLoadControl {
         this.bufferCallback = bufferCallback;
     }
 
-    public static UZLoadControl createControl(UZBufferListener listener){
+    public static UZLoadControl createControl(UZBufferListener listener) {
         return new UZLoadControl(listener);
     }
 

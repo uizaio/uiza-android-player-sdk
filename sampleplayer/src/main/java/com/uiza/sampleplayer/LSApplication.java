@@ -11,8 +11,8 @@ import timber.log.Timber;
 public class LSApplication extends MultiDexApplication {
 
     public static final String[] urls = new String[]{
+            "https://1775190502.rsc.cdn77.org/live/866a3640-7d77-4179-ad0e-867fef2130e8/master.m3u8?cm=eyJlbnRpdHlfaWQiOiI4NjZhMzY0MC03ZDc3LTQxNzktYWQwZS04NjdmZWYyMTMwZTgiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6ImYxOWE0ZmQzYmFhMjQ0YmZhMThhODZjMDE0NDEzYWU4In0=",
             "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-            "https://1775190502.rsc.cdn77.org/live/6ee23995-f4aa-45d3-9395-17ce60eebc40/extras/master.m3u8?cm=eyJlbnRpdHlfaWQiOiI2ZWUyMzk5NS1mNGFhLTQ1ZDMtOTM5NS0xN2NlNjBlZWJjNDAiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6IjkyYThkMjAzMmZlODQ5MmFhNzc4MDRiNGMyYzUxOWM1In0=",
             "https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd",
             "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"};
 
@@ -29,6 +29,6 @@ public class LSApplication extends MultiDexApplication {
         }
         UZPlayer.init(this);
         UZApi.init(this,"SamplePlayer", BuildConfig.VERSION_NAME);
-        UZData.getInstance().setUrlIMAAd(VAST_SAMPLE_URL);
+//        UZData.getInstance().setUrlIMAAd(VAST_SAMPLE_URL);
     }
 }
