@@ -80,6 +80,12 @@ public class SettingAdapter extends ArrayAdapter<SettingItem> {
                         toggle.setChecked(nextCheck);
                 }
             });
+            toggle.setOnCheckedChangeListener((bt, checked) -> {
+                if (listener != null) {
+                    if (listener.onCheckedChanged(checked))
+                        toggle.setChecked(checked);
+                }
+            });
         }
 
         public void setChecked(boolean checked) {
