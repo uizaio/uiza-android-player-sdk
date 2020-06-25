@@ -40,6 +40,7 @@ public class MediaData {
     private String title;
     private String subtitle;
     private List<String> imageUrls;
+
     private MediaData(String url) {
         this.url = url;
         imageUrls = new ArrayList<>();

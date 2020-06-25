@@ -22,7 +22,6 @@ public class AudioVolumeObserver {
 
     public void register(int audioStreamType,
                          @NonNull OnAudioVolumeChangedListener listener) {
-        audioStreamType = audioStreamType;
         // with this handler AudioVolumeContentObserver#onChange()
         //   will be executed in the main thread
         // To execute in another thread you can use a Looper

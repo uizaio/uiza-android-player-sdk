@@ -7,9 +7,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.uiza.sdk.utils.JacksonUtils;
 import com.uiza.sdk.utils.ListUtils;
-import com.uiza.sdk.utils.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,35 +37,31 @@ public class UZPlayback implements Parcelable {
     private String id;
     private String name;
     private String description;
-    private String thumbnail;
     private float duration;
-    private String logo;
+    private String poster;
     private Date createdAt;
-    private String hls;
-    private String hlsTs;
-    private String mpd;
+    private List<String> linkPlays;
 
     public UZPlayback() {
+        linkPlays = new ArrayList<>();
     }
 
-    public UZPlayback(String id, String name, String description, String thumbnail) {
+    public UZPlayback(String id, String name, String description, String poster) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.thumbnail = thumbnail;
+        this.poster = poster;
+        linkPlays = new ArrayList<>();
     }
 
     protected UZPlayback(Parcel in) {
         id = in.readString();
         name = in.readString();
         description = in.readString();
-        thumbnail = in.readString();
-        logo = in.readString();
+        poster = in.readString();
         duration = in.readFloat();
         createdAt = new Date(in.readLong());
-        hls = in.readString();
-        hlsTs = in.readString();
-        mpd = in.readString();
+        in.readStringList(linkPlays);
     }
 
     @Override
@@ -75,17 +69,10 @@ public class UZPlayback implements Parcelable {
         dest.writeString(id);
         dest.writeString(name);
         dest.writeString(description);
-        dest.writeString(thumbnail);
-        dest.writeString(logo);
+        dest.writeString(poster);
         dest.writeFloat(duration);
         dest.writeLong(createdAt.getTime());
-        dest.writeString(hls);
-        dest.writeString(hlsTs);
-        dest.writeString(mpd);
-    }
-
-    public void setThumbnail(String thumbnail) {
-        this.thumbnail = thumbnail;
+        dest.writeStringList(linkPlays);
     }
 
     public void setName(String name) {
@@ -96,17 +83,13 @@ public class UZPlayback implements Parcelable {
         this.id = id;
     }
 
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public void setHlsTs(String hlsTs) {
-        this.hlsTs = hlsTs;
-    }
-
-    public void setMpd(String mpd) {
-        this.mpd = mpd;
     }
 
     public String getId() {
@@ -122,24 +105,12 @@ public class UZPlayback implements Parcelable {
         return description;
     }
 
-    public String getLogo() {
-        return logo;
-    }
-
-    public String getThumbnail() {
-        return thumbnail;
+    public String getPoster() {
+        return poster;
     }
 
     public float getDuration() {
         return duration;
-    }
-
-    public String getHls() {
-        return hls;
-    }
-
-    public void setHls(String hls) {
-        this.hls = hls;
     }
 
     public Date getCreatedAt() {
@@ -147,64 +118,42 @@ public class UZPlayback implements Parcelable {
     }
 
     public boolean canPlay() {
-        return !TextUtils.isEmpty(hls) || !TextUtils.isEmpty(hlsTs) || !TextUtils.isEmpty(mpd);
+        return !ListUtils.isEmpty(linkPlays);
     }
 
-    public List<String> getUrls() {
-        List<String> urls = new ArrayList<>();
-        if (!TextUtils.isEmpty(this.hls))
-            urls.add(this.hls);
-        if (!TextUtils.isEmpty(this.hlsTs))
-            urls.add(this.hlsTs);
-        if (!TextUtils.isEmpty(this.mpd))
-            urls.add(this.mpd);
-        return urls;
-    }
-
-    public void setLinkPlay(String linkPlay) {
-        if (linkPlay.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0) {
-            setHls(linkPlay);
-        } else if (linkPlay.toLowerCase().indexOf(UZMediaExtension.MPD) > 0) {
-            setMpd(linkPlay);
-        } else {
-            setHlsTs(linkPlay);
+    public void addLinkPlay(String linkPlay) {
+        if (!TextUtils.isEmpty(linkPlay)) {
+            linkPlays.add(linkPlay);
         }
     }
 
     public List<String> getLinkPlays() {
-        List<String> listLinkPlay = new ArrayList<>();
-        List<String> urls = getUrls();
-        listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.MPD) > 0));
-        listLinkPlay.addAll(ListUtils.filter(urls, url -> url.toLowerCase().indexOf(UZMediaExtension.M3U8) > 0));
-        return listLinkPlay;
+        return linkPlays;
     }
 
-
-    public String getLinkPlay() {
-        if (!TextUtils.isEmpty(mpd)) {
-            return mpd;
-        } else if (!TextUtils.isEmpty(hls)) {
-            return hls;
-        } else {
-            return hlsTs;
-        }
+    public int getSize() {
+        return linkPlays.size();
     }
 
-    public UZPlaybackInfo getPlaybackInfo() {
-        String url = getLinkPlay();
+    public String getLinkPlay(int pos) {
+        if (ListUtils.isEmpty(linkPlays) || pos >= linkPlays.size())
+            return null;
+        return linkPlays.get(pos);
+    }
+
+    /**
+     * default: dash -> hls -> single file
+     *
+     * @return string of url
+     */
+    public String getFirstLinkPlay() {
+        if (ListUtils.isEmpty(linkPlays)) return null;
+        return linkPlays.get(0);
+    }
+
+    public URL getFirstPlayUrl() {
         try {
-            String json = StringUtils.parserInfo(url);
-            if (json != null)
-                return JacksonUtils.fromJson(json, UZPlaybackInfo.class);
-        } catch (Exception e) {
-            Timber.e(e);
-        }
-        return null;
-    }
-
-    public URL getPlayUrl() {
-        try {
-            return new URL(getLinkPlay());
+            return new URL(getFirstLinkPlay());
         } catch (MalformedURLException e) {
             Timber.w(e);
             return null;
@@ -215,7 +164,7 @@ public class UZPlayback implements Parcelable {
     @Override
     public String toString() {
         return String.format(Locale.getDefault(),
-                "UZPlayback(id: %s, name: %s, description: %s, thumbnail: %s , hls: %s, hls_ts: %s, mpd: %s)",
-                id, name, description, thumbnail, hls, hlsTs, mpd);
+                "UZPlayback(id: %s, name: %s, description: %s, poster: %s)",
+                id, name, description, poster);
     }
 }

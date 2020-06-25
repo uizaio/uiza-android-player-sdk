@@ -27,11 +27,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.ViewFlipper;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.sdk.R;
 
 import java.util.ArrayList;
@@ -174,47 +174,26 @@ public class UZViewUtils {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         else if (s == Configuration.ORIENTATION_PORTRAIT) {
             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);//xoay qua xoay lai landscape
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_BEHIND);//ko thay gi xay ra
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);//xoay tum lum, nhung khi nhan full thi no k xoay sang landscape
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);//co ve nhu gan giong full sensor
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//chi xoay dc 1 landscape ben trai
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);//hinh nhu la no lock luon cai orientation hien tai
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//xoay portrait
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);//xoay landscape ben phai
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);//xoay portrait ben tren
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);//xoay dc landscape trai phai va portrait duoi, ko xoay dc portrait tren
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);//ko con sensor
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);//xoay tum lum, nhung khi nhan full thi no k xoay sang landscape
-            //activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
         }
     }
 
-    public static void hideDefaultControls(@NonNull Activity activity) {
-        final Window window = activity.getWindow();
-        if (window == null) return;
-        window.clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        final View decorView = window.getDecorView();
-        int uiOptions = decorView.getSystemUiVisibility();
-        uiOptions |= View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        decorView.setSystemUiVisibility(uiOptions);
+    public static void hideSystemUiFullScreen(@NonNull PlayerView playerView) {
+        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        );
     }
 
-    public static void showDefaultControls(@NonNull Activity activity) {
-        final Window window = activity.getWindow();
-        if (window == null) return;
-        window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        final View decorView = window.getDecorView();
-        int uiOptions = decorView.getSystemUiVisibility();
-        uiOptions &= ~View.SYSTEM_UI_FLAG_LOW_PROFILE;
-        uiOptions &= ~View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-        uiOptions &= ~View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        decorView.setSystemUiVisibility(uiOptions);
+    public static void hideSystemUi(@NonNull PlayerView playerView) {
+        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                & ~View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                & ~View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                & ~View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                & ~View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+        );
     }
 
     public static void setColorProgressBar(@NonNull ProgressBar progressBar, @ColorInt int color) {
@@ -309,7 +288,7 @@ public class UZViewUtils {
     }
 
     public static void showDialog(@NonNull Dialog dialog) {
-        boolean isFullScreen = UZViewUtils.isFullScreen(dialog.getContext());
+        boolean isFullScreen = isFullScreen(dialog.getContext());
         Window window = dialog.getWindow();
         if (window == null) return;
         if (isFullScreen) {

@@ -52,6 +52,7 @@ public class TmpParamData {
     private long viewMaxSeekTime = 0;
     private int viewRebufferCount = 0;
     private long viewRebufferDuration = 0;
+
     private TmpParamData() {
     }
 

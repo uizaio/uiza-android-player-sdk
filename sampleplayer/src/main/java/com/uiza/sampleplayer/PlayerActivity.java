@@ -43,7 +43,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     private UZDragView uzDragView;
     private EditText etLinkPlay;
     private List<UZPlayback> playlist;
-    Button btPlay, btnStarts;
+    Button btPlay;
     private Handler handler = new Handler(Looper.getMainLooper());
     private CompositeDisposable disposables;
 
@@ -64,7 +64,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         llBottom = findViewById(R.id.hsv_bottom);
         etLinkPlay = findViewById(R.id.et_link_play);
         btPlay = findViewById(R.id.bt_play);
-        btnStarts = findViewById(R.id.bt_stats_for_nerds);
         uzDragView.setCallback(this);
         uzDragView.setScreenRotate(false);
         uzVideo.setUZCallback(this);
@@ -89,7 +88,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             etLinkPlay.setVisibility(View.VISIBLE);
             initPlaylist();
         }
-        btnStarts.setVisibility(View.GONE);
         findViewById(R.id.bt_0).setOnClickListener(view -> updateView(0));
         findViewById(R.id.bt_1).setOnClickListener(view -> updateView(1));
         findViewById(R.id.bt_2).setOnClickListener(view -> updateView(2));
@@ -100,21 +98,11 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
             uzVideo.play(playlist);
         });
         btPlay.setOnClickListener(view -> onPlay());
-        btnStarts.setOnClickListener(v -> {
-            if (uzVideo != null)
-                uzVideo.toggleStatsForNerds();
-        });
         if (playbackInfo != null) {
             boolean isInitSuccess = uzVideo.play(playbackInfo);
             if (!isInitSuccess)
                 UZToast.show(this, "Init failed");
         }
-        uzVideo.setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
-            @Override
-            public void onDoubleTapProgressUp(float posX, float posY) {
-                Timber.e("onDoubleTapProgressUp posX = %f, posY = %f", posX, posY);
-            }
-        });
         (new Handler()).postDelayed(() -> {
             updateView(0);
             onPlay();
@@ -133,7 +121,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         int i = 0;
         for (String url : LSApplication.urls) {
             UZPlayback playback = new UZPlayback();
-            playback.setLinkPlay(url);
+            playback.addLinkPlay(url);
             playlist.add(playback);
             i++;
         }
@@ -141,21 +129,17 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
 
     private void onPlay() {
         final UZPlayback playback = new UZPlayback();
-        playback.setThumbnail(LSApplication.thumbnailUrl);
-        playback.setLinkPlay(etLinkPlay.getText().toString());
+        playback.setPoster(LSApplication.thumbnailUrl);
+        playback.addLinkPlay(etLinkPlay.getText().toString());
         uzVideo.play(playback);
 
     }
 
     @Override
-    public void isInitResult(boolean isInitSuccess, UZPlayback data) {
-        btnStarts.setVisibility(View.VISIBLE);
-        uzDragView.setInitResult(isInitSuccess);
-        if (isInitSuccess) {
-            getLiveViewsTimer(true);
-        } else {
-            UZToast.show(this, "Init failed");
-        }
+    public void isInitResult(String linkPlay) {
+        Timber.e("LinkPlay: %s", linkPlay);
+        uzDragView.setInitResult(true);
+        getLiveViewsTimer(true);
     }
 
     @Override
@@ -165,10 +149,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
                 onBackPressed();
             }
         }
-    }
-
-    @Override
-    public void onSkinChange() {
     }
 
     @Override
@@ -223,26 +203,6 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     }
 
     @Override
-    public void onViewSizeChange(boolean isMaximizeView) {
-
-    }
-
-    @Override
-    public void onStateChange(UZDragView.State state) {
-
-    }
-
-    @Override
-    public void onPartChange(UZDragView.Part part) {
-
-    }
-
-    @Override
-    public void onViewPositionChanged(int left, int top, float dragOffset) {
-
-    }
-
-    @Override
     public void onOverScroll(UZDragView.State state, UZDragView.Part part) {
         uzVideo.pause();
         uzDragView.disappear();
@@ -267,7 +227,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         final UZPlayback playback = UZPlayer.getCurrentPlayback();
         if (handler != null && playback != null)
             handler.postDelayed(() -> {
-                Disposable d = UZApi.getLiveViewers(playback.getLinkPlay(), res -> {
+                Disposable d = UZApi.getLiveViewers(playback.getFirstLinkPlay(), res -> {
                     uzVideo.setLiveViewers(res.getViews());
                 }, Timber::e);
                 if (d != null) {

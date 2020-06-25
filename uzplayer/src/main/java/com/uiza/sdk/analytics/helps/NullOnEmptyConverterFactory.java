@@ -15,6 +15,7 @@ public class NullOnEmptyConverterFactory extends Converter.Factory {
     public static NullOnEmptyConverterFactory create() {
         return new NullOnEmptyConverterFactory();
     }
+
     private NullOnEmptyConverterFactory() {
 
     }

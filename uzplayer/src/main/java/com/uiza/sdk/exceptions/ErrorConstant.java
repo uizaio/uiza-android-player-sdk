@@ -5,7 +5,7 @@ public interface ErrorConstant {
     String ERR_0 = "No internet connection.";
 
     int ERR_CODE_5 = 5;
-    String ERR_5 = "Entity ID cannot be null or empty.";
+    String ERR_5 = "LinkPlay cannot be null or empty.";
 
     int ERR_CODE_6 = 6;
     String ERR_6 = "Tried to play all linkplay of this entity, but failed.";

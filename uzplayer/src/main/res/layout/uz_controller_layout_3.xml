@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -72,7 +71,7 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_picture_in_picture_alt_white_48" />-->
+            android:src="@drawable/ic_pip_white_24" />-->
 
         <com.uiza.sdk.widget.UZImageButton
             android:id="@id/exo_fullscreen_toggle_icon"
@@ -281,7 +280,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/uz_duration"
-                style="@style/UZPreviewTimeBar"/>
+                style="@style/UZPreviewTimeBar" />
         </RelativeLayout>
 
     </LinearLayout>

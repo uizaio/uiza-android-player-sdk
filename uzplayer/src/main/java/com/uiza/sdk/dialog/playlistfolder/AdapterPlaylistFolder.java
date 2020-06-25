@@ -69,7 +69,7 @@ public class AdapterPlaylistFolder extends RecyclerView.Adapter<AdapterPlaylistF
             playListHolder.tvDescription.setVisibility(View.VISIBLE);
         }
 
-        ImageUtils.load(playListHolder.ivCover, data.getThumbnail());
+        ImageUtils.load(playListHolder.ivCover, data.getPoster());
 
         playListHolder.rootView.setOnClickListener(v -> AnimationUtils.play(v, Techniques.Pulse, new AnimationUtils.Callback() {
             @Override

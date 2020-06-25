@@ -64,4 +64,6 @@
     <string name="description">Description</string>
     <string name="numberOfViewers">%d Viewers</string>
     <string name="oneViewer">1 Viewer</string>
+    <string name="stats">Stats</string>
+    <string name="time_shift">Time Shift</string>
 </resources>

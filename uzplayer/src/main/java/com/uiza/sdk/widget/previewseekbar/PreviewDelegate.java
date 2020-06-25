@@ -14,6 +14,8 @@ import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.uiza.sdk.R;
 
+import timber.log.Timber;
+
 
 public class PreviewDelegate implements PreviewView.OnPreviewChangeListener {
 
@@ -29,6 +31,7 @@ public class PreviewDelegate implements PreviewView.OnPreviewChangeListener {
     private boolean startTouch;
     private boolean setup;
     private boolean enabled;
+    private boolean alwaysHide;
 
     public PreviewDelegate(PreviewView previewView, int scrubberColor) {
         this.previewView = previewView;

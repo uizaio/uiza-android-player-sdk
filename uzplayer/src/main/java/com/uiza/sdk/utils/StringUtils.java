@@ -9,8 +9,7 @@ import android.util.Base64;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.ui.TrackNameProvider;
+import com.uiza.sdk.models.UZPlaybackInfo;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -123,7 +122,7 @@ public final class StringUtils {
     }
 
     @Nullable
-    public static String parserInfo(@NonNull String url) throws Exception {
+    public static String parserJsonInfo(@NonNull String url) throws Exception {
         int fromIndex = url.indexOf("?cm=");
         if (fromIndex > 0) {
             int toIndex = url.indexOf("&", fromIndex);
@@ -133,4 +132,27 @@ public final class StringUtils {
         return null;
     }
 
+    public static UZPlaybackInfo parserInfo(String linkPlay) {
+        try {
+            String json = parserJsonInfo(linkPlay);
+            if (json != null)
+                return JacksonUtils.fromJson(json, UZPlaybackInfo.class);
+        } catch (Exception e) {
+            Timber.e(e);
+        }
+        return null;
+    }
+
+    /**
+     * get TimeShift Link from linkPlay
+     *
+     * @param linkPlay
+     * @return timeshift Link Play
+     */
+    public static String timeShiftLink(String linkPlay) {
+        if (linkPlay.contains("/extras/")) {
+            return linkPlay.replace("/extras/", "/");
+        }
+        return linkPlay;
+    }
 }

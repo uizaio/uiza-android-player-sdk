@@ -8,9 +8,12 @@ import com.uiza.sdk.models.UZPlayback;
  */
 
 public interface CallbackPlaylistFolder {
-    void onClickItem(UZPlayback playback, int position);
+    default void onClickItem(UZPlayback playback, int position) {
+    }
 
-    void onFocusChange(UZPlayback playback, int position);
+    default void onFocusChange(UZPlayback playback, int position) {
+    }
 
-    void onDismiss();
+    default void onDismiss() {
+    }
 }

@@ -1,12 +1,5 @@
 package com.uiza.sdk.analytics;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.provider.Settings;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.StringDef;
-
 import com.uiza.sdk.BuildConfig;
 import com.uiza.sdk.models.UZTrackingBody;
 import com.uiza.sdk.models.UZTrackingData;

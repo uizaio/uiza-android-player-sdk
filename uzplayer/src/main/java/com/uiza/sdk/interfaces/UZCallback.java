@@ -6,15 +6,19 @@ import com.uiza.sdk.models.UZPlayback;
 public interface UZCallback {
     //when video init done with result
     //isInitSuccess onStateReadyFirst
-    void isInitResult(boolean isInitSuccess, UZPlayback playback);
+    default void isInitResult(String linkPlay) {
+    }
 
     //when skin is changed
-    void onSkinChange();
+    default void onSkinChange() {
+    }
 
     //when screen rotate
-    void onScreenRotate(boolean isLandscape);
+    default void onScreenRotate(boolean isLandscape) {
+    }
 
     //when UZVideoView had an error
-    void onError(UZException e);
+    default void onError(UZException e) {
+    }
 
 }
