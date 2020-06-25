@@ -42,8 +42,7 @@ before_install:
   - chmod +x gradlew
 
 before_script:
-  - mkdir -p "$ANDROID_HOME/licenses"
-  - cp ./google-licenses/* "$ANDROID_HOME/licenses/"
+  - echo yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS"
   - echo no | android create avd --force -n test -t android-$EMULATOR_API --abi google_apis/$ANDROID_ABI -c 100M
   - emulator -avd test -no-skin -no-window &
   - android-wait-for-emulator
