@@ -54,6 +54,7 @@ before_script:
 
 script:
 - android list target
+- yes | sdkmanager --licenses
 - ./gradlew clean build
 - ./gradlew connectedCheck
 
