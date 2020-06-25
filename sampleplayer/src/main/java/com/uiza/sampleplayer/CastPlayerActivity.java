@@ -35,27 +35,14 @@ public class CastPlayerActivity extends AppCompatActivity implements UZCallback,
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         etLinkPlay.setText(LSApplication.urls[0]);
-        findViewById(R.id.btn_play).setOnClickListener(view -> {
-            onPlay();
-        });
-
-
-        findViewById(R.id.bt_stats_for_nerds).setOnClickListener(v -> {
-            if (uzVideo != null)
-                uzVideo.toggleStatsForNerds();
-        });
-
+        findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
     }
-
 
     private void onPlay() {
         final UZPlayback playback = new UZPlayback();
-        playback.setThumbnail(LSApplication.thumbnailUrl);
-        playback.setHls(etLinkPlay.getText().toString());
-        boolean isInitSuccess = uzVideo.play(playback);
-        if (!isInitSuccess) {
-            UZToast.show(this, "Init failed");
-        }
+        playback.setPoster(LSApplication.thumbnailUrl);
+        playback.addLinkPlay(etLinkPlay.getText().toString());
+        uzVideo.play(playback);
     }
 
     @Override
@@ -66,7 +53,7 @@ public class CastPlayerActivity extends AppCompatActivity implements UZCallback,
     }
 
     @Override
-    public void isInitResult(boolean isInitSuccess, UZPlayback playback) {
+    public void isInitResult(String linkPlay) {
 
     }
 

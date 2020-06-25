@@ -6,7 +6,7 @@ public class ErrorUtils {
         return new UZException(ErrorConstant.ERR_CODE_0, ErrorConstant.ERR_0);
     }
 
-    public static UZException exceptionEntityId() {
+    public static UZException exceptionNoLinkPlay() {
         return new UZException(ErrorConstant.ERR_CODE_5, ErrorConstant.ERR_5);
     }
 
@@ -36,6 +36,10 @@ public class ErrorUtils {
 
     public static UZException exceptionPlayback() {
         return new UZException(ErrorConstant.ERR_CODE_24, ErrorConstant.ERR_24);
+    }
+
+    public static UZException exceptionNoPlaylist() {
+        return new UZException(ErrorConstant.ERR_CODE_25, ErrorConstant.ERR_25);
     }
 
     public static UZException exceptionPlaylistFolderItemFirst() {

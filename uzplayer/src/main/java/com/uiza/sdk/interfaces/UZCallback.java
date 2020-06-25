@@ -6,7 +6,7 @@ import com.uiza.sdk.models.UZPlayback;
 public interface UZCallback {
     //when video init done with result
     //isInitSuccess onStateReadyFirst
-    default void isInitResult(boolean isInitSuccess, UZPlayback playback) {
+    default void isInitResult(String linkPlay) {
     }
 
     //when skin is changed
