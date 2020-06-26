@@ -19,6 +19,5 @@
     <com.uiza.sdk.widget.UZSwitch
         android:id="@+id/toggle_box"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 </LinearLayout>

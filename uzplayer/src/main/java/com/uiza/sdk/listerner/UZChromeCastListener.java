@@ -7,6 +7,6 @@ public interface UZChromeCastListener {
     default void onDisconnected() {
     }
 
-    default void addUIChromecast() {
+    default void addUIChromeCast() {
     }
 }

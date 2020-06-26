@@ -34,7 +34,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private String urlIMAAd;
     private ImaAdsLoader adsLoader = null;
     private boolean isOnAdEnded;
-    private UZAdPlayerCallback uzAdPlayerCallback;
+    private UZAdPlayerCallback adPlayerCallback;
     private UZVideoAdPlayerListener uzVideoAdPlayerListener = new UZVideoAdPlayerListener();
 
     MediaSessionCompat mediaSession;
@@ -93,7 +93,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     public void setRunnable() {
         handler = new Handler();
         runnable = () -> {
-            if (managerCallback == null || managerCallback.getPlayerView() == null)
+            if (managerObserver == null || managerObserver.getPlayerView() == null)
                 return;
             if (!isPlayingAd()) {
                 handleVideoProgress();
@@ -115,11 +115,12 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         if (adsLoader != null) {
             adsLoader.setPlayer(player);
             adsLoader.addCallback(uzVideoAdPlayerListener);
+            adPlayerCallback = managerObserver.getAdPlayerCallback();
         }
         player.prepare(mediaSourceVideo);
-        setPlayWhenReady(managerCallback.isAutoStart());
+        setPlayWhenReady(managerObserver.isAutoStart());
         notifyUpdateButtonVisibility();
-        if (managerCallback.isPIPEnable()) {
+        if (managerObserver.isPIPEnable()) {
             initializeMediaSession();
         }
     }
@@ -149,7 +150,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         if (context instanceof Activity)
             MediaControllerCompat.setMediaController((Activity) context, mediaSession.getController());
         MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, managerCallback.getTitle())
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, managerObserver.getTitle())
                 .build();
         mediaSession.setMetadata(metadata);
         mediaSession.setActive(true);
@@ -213,7 +214,7 @@ public final class UZPlayerManager extends AbstractPlayerManager {
             }
         };
         return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader,
-                managerCallback.getPlayerView());
+                managerObserver.getPlayerView());
 
     }
 
@@ -232,30 +233,30 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     }
 
     void setAdPlayerCallback(UZAdPlayerCallback uzAdPlayerCallback) {
-        this.uzAdPlayerCallback = uzAdPlayerCallback;
+        this.adPlayerCallback = uzAdPlayerCallback;
     }
 
     private class UZVideoAdPlayerListener implements VideoAdPlayer.VideoAdPlayerCallback {
 
         @Override
         public void onPlay(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPlay();
+            if (adPlayerCallback != null) adPlayerCallback.onPlay();
         }
 
         @Override
         public void onVolumeChanged(AdMediaInfo mediaInfo, int i) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onVolumeChanged(i);
+            if (adPlayerCallback != null) adPlayerCallback.onVolumeChanged(i);
         }
 
         @Override
         public void onPause(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onPause();
+            if (adPlayerCallback != null) adPlayerCallback.onPause();
         }
 
         @Override
         public void onAdProgress(AdMediaInfo adMediaInfo, VideoProgressUpdate videoProgressUpdate) {
             isOnAdEnded = false;
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onAdProgress(videoProgressUpdate);
+            if (adPlayerCallback != null) adPlayerCallback.onAdProgress(videoProgressUpdate);
             if (progressListener != null) {
                 duration = (int) videoProgressUpdate.getDuration();
                 s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
@@ -267,33 +268,33 @@ public final class UZPlayerManager extends AbstractPlayerManager {
 
         @Override
         public void onLoaded(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onLoaded();
+            if (adPlayerCallback != null) adPlayerCallback.onLoaded();
         }
 
         @Override
         public void onResume(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onResume();
+            if (adPlayerCallback != null) adPlayerCallback.onResume();
         }
 
         @Override
         public void onEnded(AdMediaInfo mediaInfo) {
             onAdEnded();
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onEnded();
+            if (adPlayerCallback != null) adPlayerCallback.onEnded();
         }
 
         @Override
         public void onContentComplete() {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onContentComplete();
+            if (adPlayerCallback != null) adPlayerCallback.onContentComplete();
         }
 
         @Override
         public void onError(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onError();
+            if (adPlayerCallback != null) adPlayerCallback.onError();
         }
 
         @Override
         public void onBuffering(AdMediaInfo mediaInfo) {
-            if (uzAdPlayerCallback != null) uzAdPlayerCallback.onBuffering();
+            if (adPlayerCallback != null) adPlayerCallback.onBuffering();
         }
     }
 }

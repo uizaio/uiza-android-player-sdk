@@ -5,7 +5,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.sdk.utils.UZData;
 
-public interface UZManagerCallback {
+public interface UZManagerObserver {
 
     default String getTitle() {
         return UZData.getInstance().getEntityName();
@@ -19,6 +19,8 @@ public interface UZManagerCallback {
     boolean isCastingChromecast();
 
     boolean isAutoStart();
+
+    UZAdPlayerCallback getAdPlayerCallback();
 
     // progress
     void onTimelineChanged(Timeline timeline, Object manifest, int reason);

@@ -3,7 +3,6 @@ package com.uiza.sdk.models;
 import androidx.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.uiza.sdk.analytics.UZAnalytic;
@@ -13,7 +12,6 @@ import com.uiza.sdk.utils.JacksonUtils;
 import java.util.Date;
 
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true, allowGetters = true, allowSetters = true)
 public class UZTrackingBody<T> {
     @JsonProperty("specversion")

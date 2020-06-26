@@ -124,7 +124,7 @@ compileOptions {
 ```java
 Create java file MainActivity:
 
-    public class MainActivity extends AppCompatActivity implements UZCallback {
+    public class MainActivity extends AppCompatActivity implements UZPlayerCallback {
        ...
     }
 ```
@@ -143,7 +143,7 @@ In your `activity` or `fragment`
 
     ```java
     uzVideo = (UZVideoView) findViewById(R.id.uiza_video);
-    uzVideo.setUZCallback(this);
+    uzVideo.setPlayerCallback(this);
     uzVideo.play(UZPlayback playback);
     // or 
     UZPlayer.setCurrentPlayback(UZPlayback playback);
@@ -157,20 +157,20 @@ Don't forget to add in activity life cycle event:
 ```java
     @Override
     public void onDestroy() {
-        uzVideo.onDestroy();
+        uzVideo.onDestroyView();
         super.onDestroy();
     }
 
     @Override
     public void onResume() {
-        uzVideo.onResume();
+        uzVideo.onResumeView();
         super.onResume();
     }
 
     @Override
     public void onPause() {
         uzVideo.onPause();
-        super.onPause();
+        super.onPauseView();
     }
 
     @Override

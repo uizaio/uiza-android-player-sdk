@@ -73,7 +73,7 @@ public class SettingAdapter extends ArrayAdapter<SettingItem> {
         public ViewHolder0(View root) {
             super(root);
             toggle = root.findViewById(R.id.toggle_box);
-            root.setOnClickListener( v -> {
+            root.setOnClickListener(v -> {
                 if (listener != null) {
                     boolean nextCheck = !toggle.isChecked();
                     if (listener.onCheckedChanged(nextCheck))

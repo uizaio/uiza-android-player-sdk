@@ -83,7 +83,7 @@ public class UZChromeCast {
         }
         updateMediaRouteButtonVisibility(castContext.getCastState());
         castContext.addCastStateListener(this::updateMediaRouteButtonVisibility);
-        if (listener != null) listener.addUIChromecast();
+        if (listener != null) listener.addUIChromeCast();
     }
 
     public void setTintMediaRouteButton(final int color) {
