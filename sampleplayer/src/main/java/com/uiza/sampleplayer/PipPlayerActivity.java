@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.view.View;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -14,8 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
-import com.uiza.sdk.interfaces.UZCallback;
-import com.uiza.sdk.interfaces.UZVideoViewItemClick;
+import com.uiza.sdk.interfaces.UZPlayerCallback;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZPlayerView;
@@ -28,7 +26,7 @@ import timber.log.Timber;
 /**
  * Demo UZPlayer with Picture In Picture
  */
-public class PipPlayerActivity extends AppCompatActivity implements UZCallback, UZPlayerView.OnSingleTap, UZVideoViewItemClick {
+public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCallback, UZPlayerView.OnSingleTap {
 
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
@@ -42,8 +40,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
         etLinkPlay = findViewById(R.id.et_link_play);
-        uzVideo.setUZCallback(this);
-        uzVideo.setUZVideoViewItemClick(this);
+        uzVideo.setPlayerCallback(this);
         uzVideo.setOnSingleTap(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
@@ -72,15 +69,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZCallback, 
     @Override
     public void isInitResult(String linkPlay) {
         getLiveViewsTimer(true);
-    }
-
-    @Override
-    public void onItemClick(View view) {
-        if (view.getId() == R.id.exo_back_screen) {
-            if (!uzVideo.isLandscape()) {
-                onBackPressed();
-            }
-        }
     }
 
     @Override
