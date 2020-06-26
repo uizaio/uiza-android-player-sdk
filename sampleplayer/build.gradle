@@ -6,8 +6,8 @@ android {
         applicationId "com.uiza.sampleplayer"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 20041016
-        versionName "1.1.3"
+        versionCode 20062612
+        versionName "1.1.6"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
     }

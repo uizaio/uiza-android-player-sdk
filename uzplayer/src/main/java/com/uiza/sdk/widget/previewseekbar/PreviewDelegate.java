@@ -14,8 +14,6 @@ import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.uiza.sdk.R;
 
-import timber.log.Timber;
-
 
 public class PreviewDelegate implements PreviewView.OnPreviewChangeListener {
 

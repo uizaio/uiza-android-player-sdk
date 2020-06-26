@@ -1,7 +1,7 @@
 package com.uiza.sdk.utils;
 
-public class TmpParamData {
-    private static final TmpParamData ourInstance = new TmpParamData();
+public class TmpData {
+    private static final TmpData ourInstance = new TmpData();
     private final String TAG = getClass().getSimpleName();
     private String entityCnd = "";
     private String entityContentType = "video";
@@ -53,10 +53,10 @@ public class TmpParamData {
     private int viewRebufferCount = 0;
     private long viewRebufferDuration = 0;
 
-    private TmpParamData() {
+    private TmpData() {
     }
 
-    public static TmpParamData getInstance() {
+    public static TmpData getInstance() {
         return ourInstance;
     }
 

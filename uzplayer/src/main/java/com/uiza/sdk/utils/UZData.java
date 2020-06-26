@@ -1,9 +1,11 @@
 package com.uiza.sdk.utils;
 
 import android.content.pm.ResolveInfo;
+
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
 import com.uiza.sdk.R;
 import com.uiza.sdk.chromecast.Casty;
 import com.uiza.sdk.models.UZPlayback;

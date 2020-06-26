@@ -42,12 +42,11 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.uiza.sdk.interfaces.DebugCallback;
-import com.uiza.sdk.interfaces.UZManagerCallback;
+import com.uiza.sdk.interfaces.UZManagerObserver;
 import com.uiza.sdk.listerner.UZBufferListener;
 import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.utils.Constants;
 import com.uiza.sdk.utils.ConvertUtils;
-import com.uiza.sdk.utils.TmpParamData;
 import com.uiza.sdk.utils.UZAppUtils;
 
 import java.util.List;
@@ -70,7 +69,7 @@ abstract class AbstractPlayerManager {
     private final HttpDataSource.Factory manifestDataSourceFactory;
     private final DataSource.Factory mediaDataSourceFactory;
     protected Context context;
-    UZManagerCallback managerCallback;
+    UZManagerObserver managerObserver;
     String drmScheme;
     private String linkPlay;
     long contentPosition;
@@ -103,7 +102,6 @@ abstract class AbstractPlayerManager {
     DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager;
 
     protected AbstractPlayerManager(@NonNull Context context, String linkPlay, String drmScheme) {
-        TmpParamData.getInstance().setPlayerInitTime(System.currentTimeMillis());
         this.timestampPlayed = System.currentTimeMillis();
         this.isCanAddViewWatchTime = true;
         this.context = context;
@@ -126,16 +124,16 @@ abstract class AbstractPlayerManager {
                 DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS, true);
     }
 
-    public void register(@NonNull UZManagerCallback callback) {
+    public void register(@NonNull UZManagerObserver observer) {
         this.unregister();
-        this.managerCallback = callback;
-        if (managerCallback.getPlayerView() != null)
-            managerCallback.getPlayerView().setPlayer(player);
+        this.managerObserver = observer;
+        if (managerObserver.getPlayerView() != null)
+            managerObserver.getPlayerView().setPlayer(player);
         initSource();
     }
 
     public void unregister() {
-        this.managerCallback = null;
+        this.managerObserver = null;
     }
 
     void initWithoutReset() {
@@ -161,7 +159,7 @@ abstract class AbstractPlayerManager {
         handler = null;
         runnable = null;
         try {
-            Objects.requireNonNull(managerCallback.getPlayerView().getOverlayFrameLayout()).removeAllViews();
+            Objects.requireNonNull(managerObserver.getPlayerView().getOverlayFrameLayout()).removeAllViews();
         } catch (NullPointerException e) {
             Timber.e(e);
         }
@@ -192,8 +190,6 @@ abstract class AbstractPlayerManager {
     void pause() {
         setPlayWhenReady(false);
         if (isCanAddViewWatchTime) {
-            long durationWatched = System.currentTimeMillis() - timestampPlayed;
-            TmpParamData.getInstance().addViewWatchTime(durationWatched);
             isCanAddViewWatchTime = false;
         }
     }
@@ -417,7 +413,7 @@ abstract class AbstractPlayerManager {
     }
 
     private void updateMediaSourceExt(HlsManifest manifest) {
-        HlsMasterPlaylist playlist = ((HlsManifest) manifest).masterPlaylist;
+        HlsMasterPlaylist playlist = manifest.masterPlaylist;
         String timeShift = ConvertUtils.getTimeShiftUrl(playlist);
         timeShiftSupport = !TextUtils.isEmpty(timeShift);
         if (timeShiftSupport && mediaSourceVideoExt == null) {
@@ -519,8 +515,6 @@ abstract class AbstractPlayerManager {
                                        float pixelWidthHeightRatio) {
             videoWidth = width;
             videoHeight = height;
-            TmpParamData.getInstance().setEntitySourceWidth(width);
-            TmpParamData.getInstance().setEntitySourceHeight(height);
         }
 
         //This is called when first frame is rendered
@@ -534,8 +528,8 @@ abstract class AbstractPlayerManager {
         //This is called when the current playlist changes
         @Override
         public void onTimelineChanged(Timeline timeline, int reason) {
-            if (managerCallback != null)
-                managerCallback.onTimelineChanged(timeline, player.getCurrentManifest(), reason);
+            if (managerObserver != null)
+                managerObserver.onTimelineChanged(timeline, player.getCurrentManifest(), reason);
         }
 
         //This is called when the available or selected tracks change
@@ -554,8 +548,8 @@ abstract class AbstractPlayerManager {
                 }
             }
             notifyUpdateButtonVisibility();
-            if (managerCallback != null)
-                managerCallback.onPlayerStateChanged(playWhenReady, playbackState);
+            if (managerObserver != null)
+                managerObserver.onPlayerStateChanged(playWhenReady, playbackState);
             if (progressListener != null)
                 progressListener.onPlayerStateChanged(playWhenReady, playbackState);
         }
@@ -574,8 +568,8 @@ abstract class AbstractPlayerManager {
                 Timber.e("onPlayerError TYPE_UNEXPECTED");
             exoPlaybackException = error;
             notifyUpdateButtonVisibility();
-            if (managerCallback != null)
-                managerCallback.onPlayerError(error);
+            if (managerObserver != null)
+                managerObserver.onPlayerError(error);
         }
     }
 }

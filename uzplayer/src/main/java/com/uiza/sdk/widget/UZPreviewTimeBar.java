@@ -20,8 +20,6 @@ import com.uiza.sdk.widget.previewseekbar.PreviewView;
 import java.util.ArrayList;
 import java.util.List;
 
-import timber.log.Timber;
-
 
 public class UZPreviewTimeBar extends DefaultTimeBar implements PreviewView,
         TimeBar.OnScrubListener {

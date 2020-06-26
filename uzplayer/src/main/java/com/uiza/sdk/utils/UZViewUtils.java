@@ -33,6 +33,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.sdk.R;
+import com.uiza.sdk.widget.UZImageButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -228,6 +229,25 @@ public class UZViewUtils {
         }
     }
 
+
+    public static void setSrcDrawableEnabledForViews(UZImageButton... views) {
+        for (UZImageButton v : views) {
+            if (v != null && !v.isFocused()) {
+                v.setSrcDrawableEnabled();
+            }
+        }
+    }
+
+    public static void setClickableForViews(boolean able, View... views) {
+        for (View v : views) {
+            if (v != null) {
+                v.setClickable(able);
+                v.setFocusable(able);
+            }
+        }
+    }
+
+
     public static void setUIFullScreenIcon(@NonNull ImageButton imageButton, boolean isFullScreen) {
         imageButton.setImageResource(isFullScreen ?
                 R.drawable.ic_fullscreen_exit_white_48
@@ -256,8 +276,6 @@ public class UZViewUtils {
             }
         }
         //LLog.d(TAG, "resizeLayout isFullScreen " + isFullScreen + ", widthSurfaceView x heightSurfaceView: " + widthSurfaceView + "x" + heightSurfaceView + ", pixelAdded: " + pixelAdded + ", videoW: " + videoW + ", videoH: " + videoH);
-        TmpParamData.getInstance().setPlayerWidth(widthSurfaceView);
-        TmpParamData.getInstance().setPlayerHeight(heightSurfaceView);
         viewGroup.getLayoutParams().width = widthSurfaceView;
         viewGroup.getLayoutParams().height = heightSurfaceView;
         viewGroup.requestLayout();

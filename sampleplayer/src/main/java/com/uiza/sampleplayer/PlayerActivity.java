@@ -15,8 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
-import com.uiza.sdk.interfaces.UZCallback;
-import com.uiza.sdk.interfaces.UZVideoViewItemClick;
+import com.uiza.sdk.interfaces.UZPlayerCallback;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.utils.UZViewUtils;
 import com.uiza.sdk.view.UZDragView;
@@ -35,7 +34,7 @@ import timber.log.Timber;
  * Demo UZPlayer with UZDragView
  */
 
-public class PlayerActivity extends AppCompatActivity implements UZCallback, UZDragView.Callback, UZVideoViewItemClick,
+public class PlayerActivity extends AppCompatActivity implements UZPlayerCallback, UZDragView.Callback,
         UZPlayerView.ControllerStateCallback {
 
     HorizontalScrollView llBottom;
@@ -66,8 +65,7 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
         btPlay = findViewById(R.id.bt_play);
         uzDragView.setCallback(this);
         uzDragView.setScreenRotate(false);
-        uzVideo.setUZCallback(this);
-        uzVideo.setUZVideoViewItemClick(this);
+        uzVideo.setPlayerCallback(this);
         uzVideo.setControllerStateCallback(this);
         disposables = new CompositeDisposable();
         // If linkplay is livestream, it will auto move to live edge when onResume is called
@@ -143,12 +141,8 @@ public class PlayerActivity extends AppCompatActivity implements UZCallback, UZD
     }
 
     @Override
-    public void onItemClick(View view) {
-        if (view.getId() == R.id.exo_back_screen) {
-            if (!uzVideo.isLandscape()) {
-                onBackPressed();
-            }
-        }
+    public void onTimeShiftChange(boolean timeShiftOn) {
+        runOnUiThread(() -> UZToast.show(this, "TimeShiftOn: "+timeShiftOn));
     }
 
     @Override
