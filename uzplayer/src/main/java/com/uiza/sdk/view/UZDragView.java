@@ -375,7 +375,6 @@ public class UZDragView extends LinearLayout {
         }
         int posX = -sizeWHeaderViewMin / 2;
         int posY = -sizeHHeaderViewMin;
-        //LLog.d(TAG, "minimizeTopLeft " + posX + "x" + posY);
         smoothSlideTo(posX, posY);
     }
 

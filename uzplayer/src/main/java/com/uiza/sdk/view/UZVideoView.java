@@ -1343,7 +1343,8 @@ public class UZVideoView extends RelativeLayout
         ivVideoCover = findViewById(R.id.iv_cover);
         llTop = findViewById(R.id.ll_top);
         progressBar = findViewById(R.id.pb);
-        UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
+        if(progressBar != null)
+            UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
         updateUIPositionOfProgressBar();
         playerView.setControllerStateCallback(this);
         playerView.setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
@@ -1904,11 +1905,13 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void hideProgress() {
-        progressBar.setVisibility(View.GONE);
+        if(progressBar != null)
+            progressBar.setVisibility(View.GONE);
     }
 
     public void showProgress() {
-        progressBar.setVisibility(View.VISIBLE);
+        if(progressBar != null)
+            progressBar.setVisibility(View.VISIBLE);
     }
 
     /**
