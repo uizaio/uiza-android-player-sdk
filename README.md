@@ -1,4 +1,5 @@
 
+[![License BSD](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/uizaio/uiza-android-player-sdk/master/LICENSE)&nbsp;
 [![](https://jitpack.io/v/uizaio/uiza-android-player-sdk.svg)](https://jitpack.io/#uizaio/uiza-android-player-sdk)
 [![Build Status](https://travis-ci.org/uizaio/uiza-android-player-sdk.svg?branch=master)](https://travis-ci.org/uizaio/uiza-android-player-sdk)
 
