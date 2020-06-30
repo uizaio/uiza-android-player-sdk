@@ -1,7 +1,9 @@
 
-[![License BSD](https://img.shields.io/badge/license-BSD-green.svg?style=flat)](https://raw.githubusercontent.com/uizaio/uiza-android-player-sdk/master/LICENSE)&nbsp;
+[![License BSD](https://img.shields.io/badge/license-BSD-success.svg?style=flat)](https://raw.githubusercontent.com/uizaio/uiza-android-player-sdk/master/LICENSE)&nbsp;
 [![](https://jitpack.io/v/uizaio/uiza-android-player-sdk.svg)](https://jitpack.io/#uizaio/uiza-android-player-sdk)
 [![Build Status](https://travis-ci.org/uizaio/uiza-android-player-sdk.svg?branch=master)](https://travis-ci.org/uizaio/uiza-android-player-sdk)
+[![Support](https://img.shields.io/badge/android-21-success.svg)](https://developer.android.com/studio/releases/platforms)&nbsp;
+![platform](https://img.shields.io/badge/platform-android-success.svg)&nbsp;
 
 [![Play Store](https://www.google.com/photos/about/static/images/badge_google_play_36dp.svg)](https://play.google.com/store/apps/details?id=com.uiza.sampleplayer)
 
