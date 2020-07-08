@@ -14,7 +14,8 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 import timber.log.Timber;
 
 public class UZAnalyticClient {
-    private final static String BASE_URL = "https://tracking-dev.uizadev.io";
+    private final static String DEV_BASE_URL = "https://tracking-dev.uizadev.io";
+    private final static String BASE_URL = "https://tracking.uiza.sh";
     private Interceptor restRequestInterceptor;
     private static final int HTTP_TIMEOUT_TIME = 10; //10s
     private Retrofit retrofit;
@@ -29,7 +30,7 @@ public class UZAnalyticClient {
 
     private UZAnalyticClient() {
         retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(UZAnalytic.isProdEnv()? BASE_URL : DEV_BASE_URL)
                 .client(provideHttpClient())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create())

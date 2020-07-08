@@ -29,17 +29,18 @@ public class UZTrackingData {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date timestamp;
 
-    public UZTrackingData(UZPlaybackInfo info, String viewerSessionId) {
-        this(info.getAppId(), info.getEntityId(), info.getEntitySource(), viewerSessionId);
+    public UZTrackingData(UZPlaybackInfo info, String viewerSessionId, UZEventType type) {
+        this(info.getAppId(), info.getEntityId(), info.getEntitySource(), viewerSessionId, type);
     }
 
-    public UZTrackingData(String appId, String entityId, String entitySource, String viewerSessionId) {
+    public UZTrackingData(String appId, String entityId, String entitySource, String viewerSessionId, UZEventType type) {
         this.appId = appId;
         this.entityId = entityId;
         this.entitySource = entitySource;
         this.viewerSessionId = viewerSessionId;
         this.timestamp = new Date();
         this.viewerUserId = UZAnalytic.getDeviceId();
+        this.eventType = type;
     }
 
     public String getAppId() {
