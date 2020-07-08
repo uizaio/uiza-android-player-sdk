@@ -192,6 +192,7 @@ public class UZVideoView extends RelativeLayout
     private boolean isHideOnTouch = true;
     private boolean useController = true;
     private boolean isOnPlayerEnded;
+    private boolean alwaysHideLiveViewers = false;
     //========================================================================END CONFIG
     /*
      **Change skin via skin id resources
@@ -1278,7 +1279,7 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void setLiveViewers(int viewers) {
-        if (tvLiveView != null) {
+        if (tvLiveView != null && !alwaysHideLiveViewers) {
             if (viewers == 1) {
                 tvLiveView.setText(getResources().getString(R.string.oneViewer));
             } else {
@@ -1708,6 +1709,10 @@ public class UZVideoView extends RelativeLayout
             tvTitle.setText(UZData.getInstance().getEntityName());
     }
 
+    public void setAlwaysHideLiveViewers(boolean hide){
+        this.alwaysHideLiveViewers = hide;
+    }
+
     /**
      * ======== END UI =========
      */
@@ -1718,7 +1723,12 @@ public class UZVideoView extends RelativeLayout
         else if (UZAppUtils.isTablet(getContext()) && UZAppUtils.isTV(getContext()))//only hide ibPictureInPictureIcon if device is TV
             UZViewUtils.goneViews(pipIcon);
         if (isLIVE()) {
-            UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, tvLiveView, ivLiveTime, ivLiveView);
+            if(alwaysHideLiveViewers){
+                UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, ivLiveTime);
+                UZViewUtils.goneViews(ivLiveTime, ivLiveView);
+            } else {
+                UZViewUtils.visibleViews(rlLiveInfo, tvLiveStatus, tvLiveTime, ivLiveTime, tvLiveView, ivLiveView);
+            }
             UZViewUtils.goneViews(ibSpeedIcon, tvDuration, ibRewIcon, ibFfwdIcon);
             setUIVisible(false, ibRewIcon, ibFfwdIcon);
         } else {
