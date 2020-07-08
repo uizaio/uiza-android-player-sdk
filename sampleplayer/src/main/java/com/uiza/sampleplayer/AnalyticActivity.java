@@ -55,7 +55,7 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void trackEvent() {
-        UZTrackingData data = new UZTrackingData(info, sessionId);
+        UZTrackingData data = new UZTrackingData(info, sessionId, UZEventType.WATCHING);
         data.setEventType(UZEventType.WATCHING);
         disposables.add(UZAnalytic.pushEvent(data, responseBody -> {
                     Timber.e("onNext: %s", responseBody.contentLength());
@@ -70,10 +70,8 @@ public class AnalyticActivity extends AppCompatActivity {
     }
 
     private void trackEvents() {
-        UZTrackingData data1 = new UZTrackingData(info, sessionId);
-        data1.setEventType(UZEventType.WATCHING);
-        UZTrackingData data2 = new UZTrackingData(info, sessionId);
-        data2.setEventType(UZEventType.WATCHING);
+        UZTrackingData data1 = new UZTrackingData(info, sessionId, UZEventType.WATCHING);
+        UZTrackingData data2 = new UZTrackingData(info, sessionId, UZEventType.WATCHING);
         disposables.add(UZAnalytic.pushEvents(Arrays.asList(data1, data2), responseBody -> {
                     Timber.e("onNext: %s", responseBody.contentLength());
                     txtLog.setText(String.format("trackEvents::onNext: %s", responseBody.contentLength()));

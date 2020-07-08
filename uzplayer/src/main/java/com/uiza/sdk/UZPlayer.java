@@ -23,10 +23,18 @@ public class UZPlayer {
     private static long elapsedTime = SystemClock.elapsedRealtime();
 
     /**
+     * default dev
      * init SDK
      */
     public static void init(@NonNull Context context) {
-        init(context, R.layout.uzplayer_skin_default);
+        init(context, R.layout.uzplayer_skin_default, false);
+    }
+
+    /**
+     * init SDK
+     */
+    public static void init(@NonNull Context context, boolean prodEnv) {
+        init(context, R.layout.uzplayer_skin_default, prodEnv);
     }
 
     /**
@@ -35,12 +43,12 @@ public class UZPlayer {
      * @param skinLayoutId Skin of player
      */
     @SuppressLint("HardwareIds")
-    public static void init(@NonNull Context context, @LayoutRes int skinLayoutId) {
+    public static void init(@NonNull Context context, @LayoutRes int skinLayoutId, boolean prodEnv) {
         if (!UZAppUtils.isDependencyAvailable("com.google.android.exoplayer2.SimpleExoPlayer")) {
             throw new NoClassDefFoundError("Exo Player library is missing");
         }
         String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        UZAnalytic.init(deviceId);
+        UZAnalytic.init(deviceId, prodEnv);
         setUZPlayerSkinLayoutId(skinLayoutId);
         elapsedTime = SystemClock.elapsedRealtime();
     }

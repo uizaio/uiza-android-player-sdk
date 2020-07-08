@@ -15,6 +15,7 @@ public final class UZAnalytic {
 
     private static String sdkVersionName; //UZData/AndroidSDK/1.1.0
     private static String deviceId;
+    private static boolean prodEnv = false;
 
     private UZAnalytic() {
         throw new UnsupportedOperationException("u can't instantiate me...");
@@ -24,13 +25,18 @@ public final class UZAnalytic {
      * @param deviceId: DeviceId or AndroidId
      */
 
-    public static void init(String deviceId) {
+    public static void init(String deviceId, boolean prodEnv) {
         UZAnalytic.deviceId = deviceId;
         UZAnalytic.sdkVersionName = String.format("UZData/AndroidPlayerSDK/%s", BuildConfig.VERSION_NAME);
+        UZAnalytic.prodEnv = prodEnv;
     }
 
     public static String getDeviceId() {
         return deviceId;
+    }
+
+    public static boolean isProdEnv() {
+        return prodEnv;
     }
 
     public static String getSourceName() {

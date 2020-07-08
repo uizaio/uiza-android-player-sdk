@@ -11,9 +11,9 @@ import timber.log.Timber;
 public class LSApplication extends MultiDexApplication {
 
     public static final String[] urls = new String[]{
-            "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-            "https://1955897154.rsc.cdn77.org/live/8dee8601-931e-409a-b2e8-aa84761add1e/extras/master.m3u8?cm=eyJlbnRpdHlfaWQiOiI4ZGVlODYwMS05MzFlLTQwOWEtYjJlOC1hYTg0NzYxYWRkMWUiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6IjhhZTY3ZDlmM2EyNzQyODVhMTUwNmUzZjc3Njc5MmVhIn0=",
+            "https://uz-test2live.uizacdn.net/865be795-836e-4f08-bbb6-34808374dced.smil/playlist.m3u8?cm=eyJlbnRpdHlfaWQiOiI4NjViZTc5NS04MzZlLTRmMDgtYmJiNi0zNDgwODM3NGRjZWQiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6Ijk2NTU4YWI0YTZiMTRlOTA5ZWVkOThjMWNlNTBkNWVmIn0=",
             "https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd",
+            "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
             "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"};
 
     public static final String thumbnailUrl = "https://1955897154.rsc.cdn77.org/6fd7eafc8e6c441ea3f14c528f7266e6-static/2020/05/27/94a04fa4-07e2-43e5-9b86-d65f01bca611/thumbnail-10-8-720.jpeg";
@@ -27,7 +27,7 @@ public class LSApplication extends MultiDexApplication {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
         }
-        UZPlayer.init(this);
+        UZPlayer.init(this, true);
         UZApi.init(this,"SamplePlayer", BuildConfig.VERSION_NAME);
 //        UZData.getInstance().setUrlIMAAd(VAST_SAMPLE_URL);
     }

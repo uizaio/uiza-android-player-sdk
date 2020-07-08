@@ -79,6 +79,7 @@ import com.uiza.sdk.interfaces.UZPlayerCallback;
 import com.uiza.sdk.listerner.UZChromeCastListener;
 import com.uiza.sdk.listerner.UZProgressListener;
 import com.uiza.sdk.listerner.UZTVFocusChangeListener;
+import com.uiza.sdk.models.UZEventType;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZTrackingData;
@@ -2258,7 +2259,7 @@ public class UZVideoView extends RelativeLayout
     private void trackWatchingTimer(boolean firstRun) {
         final UZPlaybackInfo pi = UZData.getInstance().getPlaybackInfo();
         if (pi != null && handler != null) {
-            UZTrackingData data = new UZTrackingData(pi, viewerSessionId);
+            UZTrackingData data = new UZTrackingData(pi, viewerSessionId, UZEventType.WATCHING);
             handler.postDelayed(() -> {
                         if (isPlaying()) {
                             disposables.add(UZAnalytic.pushEvent(data, res -> Timber.d("send track watching: %s, response: %s", viewerSessionId, res.string()),
