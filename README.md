@@ -204,6 +204,12 @@ Please see [uiza-android-api-sdk](https://github.com/uizaio/uiza-android-api-sdk
     }
 ```
 
+__Note: If you want to always hide live viewers:__
+
+```java
+	uzVideo.setAlwaysHideLiveViewers(true);
+```
+
 ## How to customize your skin?
 Only 3 steps, you can customize everything about player skin.
 
