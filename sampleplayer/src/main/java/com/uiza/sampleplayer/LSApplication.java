@@ -11,8 +11,8 @@ import timber.log.Timber;
 public class LSApplication extends MultiDexApplication {
 
     public static final String[] urls = new String[]{
-            "https://1775190502.rsc.cdn77.org/live/4e6dfc96-c1a1-4659-ad28-956f7b8340ff/master.m3u8?cm=eyJlbnRpdHlfaWQiOiI0ZTZkZmM5Ni1jMWExLTQ2NTktYWQyOC05NTZmN2I4MzQwZmYiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6ImYxOWE0ZmQzYmFhMjQ0YmZhMThhODZjMDE0NDEzYWU4In0=",
             "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
+            "https://1955897154.rsc.cdn77.org/live/8dee8601-931e-409a-b2e8-aa84761add1e/extras/master.m3u8?cm=eyJlbnRpdHlfaWQiOiI4ZGVlODYwMS05MzFlLTQwOWEtYjJlOC1hYTg0NzYxYWRkMWUiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6IjhhZTY3ZDlmM2EyNzQyODVhMTUwNmUzZjc3Njc5MmVhIn0=",
             "https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd",
             "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"};
 
