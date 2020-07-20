@@ -11,7 +11,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.google.ads.interactivemedia.v3.api.player.AdMediaInfo;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
@@ -20,7 +19,6 @@ import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.uiza.sdk.interfaces.UZAdPlayerCallback;
 import com.uiza.sdk.utils.UZAppUtils;
@@ -97,12 +95,27 @@ public final class UZPlayerManager extends AbstractPlayerManager {
                 return;
             if (!isPlayingAd()) {
                 handleVideoProgress();
+            } else {
+                handleAdProgress();
             }
             if (handler != null && runnable != null) {
                 handler.postDelayed(runnable, 1000);
             }
         };
         new Handler().postDelayed(runnable, 0);
+    }
+
+    private void handleAdProgress(){
+        isOnAdEnded = false;
+        VideoProgressUpdate videoProgressUpdate = adsLoader.getAdProgress();
+        if (adPlayerCallback != null) adPlayerCallback.onAdProgress(videoProgressUpdate);
+        if (progressListener != null) {
+            duration = (int) videoProgressUpdate.getDuration();
+            s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
+            if (duration != 0)
+                percent = (int) (s * 100 / duration);
+            progressListener.onAdProgress(s, (int) duration, percent);
+        }
     }
 
     @Override
@@ -194,23 +207,15 @@ public final class UZPlayerManager extends AbstractPlayerManager {
         if (adsLoader == null) {
             adsLoader = new ImaAdsLoader(context, adTagUri);
         }
-        MediaSourceFactory adMediaSourceFactory = new MediaSourceFactory() {
-            DrmSessionManager<?> drmSessionManager;
-
-            @Override
-            public MediaSourceFactory setDrmSessionManager(DrmSessionManager<?> drmSessionManager) {
-                this.drmSessionManager = drmSessionManager;
-                return this;
-            }
-
+        AdsMediaSource.MediaSourceFactory adMediaSourceFactory = new AdsMediaSource.MediaSourceFactory() {
             @Override
             public MediaSource createMediaSource(Uri uri) {
-                return buildMediaSource(uri, drmSessionManager);
+                return buildMediaSource(uri);
             }
 
             @Override
             public int[] getSupportedTypes() {
-                return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+                return new int[]{C.TYPE_DASH, C.TYPE_HLS, C.TYPE_OTHER};
             }
         };
         return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader,
@@ -239,61 +244,43 @@ public final class UZPlayerManager extends AbstractPlayerManager {
     private class UZVideoAdPlayerListener implements VideoAdPlayer.VideoAdPlayerCallback {
 
         @Override
-        public void onPlay(AdMediaInfo mediaInfo) {
+        public void onPlay() {
             if (adPlayerCallback != null) adPlayerCallback.onPlay();
         }
 
         @Override
-        public void onVolumeChanged(AdMediaInfo mediaInfo, int i) {
+        public void onVolumeChanged(int i) {
             if (adPlayerCallback != null) adPlayerCallback.onVolumeChanged(i);
         }
 
         @Override
-        public void onPause(AdMediaInfo mediaInfo) {
+        public void onPause() {
             if (adPlayerCallback != null) adPlayerCallback.onPause();
         }
 
         @Override
-        public void onAdProgress(AdMediaInfo adMediaInfo, VideoProgressUpdate videoProgressUpdate) {
-            isOnAdEnded = false;
-            if (adPlayerCallback != null) adPlayerCallback.onAdProgress(videoProgressUpdate);
-            if (progressListener != null) {
-                duration = (int) videoProgressUpdate.getDuration();
-                s = (int) (videoProgressUpdate.getCurrentTime()) + 1;//add 1 second
-                if (duration != 0)
-                    percent = (int) (s * 100 / duration);
-                progressListener.onAdProgress(s, (int) duration, percent);
-            }
-        }
-
-        @Override
-        public void onLoaded(AdMediaInfo mediaInfo) {
+        public void onLoaded() {
             if (adPlayerCallback != null) adPlayerCallback.onLoaded();
         }
 
         @Override
-        public void onResume(AdMediaInfo mediaInfo) {
+        public void onResume() {
             if (adPlayerCallback != null) adPlayerCallback.onResume();
         }
 
         @Override
-        public void onEnded(AdMediaInfo mediaInfo) {
+        public void onEnded() {
             onAdEnded();
             if (adPlayerCallback != null) adPlayerCallback.onEnded();
         }
 
         @Override
-        public void onContentComplete() {
-            if (adPlayerCallback != null) adPlayerCallback.onContentComplete();
-        }
-
-        @Override
-        public void onError(AdMediaInfo mediaInfo) {
+        public void onError() {
             if (adPlayerCallback != null) adPlayerCallback.onError();
         }
 
         @Override
-        public void onBuffering(AdMediaInfo mediaInfo) {
+        public void onBuffering() {
             if (adPlayerCallback != null) adPlayerCallback.onBuffering();
         }
     }
