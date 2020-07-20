@@ -6,10 +6,12 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -18,8 +20,10 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
+import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -99,7 +103,7 @@ abstract class AbstractPlayerManager {
     private ExoPlaybackException exoPlaybackException;
     MediaSource mediaSourceVideo;
     MediaSource mediaSourceVideoExt;
-    DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager;
+    DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
 
     protected AbstractPlayerManager(@NonNull Context context, String linkPlay, String drmScheme) {
         this.timestampPlayed = System.currentTimeMillis();
@@ -362,19 +366,16 @@ abstract class AbstractPlayerManager {
         return pixelAspectRatio == Format.NO_VALUE || pixelAspectRatio == 1f ? "" : (" par:" + String.format(Locale.US, "%.02f", pixelAspectRatio));
     }
 
-    MediaSource buildMediaSource(Uri uri, DrmSessionManager<?> drmSessionManager) {
+    MediaSource buildMediaSource(Uri uri) {
         @C.ContentType int type = Util.inferContentType(uri);
         switch (type) {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(new DefaultDashChunkSource.Factory(mediaDataSourceFactory),
-                        manifestDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
-            case C.TYPE_SS:
-                return new SsMediaSource.Factory(new DefaultSsChunkSource.Factory(mediaDataSourceFactory),
-                        manifestDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
+                        manifestDataSourceFactory).createMediaSource(uri);
             case C.TYPE_HLS:
-                return new HlsMediaSource.Factory(mediaDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
+                return new HlsMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             case C.TYPE_OTHER:
-                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).setDrmSessionManager(drmSessionManager).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
             default:
                 throw new IllegalStateException("Unsupported type: " + type);
         }
@@ -405,11 +406,11 @@ abstract class AbstractPlayerManager {
     }
 
     void createMediaSourceVideo() {
-        mediaSourceVideo = buildMediaSource(Uri.parse(linkPlay), drmSessionManager);
+        mediaSourceVideo = buildMediaSource(Uri.parse(linkPlay));
     }
 
     void createMediaSourceVideoExt(String linkPlayExt) {
-        mediaSourceVideoExt = buildMediaSource(Uri.parse(linkPlayExt), drmSessionManager);
+        mediaSourceVideoExt = buildMediaSource(Uri.parse(linkPlayExt));
     }
 
     private void updateMediaSourceExt(HlsManifest manifest) {
@@ -449,19 +450,20 @@ abstract class AbstractPlayerManager {
         DefaultRenderersFactory renderersFactory =
                 new DefaultRenderersFactory(context).setExtensionRendererMode(extensionRendererMode);
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory();
-        trackSelector = new DefaultTrackSelector(context, videoTrackSelectionFactory);
-        return new SimpleExoPlayer.Builder(context, renderersFactory)
-                .setTrackSelector(trackSelector)
-                .setLoadControl(UZLoadControl.createControl(bufferCallback))
-                .build();
+        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        return ExoPlayerFactory.newSimpleInstance(context, renderersFactory, trackSelector, UZLoadControl.createControl(bufferCallback), drmSessionManager);
     }
 
-    DefaultDrmSessionManager<ExoMediaCrypto> buildDrmSessionManager() {
-        DefaultDrmSessionManager<ExoMediaCrypto> drmSessionManager = null;
+    DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManager() {
+        DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
         if (!TextUtils.isEmpty(drmScheme)) {
             String drmLicenseUrl = Constants.DRM_LICENSE_URL;
             UUID drmSchemeUuid = Util.getDrmUuid(drmScheme);
-            drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl);
+            try {
+                drmSessionManager = buildDrmSessionManagerV18(drmSchemeUuid, drmLicenseUrl);
+            }catch (UnsupportedDrmException e) {
+                Timber.e(e, "UnsupportedDrmException");
+            }
         }
         return drmSessionManager;
     }
@@ -488,11 +490,14 @@ abstract class AbstractPlayerManager {
         }
     }
 
-    private DefaultDrmSessionManager<ExoMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl) {
-        return new DefaultDrmSessionManager.Builder()
-                .setMultiSession(false)
-                .setUuidAndExoMediaDrmProvider(uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
-                .build(new HttpMediaDrmCallback(licenseUrl, manifestDataSourceFactory));
+    private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl) throws UnsupportedDrmException {
+        HttpDataSource.Factory licenseDataSourceFactory = buildHttpDataSourceFactory();
+        HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
+        return new DefaultDrmSessionManager<>(uuid, FrameworkMediaDrm.newInstance(uuid), drmCallback, null,
+                false);
+//                .setMultiSession(false)
+//                .setUuidAndExoMediaDrmProvider(uuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
+//                .build(new HttpMediaDrmCallback(licenseUrl, manifestDataSourceFactory));
     }
 
     abstract void initSource();
@@ -526,8 +531,9 @@ abstract class AbstractPlayerManager {
 
     private class UZPlayerEventListener implements Player.EventListener {
         //This is called when the current playlist changes
+
         @Override
-        public void onTimelineChanged(Timeline timeline, int reason) {
+        public void onTimelineChanged(Timeline timeline, @Nullable Object manifest, int reason) {
             if (managerObserver != null)
                 managerObserver.onTimelineChanged(timeline, player.getCurrentManifest(), reason);
         }
