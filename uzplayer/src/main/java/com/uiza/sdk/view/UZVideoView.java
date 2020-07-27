@@ -2232,10 +2232,10 @@ public class UZVideoView extends RelativeLayout
         if (tvLiveStatus == null) return;
         long timeToEndChunk = duration - currentMls;
         if (timeToEndChunk <= targetDurationMls * 10) {
-            tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.red));
+            tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.text_live_color_focus));
             UZViewUtils.goneViews(tvPosition);
         } else {
-            tvLiveStatus.setTextColor(Color.WHITE);
+            tvLiveStatus.setTextColor(ContextCompat.getColor(getContext(), R.color.text_live_color));
             UZViewUtils.visibleViews(tvPosition);
         }
     }

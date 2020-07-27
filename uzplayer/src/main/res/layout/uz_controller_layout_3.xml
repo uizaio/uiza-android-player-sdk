@@ -100,7 +100,7 @@
             android:paddingEnd="@dimen/padding_5"
             android:paddingBottom="@dimen/padding_3"
             android:text="@string/live"
-            android:textColor="@android:color/white"
+            android:textColor="@color/text_live_color"
             tools:ignore="RelativeOverlap" />
 
         <com.uiza.sdk.widget.UZImageButton

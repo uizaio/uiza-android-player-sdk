@@ -31,9 +31,6 @@ public interface UZAdPlayerCallback {
     default void onError() {
     }
 
-    default void onContentComplete() {
-    }
-
     default void onBuffering() {
     }
 }

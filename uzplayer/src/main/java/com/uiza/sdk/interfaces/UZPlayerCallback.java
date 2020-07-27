@@ -12,6 +12,10 @@ public interface UZPlayerCallback {
     default void onSkinChange() {
     }
 
+    default void onShowUserController(boolean show) {
+
+    }
+
     default void onTimeShiftChange(boolean timeShiftOn) {
     }
 
