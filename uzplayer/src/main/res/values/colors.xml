@@ -30,4 +30,7 @@
     <color name="df_played_color">#097cff</color>
     <color name="df_scrubber_color">#ffffff</color>
     <color name="df_unplayed_color">#33ffffff</color>
+    <color name="background_live_color">#E63946</color>
+    <color name="text_live_color">#ffffff</color>
+    <color name="text_live_color_focus">#E63946</color>
 </resources>
