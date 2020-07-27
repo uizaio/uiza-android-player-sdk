@@ -54,7 +54,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
             etLinkPlay.setText(LSApplication.urls[0]);
 
         findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
-
         disposables = new CompositeDisposable();
         (new Handler()).postDelayed(this::onPlay, 1000);
     }

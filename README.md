@@ -274,6 +274,30 @@ Do not change `android:id="@id/player_view_0"` or `android:id="@+id/player_view_
 2. From `Android Nougat` (Android SDK >= 24) Google supported `PIP`. To implement,
 in `AndroidManifest.xml` add `android:supportsPictureInPicture="true"` inside `Your Activity` and review [`PIPPlayerActivity`](https://github.com/uizaio/uiza-android-player-sdk/blob/master/sampleplayer/src/main/java/com/uiza/sampleplayer/PipPlayerActivity.java).
 
+## How to handle controller show/hide?
+
+__ControllerShow timeout__
+
+```java
+uzVideo.getPlayerView().setControllerShowTimeoutMs(5000); // 5s
+```
+__Handle controller toggle__
+
+Please `implementation UZPlayerView.ControllerStateCallback` and set
+
+```java
+uzVideoView.setControllerStateCallback(UZPlayerView.ControllerStateCallbacl)
+``` 
+
+## How to set LiveStatus text color?
+
+In `values/color.xml` please re-set color for livestatus button:
+
+```xml
+    <color name="text_live_color">#ffffff</color>
+    <color name="text_live_color_focus">#E63946</color>
+```
+
 ## R8 / ProGuard
 
 ___Do not support R8___
