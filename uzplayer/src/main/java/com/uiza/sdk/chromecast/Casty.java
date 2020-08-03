@@ -37,7 +37,6 @@ import timber.log.Timber;
  * Core class of Casty. It manages buttons/widgets and gives access to the media player.
  */
 public class Casty implements CastyPlayer.OnMediaLoadedListener {
-    private final static String TAG = Casty.class.getSimpleName();
     static String receiverId = CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID;
     static CastOptions customCastOptions;
 

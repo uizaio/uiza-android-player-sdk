@@ -380,3 +380,4 @@ Website: _[uiza.io](https://uiza.io/)_
 ## License
 
 UizaSDK is released under the BSD license. See  [LICENSE](https://github.com/uizaio/uiza-android-player-sdk/blob/master/LICENSE)  for details.
+	

@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 20072018
-        versionName "1.1.9"
+        versionCode 20080318
+        versionName "1.1.11"
         def EXO_VERSION = "2.10.8"
         buildConfigField "String", "EXO_VERSION", "\"${EXO_VERSION}\""
     }

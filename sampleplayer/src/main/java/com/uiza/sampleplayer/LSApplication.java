@@ -3,6 +3,7 @@ package com.uiza.sampleplayer;
 import androidx.multidex.MultiDexApplication;
 
 import com.uiza.api.UZApi;
+import com.uiza.api.UZEnvironment;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.utils.UZData;
 
@@ -28,7 +29,7 @@ public class LSApplication extends MultiDexApplication {
             Timber.plant(new Timber.DebugTree());
         }
         UZPlayer.init(this, true);
-        UZApi.init(this,"SamplePlayer", BuildConfig.VERSION_NAME);
+        UZApi.init(this, UZPlayer.getVersionName(), UZEnvironment.PRODUCTION);
 //        UZData.getInstance().setUrlIMAAd(VAST_SAMPLE_URL);
     }
 }
