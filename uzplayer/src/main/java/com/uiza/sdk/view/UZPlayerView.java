@@ -165,7 +165,7 @@ public final class UZPlayerView extends PlayerView implements PlayerControlView.
     }
 
     public interface ControllerStateCallback {
-        void onVisibilityChange(boolean isShow);
+        void onVisibilityChange(boolean visible);
     }
 
     public interface OnSingleTap {

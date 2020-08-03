@@ -5,14 +5,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
+import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZPlayerCallback;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.utils.UZViewUtils;
@@ -26,7 +30,7 @@ import timber.log.Timber;
 /**
  * Demo UZPlayer with Picture In Picture
  */
-public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCallback, UZPlayerView.OnSingleTap {
+public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCallback {
 
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
@@ -34,14 +38,13 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     private CompositeDisposable disposables;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedState) {
         UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_default);
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedState);
         setContentView(R.layout.activity_pip_player);
         uzVideo = findViewById(R.id.uz_video_view);
         etLinkPlay = findViewById(R.id.et_link_play);
         uzVideo.setPlayerCallback(this);
-        uzVideo.setOnSingleTap(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlayback playbackInfo = null;
@@ -55,19 +58,30 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
 
         findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
         disposables = new CompositeDisposable();
-        (new Handler()).postDelayed(this::onPlay, 1000);
+        (new Handler()).postDelayed(this::onPlay, 100);
     }
 
     private void onPlay() {
         final UZPlayback playback = new UZPlayback();
-//        playback.setThumbnail(LSApplication.thumbnailUrl);
         playback.addLinkPlay(etLinkPlay.getText().toString());
         uzVideo.play(playback);
     }
 
     @Override
+    public void playerViewCreated(UZPlayerView playerView) {
+        playerView.setControllerStateCallback(visible -> {
+            // nothing to do
+        });
+    }
+
+    @Override
     public void isInitResult(String linkPlay) {
         getLiveViewsTimer(true);
+    }
+
+    @Override
+    public void onError(UZException e) {
+        Timber.e(e);
     }
 
     @Override
@@ -131,11 +145,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         uzVideo.enterPIPMode();
-    }
-
-    @Override
-    public void onSingleTapConfirmed(float x, float y) {
-        uzVideo.toggleShowHideController();
     }
 
     private void getLiveViewsTimer(boolean firstRun) {

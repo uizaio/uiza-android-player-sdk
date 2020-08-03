@@ -278,15 +278,26 @@ in `AndroidManifest.xml` add `android:supportsPictureInPicture="true"` inside `Y
 
 __ControllerShow timeout__
 
+Please `implementation UZPlayerCallback` and override
+
 ```java
-uzVideo.getPlayerView().setControllerShowTimeoutMs(5000); // 5s
+@Override
+public void playerViewCreated(UZPlayerView playerView) {
+	playerView.setControllerShowTimeoutMs(5000); // 5s
+}
+
 ```
 __Handle controller toggle__
 
-Please `implementation UZPlayerView.ControllerStateCallback` and set
+Please `implementation UZPlayerCallback` and override
 
 ```java
-uzVideoView.setControllerStateCallback(UZPlayerView.ControllerStateCallbacl)
+@Override
+public void playerViewCreated(UZPlayerView playerView) {
+    playerView.setControllerStateCallback(visible -> {
+        // nothing to do
+    });
+}
 ``` 
 
 ## How to set LiveStatus text color?

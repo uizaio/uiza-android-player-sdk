@@ -29,7 +29,7 @@ public class CastPlayerActivity extends AppCompatActivity implements UZPlayerCal
         etLinkPlay = findViewById(R.id.et_link_play);
         UZPlayer.getCasty().setUpMediaRouteButton(findViewById(R.id.media_route_button));
         uzVideo.setPlayerCallback(this);
-        uzVideo.setOnSingleTap(this);
+        uzVideo.getPlayerView().setOnSingleTap(this);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         etLinkPlay.setText(LSApplication.urls[0]);

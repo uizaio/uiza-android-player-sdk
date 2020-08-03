@@ -11,7 +11,6 @@ import timber.log.Timber;
 public class LSApplication extends MultiDexApplication {
 
     public static final String[] urls = new String[]{
-            "https://uz-test2live.uizacdn.net/865be795-836e-4f08-bbb6-34808374dced.smil/playlist.m3u8?cm=eyJlbnRpdHlfaWQiOiI4NjViZTc5NS04MzZlLTRmMDgtYmJiNi0zNDgwODM3NGRjZWQiLCJlbnRpdHlfc291cmNlIjoibGl2ZSIsImFwcF9pZCI6Ijk2NTU4YWI0YTZiMTRlOTA5ZWVkOThjMWNlNTBkNWVmIn0=",
             "https://hls.ted.com/talks/2639.m3u8?preroll=Thousands",
             "https://bitmovin-a.akamaihd.net/content/playhouse-vr/mpds/105560.mpd",
             "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",

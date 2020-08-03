@@ -2,8 +2,8 @@ package com.uiza.sdk.interfaces;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.sdk.utils.UZData;
+import com.uiza.sdk.view.UZPlayerView;
 
 public interface UZManagerObserver {
 
@@ -13,7 +13,7 @@ public interface UZManagerObserver {
 
     boolean isPIPEnable();
 
-    PlayerView getPlayerView();
+    UZPlayerView getPlayerView();
 
     // options
     boolean isCastingChromecast();
