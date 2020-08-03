@@ -53,6 +53,10 @@ public class UZPlayer {
         elapsedTime = SystemClock.elapsedRealtime();
     }
 
+    public static String getVersionName() {
+        return  BuildConfig.VERSION_NAME;
+    }
+
     /**
      * set Casty
      *

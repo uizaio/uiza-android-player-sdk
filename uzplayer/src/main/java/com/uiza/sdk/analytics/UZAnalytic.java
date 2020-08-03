@@ -27,7 +27,7 @@ public final class UZAnalytic {
 
     public static void init(String deviceId, boolean prodEnv) {
         UZAnalytic.deviceId = deviceId;
-        UZAnalytic.sdkVersionName = String.format("UZData/AndroidPlayerSDK/%s", BuildConfig.VERSION_NAME);
+        UZAnalytic.sdkVersionName = String.format("UZData/AndroidSDK/%s", BuildConfig.VERSION_NAME);
         UZAnalytic.prodEnv = prodEnv;
     }
 

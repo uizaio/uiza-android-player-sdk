@@ -5,13 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PictureInPictureParams;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,7 +49,6 @@ import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaTrack;
@@ -69,7 +66,7 @@ import com.uiza.sdk.dialog.playlistfolder.UZPlaylistFolderDialog;
 import com.uiza.sdk.dialog.setting.SettingAdapter;
 import com.uiza.sdk.dialog.setting.SettingItem;
 import com.uiza.sdk.dialog.speed.UZSpeedDialog;
-import com.uiza.sdk.events.EventBusData;
+import com.uiza.sdk.events.ConnectEvent;
 import com.uiza.sdk.exceptions.ErrorConstant;
 import com.uiza.sdk.exceptions.ErrorUtils;
 import com.uiza.sdk.exceptions.UZException;
@@ -83,8 +80,8 @@ import com.uiza.sdk.models.UZEventType;
 import com.uiza.sdk.models.UZPlayback;
 import com.uiza.sdk.models.UZPlaybackInfo;
 import com.uiza.sdk.models.UZTrackingData;
+import com.uiza.sdk.observers.ConnectivityReceiver;
 import com.uiza.sdk.observers.SensorOrientationChangeNotifier;
-import com.uiza.sdk.observers.UZConnectifyService;
 import com.uiza.sdk.utils.ConnectivityUtils;
 import com.uiza.sdk.utils.Constants;
 import com.uiza.sdk.utils.ConvertUtils;
@@ -118,7 +115,7 @@ import timber.log.Timber;
  */
 public class UZVideoView extends RelativeLayout
         implements UZManagerObserver, PreviewLoader, PreviewView.OnPreviewChangeListener, View.OnClickListener, View.OnFocusChangeListener,
-        UZPlayerView.ControllerStateCallback, SensorOrientationChangeNotifier.Listener {
+        SensorOrientationChangeNotifier.Listener {
 
     private static final String HYPHEN = "-";
     private static final long FAST_FORWARD_REWIND_INTERVAL = 10000L; // 10s
@@ -210,7 +207,6 @@ public class UZVideoView extends RelativeLayout
     private PreviewView.OnPreviewChangeListener onPreviewChangeListener;
     private UZPlayerCallback playerCallback;
     private UZTVFocusChangeListener uzTVFocusChangeListener;
-    private UZPlayerView.ControllerStateCallback controllerStateCallback;
     private UZAdPlayerCallback adPlayerCallback;
     boolean isFirstStateReady = false;
     //=============================================================================================START EVENTBUS
@@ -221,7 +217,8 @@ public class UZVideoView extends RelativeLayout
     private StatsForNerdsView statsForNerdsView;
     private String viewerSessionId;
     private CompositeDisposable disposables;
-    private boolean isInit = false;
+    private boolean viewCreated = false;
+    private ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver();
 
     public UZVideoView(Context context) {
         super(context);
@@ -243,11 +240,13 @@ public class UZVideoView extends RelativeLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if (!isInit) {
+        if (!viewCreated) {
             onCreateView();
         }
     }
-
+    public boolean isViewCreated(){
+        return viewCreated;
+    }
     /**
      * Call one time from {@link #onAttachedToWindow}
      * Note: you must call inflate in this method
@@ -255,12 +254,6 @@ public class UZVideoView extends RelativeLayout
     private void onCreateView() {
         if (UZAppUtils.checkChromeCastAvailable())
             setupChromeCast();
-        try {
-            EventBus.getDefault().register(this);
-        } catch (NoClassDefFoundError e) {
-            Timber.e(e);
-        }
-
         inflate(getContext(), R.layout.uz_ima_video_core_rl, this);
         rootView = findViewById(R.id.root_view);
         int skinId = UZData.getInstance().getUZPlayerSkinLayoutId();
@@ -279,13 +272,14 @@ public class UZVideoView extends RelativeLayout
         } else {
             throw new NullPointerException("Can not inflater view");
         }
-        startConnectifyService();
         updateUIEachSkin();
         setMarginPreviewTimeBar();
         setMarginRlLiveInfo();
         updateUISizeThumbnail();
-        scheduleJob();
-        isInit = true;
+        viewCreated = true;
+        if(playerCallback != null){
+            playerCallback.playerViewCreated(playerView);
+        }
     }
 
     private void resizeContainerView() {
@@ -296,15 +290,20 @@ public class UZVideoView extends RelativeLayout
         }
     }
 
-    private void startConnectifyService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                Intent startServiceIntent = new Intent(getContext(), UZConnectifyService.class);
-                getContext().startService(startServiceIntent);
-            } catch (NoClassDefFoundError e) {
-                Timber.e(e);
-            }
-        }
+    /**
+     * register connection internet listener
+     */
+    private void registerConnectifyReceiver() {
+        getContext().registerReceiver(connectivityReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        EventBus.getDefault().register(this);
+    }
+
+    /**
+     * register connection internet listener
+     */
+    private void unregisterConnectifyReceiver(){
+        getContext().unregisterReceiver(connectivityReceiver);
+        EventBus.getDefault().unregister(this);
     }
 
     public boolean isAutoStart() {
@@ -646,14 +645,11 @@ public class UZVideoView extends RelativeLayout
     }
 
     public void onDestroyView() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            getContext().stopService(new Intent(getContext(), UZConnectifyService.class));
         releasePlayerStats();
         releasePlayerManager();
         UZData.getInstance().setSettingPlayer(false);
         isCastingChromecast = false;
         isCastPlayerPlayingFirst = false;
-        EventBus.getDefault().unregister(this);
         if (UZAppUtils.hasSupportPIP(getContext())) {
             ((Activity) getContext()).finishAndRemoveTask();
         }
@@ -677,6 +673,7 @@ public class UZVideoView extends RelativeLayout
 
     public void onResumeView() {
         SensorOrientationChangeNotifier.getInstance(getContext()).addListener(this);
+        registerConnectifyReceiver();
         if (isCastingChromecast)
             return;
         activityIsPausing = false;
@@ -729,6 +726,7 @@ public class UZVideoView extends RelativeLayout
         activityIsPausing = true;
         positionPIPPlayer = getCurrentPosition();
         SensorOrientationChangeNotifier.getInstance(getContext()).remove(this);
+        unregisterConnectifyReceiver();
         // in PIP to continue
         if (playerManager != null && !isInPipMode) {
             playerManager.pause();
@@ -1271,7 +1269,7 @@ public class UZVideoView extends RelativeLayout
     }
 
     @Override
-    public PlayerView getPlayerView() {
+    public UZPlayerView getPlayerView() {
         return playerView;
     }
 
@@ -1319,12 +1317,6 @@ public class UZVideoView extends RelativeLayout
         }
     }
 
-    @Override
-    public void onVisibilityChange(boolean isShow) {
-        if (controllerStateCallback != null)
-            controllerStateCallback.onVisibilityChange(isShow);
-    }
-
     public void setSpeed(float speed) {
         if (isLIVE())
             throw new IllegalArgumentException(getResources().getString(R.string.error_speed_live_content));
@@ -1348,7 +1340,6 @@ public class UZVideoView extends RelativeLayout
         if(progressBar != null)
             UZViewUtils.setColorProgressBar(progressBar, Color.WHITE);
         updateUIPositionOfProgressBar();
-        playerView.setControllerStateCallback(this);
         playerView.setOnDoubleTap(new UZPlayerView.OnDoubleTap() {
             @Override
             public void onDoubleTapProgressUp(float posX, float posY) {
@@ -1943,30 +1934,6 @@ public class UZVideoView extends RelativeLayout
 
     //=============================================================================================END EVENT
 
-    public void setControllerStateCallback(UZPlayerView.ControllerStateCallback controllerStateCallback) {
-        this.controllerStateCallback = controllerStateCallback;
-    }
-
-    public void setOnTouchEvent(UZPlayerView.OnTouchEvent onTouchEvent) {
-        if (playerView != null)
-            playerView.setOnTouchEvent(onTouchEvent);
-    }
-
-    public void setOnSingleTap(UZPlayerView.OnSingleTap onSingleTap) {
-        if (playerView != null)
-            playerView.setOnSingleTap(onSingleTap);
-    }
-
-    public void setOnDoubleTap(UZPlayerView.OnDoubleTap onDoubleTap) {
-        if (playerView != null)
-            playerView.setOnDoubleTap(onDoubleTap);
-    }
-
-    public void setOnLongPressed(UZPlayerView.OnLongPressed onLongPressed) {
-        if (playerView != null)
-            playerView.setOnLongPressed(onLongPressed);
-    }
-
     private void checkToSetUpResource() {
         UZPlayback playback = UZData.getInstance().getPlayback();
         if (playback != null) {
@@ -2064,11 +2031,12 @@ public class UZVideoView extends RelativeLayout
 
     //=============================================================================================START CHROMECAST
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(EventBusData.ConnectEvent event) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNetworkEvent(ConnectEvent event) {
         if (event == null || playerManager == null) return;
-        if (!event.isConnected()) notifyError(ErrorUtils.exceptionNoConnection());
-        else {
+        if (!event.isConnected()) {
+            notifyError(ErrorUtils.exceptionNoConnection());
+        } else {
             if (playerManager.getExoPlaybackException() == null) {
                 hideController();
                 hideLayoutMsg();
@@ -2170,28 +2138,6 @@ public class UZVideoView extends RelativeLayout
             //khi quay lại exoplayer từ cast player thì mặc định sẽ bật lại âm thanh (dù cast player đang mute hay !mute)
             if (playerView != null)
                 playerView.setControllerShowTimeoutMs(DEFAULT_VALUE_CONTROLLER_TIMEOUT_MLS);
-        }
-    }
-
-    //=============================================================================================END CHROMECAST
-    private void scheduleJob() {
-        if (getContext() == null) return;
-        JobInfo myJob;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            try {
-                myJob = new JobInfo.Builder(0, new ComponentName(getContext(), UZConnectifyService.class))
-                        .setRequiresCharging(true)
-                        .setMinimumLatency(1000)
-                        .setOverrideDeadline(2000)
-                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                        .setPersisted(true)
-                        .build();
-                JobScheduler jobScheduler = (JobScheduler) getContext().getSystemService(Context.JOB_SCHEDULER_SERVICE);
-                if (jobScheduler != null)
-                    jobScheduler.schedule(myJob);
-            } catch (NoClassDefFoundError e) {
-                Timber.w(e);
-            }
         }
     }
 
