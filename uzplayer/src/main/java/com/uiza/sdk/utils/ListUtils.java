@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
@@ -77,7 +78,24 @@ public final class ListUtils {
         }
     }
 
+    public static <T> void forEach(List<T> list, Consumer<? super T> action) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            list.forEach(action::accept);
+        else {
+            for (T t: list) {
+                action.accept(t);
+            }
+        }
+    }
+
     public interface Pre<T, R> {
         R get(T item);
+    }
+
+    public interface Consumer<T> {
+        void accept(T var1);
+        default Consumer<T> andThen(Consumer<? super T> after) {
+            throw new RuntimeException("Stub!");
+        }
     }
 }

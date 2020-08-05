@@ -31,7 +31,7 @@ dependencies {
     //need for ima Ad https://stackoverflow.com/questions/31833479/didnt-find-class-com-google-android-gms-ads-identifier-advertisingidclient
     //
 //    implementation 'com.google.android.gms:play-services-ads:19.0.1'
-    implementation 'com.google.android.gms:play-services-cast-framework:18.1.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:19.0.0'
     // exoplayer
     api 'com.google.android.exoplayer:exoplayer:2.10.8'
     implementation 'com.google.android.exoplayer:extension-ima:2.10.8'
@@ -45,18 +45,18 @@ dependencies {
     api 'com.google.android.material:material:1.1.0'
     api 'com.jakewharton.timber:timber:4.7.1'
 //    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'org.greenrobot:eventbus:3.1.1'
-    api 'com.github.bumptech.glide:glide:4.10.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
+    implementation 'org.greenrobot:eventbus:3.2.0'
+    api 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 //    api 'com.daimajia.easing:library:2.1@aar'
     api 'com.daimajia.androidanimations:library:2.3@aar'
 
-    implementation 'com.squareup.retrofit2:retrofit:2.8.2'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.8.2'
-    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.8.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
 
-    api 'com.squareup.okhttp3:okhttp:3.14.9'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.14.9'
+    api 'com.squareup.okhttp3:okhttp:4.8.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.8.0'
 
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     api 'io.reactivex.rxjava2:rxjava:2.2.19'
