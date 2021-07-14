@@ -56,6 +56,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
         else
             etLinkPlay.setText(LSApplication.urls[0]);
 
+//        etLinkPlay.setText("https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8");
+
         findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
         disposables = new CompositeDisposable();
         (new Handler()).postDelayed(this::onPlay, 100);

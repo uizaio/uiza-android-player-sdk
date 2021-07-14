@@ -66,7 +66,8 @@ public class PlayerActivity extends AppCompatActivity implements UZPlayerCallbac
         uzDragView.setCallback(this);
         uzDragView.setScreenRotate(false);
         uzVideo.setPlayerCallback(this);
-        uzVideo.getPlayerView().setControllerStateCallback(this);
+                //TODO
+//        uzVideo.getPlayerView().setControllerStateCallback(this);
         disposables = new CompositeDisposable();
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
