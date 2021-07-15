@@ -187,6 +187,7 @@ public class UZVideoView extends RelativeLayout
     private boolean isOnPreview;
     private long maxSeekLastDuration;
     private boolean isLandscape;//current screen is landscape or portrait
+    private boolean isEnableSensor = true;
     private boolean isHideOnTouch = true;
     private boolean useController = true;
     private boolean isOnPlayerEnded;
@@ -809,6 +810,9 @@ public class UZVideoView extends RelativeLayout
 
     @Override
     public void onOrientationChange(int orientation) {
+        if (!isEnableSensor) {
+            return;
+        }
         //270 land trai
         //0 portrait duoi
         //90 land phai
@@ -829,6 +833,9 @@ public class UZVideoView extends RelativeLayout
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (playerView == null) return;
+        if (!isEnableSensor) {
+            return;
+        }
         resizeContainerView();
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -2218,5 +2225,13 @@ public class UZVideoView extends RelativeLayout
         } else {
             Timber.e("Do not track watching");
         }
+    }
+
+    public void setEnableSensor(boolean isEnableSensor) {
+        this.isEnableSensor = isEnableSensor;
+    }
+
+    public boolean isEnableSensor() {
+        return isEnableSensor;
     }
 }
