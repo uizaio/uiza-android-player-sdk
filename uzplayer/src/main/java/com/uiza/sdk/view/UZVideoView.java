@@ -187,6 +187,7 @@ public class UZVideoView extends RelativeLayout
     private boolean isOnPreview;
     private long maxSeekLastDuration;
     private boolean isLandscape;//current screen is landscape or portrait
+    private boolean isAlwaysPortraitScreen = false;
     private boolean isHideOnTouch = true;
     private boolean useController = true;
     private boolean isOnPlayerEnded;
@@ -816,10 +817,14 @@ public class UZVideoView extends RelativeLayout
         boolean isDeviceAutoRotation = UZViewUtils.isRotationPossible(getContext());
         if (orientation == 90 || orientation == 270) {
             if (isDeviceAutoRotation && !isLandscape)
-                UZViewUtils.changeScreenLandscape((Activity) getContext(), orientation);
+                if(!isAlwaysPortraitScreen){
+                    UZViewUtils.changeScreenLandscape((Activity) getContext(), orientation);
+                }
         } else {
             if (isDeviceAutoRotation && isLandscape)
-                UZViewUtils.changeScreenPortrait((Activity) getContext());
+                if(!isAlwaysPortraitScreen){
+                    UZViewUtils.changeScreenPortrait((Activity) getContext());
+                }
         }
     }
 
@@ -2218,5 +2223,13 @@ public class UZVideoView extends RelativeLayout
         } else {
             Timber.e("Do not track watching");
         }
+    }
+
+    public void setAlwaysPortraitScreen(boolean isAlwaysPortraitScreen) {
+        this.isAlwaysPortraitScreen = isAlwaysPortraitScreen;
+    }
+
+    public boolean isAlwaysPortraitScreen() {
+        return isAlwaysPortraitScreen;
     }
 }

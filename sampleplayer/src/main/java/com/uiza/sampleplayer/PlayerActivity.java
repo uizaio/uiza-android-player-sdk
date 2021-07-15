@@ -107,6 +107,11 @@ public class PlayerActivity extends AppCompatActivity implements UZPlayerCallbac
         }, 1000);
     }
 
+    @Override
+    public void playerViewCreated(UZPlayerView playerView) {
+        uzVideo.getPlayerView().setControllerStateCallback(this);
+    }
+
     private void updateView(int index) {
         etLinkPlay.setVisibility(View.VISIBLE);
         btPlay.setVisibility(View.VISIBLE);
