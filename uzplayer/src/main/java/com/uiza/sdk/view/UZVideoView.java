@@ -192,6 +192,7 @@ public class UZVideoView extends RelativeLayout
     private boolean useController = true;
     private boolean isOnPlayerEnded;
     private boolean alwaysHideLiveViewers = false;
+    private boolean enablePictureInPicture = false;
     //========================================================================END CONFIG
     /*
      **Change skin via skin id resources
@@ -219,7 +220,7 @@ public class UZVideoView extends RelativeLayout
     private String viewerSessionId;
     private CompositeDisposable disposables;
     private boolean viewCreated = false;
-    private ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver();
+    private final ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver();
 
     public UZVideoView(Context context) {
         super(context);
@@ -636,13 +637,9 @@ public class UZVideoView extends RelativeLayout
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
         positionPIPPlayer = getCurrentPosition();
         isInPipMode = !isInPictureInPictureMode;
-        if (isInPictureInPictureMode) {
-            // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.
-            setUseController(false);
-        } else {
-            // Restore the full-screen UI.
-            setUseController(true);
-        }
+        // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.
+        // Restore the full-screen UI.
+        setUseController(!isInPictureInPictureMode);
     }
 
     public void onDestroyView() {
@@ -651,7 +648,7 @@ public class UZVideoView extends RelativeLayout
         UZData.getInstance().setSettingPlayer(false);
         isCastingChromecast = false;
         isCastPlayerPlayingFirst = false;
-        if (UZAppUtils.hasSupportPIP(getContext())) {
+        if (UZAppUtils.hasSupportPIP(getContext(), enablePictureInPicture)) {
             ((Activity) getContext()).finishAndRemoveTask();
         }
         if (playerManager != null) {
@@ -738,7 +735,7 @@ public class UZVideoView extends RelativeLayout
     public boolean isPIPEnable() {
         return (pipIcon != null)
                 && !isCastingChromecast()
-                && UZAppUtils.hasSupportPIP(getContext())
+                && UZAppUtils.hasSupportPIP(getContext(), enablePictureInPicture)
                 && !UZData.getInstance().isUseUZDragView();
     }
 
@@ -1405,7 +1402,7 @@ public class UZVideoView extends RelativeLayout
         ibSkipNextIcon = playerView.findViewById(R.id.exo_skip_next);
         ibSkipPreviousIcon = playerView.findViewById(R.id.exo_skip_previous);
         ibSpeedIcon = playerView.findViewById(R.id.exo_speed);
-        if (!UZAppUtils.hasSupportPIP(getContext()) || UZData.getInstance().isUseUZDragView())
+        if (!UZAppUtils.hasSupportPIP(getContext(), enablePictureInPicture) || UZData.getInstance().isUseUZDragView())
             UZViewUtils.goneViews(pipIcon);
         LinearLayout debugLayout = findViewById(R.id.debug_layout);
         debugRootView = findViewById(R.id.controls_root);
@@ -2231,5 +2228,13 @@ public class UZVideoView extends RelativeLayout
 
     public boolean isAlwaysPortraitScreen() {
         return isAlwaysPortraitScreen;
+    }
+
+    public void setEnablePictureInPicture(boolean enablePictureInPicture) {
+        this.enablePictureInPicture = enablePictureInPicture;
+    }
+
+    public boolean isEnablePictureInPicture() {
+        return enablePictureInPicture;
     }
 }

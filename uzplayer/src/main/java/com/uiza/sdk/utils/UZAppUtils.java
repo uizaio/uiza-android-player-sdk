@@ -157,9 +157,9 @@ public class UZAppUtils {
      * Feature for {@link PackageManager#getSystemAvailableFeatures} and {@link PackageManager#hasSystemFeature}:
      * The device supports picture-in-picture multi-window mode.
      */
-    public static boolean hasSupportPIP(@NonNull Context context) {
+    public static boolean hasSupportPIP(@NonNull Context context, boolean enablePictureInPicture) {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE);
+                && context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE) && enablePictureInPicture;
     }
 
     public static void setClipboard(@NonNull Context context, String text) {

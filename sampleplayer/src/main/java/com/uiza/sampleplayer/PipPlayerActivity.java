@@ -5,15 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
@@ -45,6 +42,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
         uzVideo = findViewById(R.id.uz_video_view);
         etLinkPlay = findViewById(R.id.et_link_play);
         uzVideo.setPlayerCallback(this);
+        uzVideo.setEnablePictureInPicture(true);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlayback playbackInfo = null;
