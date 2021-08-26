@@ -40,8 +40,8 @@ android {
 }
 
 dependencies {
-    implementation project(':uzplayer')
-//    implementation 'com.github.uizaio:uiza-android-player-sdk:1.2.4'
+//    implementation project(':uzplayer')
+    implementation 'com.github.uizaio:uiza-android-player-sdk:1.2.5'
     implementation 'com.github.uizaio:uiza-android-api-sdk:0.0.8'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.1.0'
