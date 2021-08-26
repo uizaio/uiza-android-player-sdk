@@ -43,6 +43,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
         uzVideo = findViewById(R.id.uz_video_view);
         etLinkPlay = findViewById(R.id.et_link_play);
         uzVideo.setPlayerCallback(this);
+        uzVideo.setEnablePictureInPicture(true);
         // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
         UZPlayback playbackInfo = null;
