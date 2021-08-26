@@ -17,6 +17,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
 import android.view.LayoutInflater;
@@ -638,7 +639,7 @@ public class UZVideoView extends RelativeLayout
 
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
         positionPIPPlayer = getCurrentPosition();
-        isInPipMode = !isInPictureInPictureMode;
+        isInPipMode = isInPictureInPictureMode;
         // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.
         // Restore the full-screen UI.
         setUseController(!isInPictureInPictureMode);
@@ -678,8 +679,9 @@ public class UZVideoView extends RelativeLayout
             return;
         activityIsPausing = false;
         if (playerManager != null) {
-            if (ibPlayIcon == null || ibPlayIcon.getVisibility() != VISIBLE)
-                playerManager.resume();
+//            if (ibPlayIcon == null || ibPlayIcon.getVisibility() != VISIBLE)
+//                playerManager.resume();
+            playerManager.resume();
         }
 
         if (positionPIPPlayer > 0L && isInPipMode) {
@@ -836,12 +838,18 @@ public class UZVideoView extends RelativeLayout
         resizeContainerView();
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            UZViewUtils.hideSystemUiFullScreen(playerView);
+            if (!isInPipMode){
+                UZViewUtils.hideSystemUiFullScreen(playerView);
+            }
+//            UZViewUtils.hideSystemUiFullScreen(playerView);
             isLandscape = true;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, true);
             UZViewUtils.goneViews(pipIcon);
         } else {
-            UZViewUtils.hideSystemUi(playerView);
+            if(!isInPipMode){
+                UZViewUtils.hideSystemUi(playerView);
+            }
+//            UZViewUtils.hideSystemUi(playerView);
             isLandscape = false;
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, false);
             if (isPIPEnable())
@@ -927,7 +935,11 @@ public class UZVideoView extends RelativeLayout
 
     @TargetApi(Build.VERSION_CODES.N)
     public void enterPIPMode() {
+        if (isLandscape){
+            throw new IllegalArgumentException("Cannot enter PIP Mode if screen is landscape");
+        }
         if (isPIPEnable()) {
+            isInPipMode = true;
             positionPIPPlayer = getCurrentPosition();
             setUseController(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -939,12 +951,12 @@ public class UZVideoView extends RelativeLayout
                 ((Activity) getContext()).enterPictureInPictureMode();
             }
         }
-        postDelayed(() -> {
-            isPIPModeEnabled = ((Activity) getContext()).isInPictureInPictureMode();
-            if (!isPIPModeEnabled) {
-                enterPIPMode();
-            }
-        }, 50);
+//        postDelayed(() -> {
+//            isPIPModeEnabled = ((Activity) getContext()).isInPictureInPictureMode();
+//            if (!isPIPModeEnabled) {
+//                enterPIPMode();
+//            }
+//        }, 50);
     }
 
     public int getControllerShowTimeoutMs() {

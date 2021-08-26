@@ -33,7 +33,6 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     private EditText etLinkPlay;
     private Handler handler = new Handler(Looper.getMainLooper());
     private CompositeDisposable disposables;
-    private boolean inPip = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -119,19 +118,13 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     @Override
     public void onResume() {
         super.onResume();
-        if (inPip) {
-            inPip = false;
-        } else {
-            uzVideo.onResumeView();
-        }
+        uzVideo.onResumeView();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (!inPip) {
-            uzVideo.onPauseView();
-        }
+        uzVideo.onPauseView();
     }
 
     @Override
@@ -143,17 +136,19 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
 
     @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
-        if (newConfig != null)
-            uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        if (newConfig != null) {
+            uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
+        }
     }
 
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         try {
-            uzVideo.enterPIPMode();
-            inPip = true;
+            if (!uzVideo.isLandscape()) {
+                uzVideo.enterPIPMode();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
