@@ -5,15 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.util.Log;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.uiza.api.UZApi;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
@@ -36,6 +33,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     private EditText etLinkPlay;
     private Handler handler = new Handler(Looper.getMainLooper());
     private CompositeDisposable disposables;
+    private boolean inPip = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedState) {
@@ -56,7 +54,7 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
         else
             etLinkPlay.setText(LSApplication.urls[0]);
 
-//        etLinkPlay.setText("https://multiplatform-f.akamaihd.net/i/multi/will/bunny/big_buck_bunny_,640x360_400,640x360_700,640x360_1000,950x540_1500,.f4v.csmil/master.m3u8");
+//        etLinkPlay.setText("https://hls.ted.com/talks/2639.m3u8?preroll=Thousands");
 
         findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
         disposables = new CompositeDisposable();
@@ -120,13 +118,19 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     @Override
     public void onResume() {
         super.onResume();
-        uzVideo.onResumeView();
+        if (inPip) {
+            inPip = false;
+        } else {
+            uzVideo.onResumeView();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        uzVideo.onPauseView();
+        if (!inPip) {
+            uzVideo.onPauseView();
+        }
     }
 
     @Override
@@ -147,11 +151,12 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         uzVideo.enterPIPMode();
+        inPip = true;
     }
 
     private void getLiveViewsTimer(boolean firstRun) {
         final UZPlayback playback = UZPlayer.getCurrentPlayback();
-        if (handler != null && playback != null && uzVideo !=null)
+        if (handler != null && playback != null && uzVideo != null)
             handler.postDelayed(() -> {
                 Disposable d = UZApi.getLiveViewers(playback.getFirstLinkPlay(),
                         res -> uzVideo.setLiveViewers(res.getViews()), Timber::e);
