@@ -151,8 +151,12 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
-        uzVideo.enterPIPMode();
-        inPip = true;
+        try {
+            uzVideo.enterPIPMode();
+            inPip = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void getLiveViewsTimer(boolean firstRun) {
