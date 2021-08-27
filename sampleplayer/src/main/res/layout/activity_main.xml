@@ -7,8 +7,8 @@
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_player"
         android:layout_width="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="Player (UZDragView)" />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -16,6 +16,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="PIP Player(API >= 24 and Support PIP)" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_pip_player_frm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PIP Player Frm (API >= 24 and Support PIP)" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_cast_player"

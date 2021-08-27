@@ -34,6 +34,14 @@
             android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="n" />
         <activity
+            android:name=".PipPlayerFrmActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            android:supportsPictureInPicture="true"
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:targetApi="n" />
+        <activity
             android:name=".CastPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
