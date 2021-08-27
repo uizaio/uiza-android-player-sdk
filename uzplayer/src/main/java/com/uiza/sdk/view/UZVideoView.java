@@ -637,7 +637,7 @@ public class UZVideoView extends RelativeLayout
         return false;
     }
 
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @NonNull Configuration newConfig) {
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, @Nullable Configuration newConfig) {
         positionPIPPlayer = getCurrentPosition();
         isInPipMode = isInPictureInPictureMode;
         // Hide the full-screen UI (controls, etc.) while in picture-in-picture mode.

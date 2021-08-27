@@ -145,10 +145,10 @@ public class FragmentPlayer extends Fragment implements UZPlayerCallback {
         uzVideo.onPauseView();
     }
 
-    void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
-        if (newConfig != null) {
-            uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        }
+    @Override
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode);
+        uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, null);
     }
 
     void onUserLeaveHint() {

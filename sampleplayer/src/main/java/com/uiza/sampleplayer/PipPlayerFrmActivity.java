@@ -31,12 +31,6 @@ public class PipPlayerFrmActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        fragmentPlayer.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-    }
-
-    @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
         fragmentPlayer.onUserLeaveHint();
