@@ -972,14 +972,32 @@ public class UZVideoView extends RelativeLayout
             setUseController(false);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 PictureInPictureParams.Builder params = new PictureInPictureParams.Builder();
-                Rational aspectRatio = new Rational(getVideoWidth(), getVideoHeight());
-                params.setAspectRatio(aspectRatio);
-//                List actions = new ArrayList<RemoteAction>();
-//                actions.add(new RemoteAction());
-//                params.setActions(actions);
-                ((Activity) getContext()).enterPictureInPictureMode(params.build());
+                try {
+                    Rational aspectRatio = new Rational(getVideoWidth(), getVideoHeight());
+                    params.setAspectRatio(aspectRatio);
+                    if (getContext() instanceof Activity) {
+                        ((Activity) getContext()).enterPictureInPictureMode(params.build());
+                    }
+                } catch (Exception e) {
+                    int w;
+                    int h;
+                    if (getVideoWidth() > getVideoHeight()) {
+                        w = 1280;
+                        h = 720;
+                    } else {
+                        w = 720;
+                        h = 1280;
+                    }
+                    Rational aspectRatio = new Rational(w, h);
+                    params.setAspectRatio(aspectRatio);
+                    if (getContext() instanceof Activity) {
+                        ((Activity) getContext()).enterPictureInPictureMode(params.build());
+                    }
+                }
             } else {
-                ((Activity) getContext()).enterPictureInPictureMode();
+                if (getContext() instanceof Activity) {
+                    ((Activity) getContext()).enterPictureInPictureMode();
+                }
             }
         }
 //        postDelayed(() -> {
