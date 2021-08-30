@@ -21,6 +21,8 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -270,6 +272,32 @@ public class UZVideoView extends RelativeLayout
             lp.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
             playerView.setLayoutParams(lp);
             playerView.setVisibility(GONE);
+            if (playerView.getVideoSurfaceView() instanceof SurfaceView) {
+                ((SurfaceView) playerView.getVideoSurfaceView()).getHolder().addCallback(new SurfaceHolder.Callback2() {
+                    @Override
+                    public void surfaceRedrawNeeded(SurfaceHolder holder) {
+                    }
+
+                    @Override
+                    public void surfaceCreated(SurfaceHolder holder) {
+                    }
+
+                    @Override
+                    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                    }
+
+                    @Override
+                    public void surfaceDestroyed(SurfaceHolder holder) {
+                        if (isInPipMode) {
+                            if (UZAppUtils.hasSupportPIP(getContext(), enablePictureInPicture)) {
+                                if (getContext() instanceof Activity) {
+                                    ((Activity) getContext()).finishAndRemoveTask();
+                                }
+                            }
+                        }
+                    }
+                });
+            }
             rootView.addView(playerView);
             setControllerAutoShow(isAutoShowController);
             findViews();
@@ -838,7 +866,7 @@ public class UZVideoView extends RelativeLayout
         resizeContainerView();
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            if (!isInPipMode){
+            if (!isInPipMode) {
                 UZViewUtils.hideSystemUiFullScreen(playerView);
             }
 //            UZViewUtils.hideSystemUiFullScreen(playerView);
@@ -846,7 +874,7 @@ public class UZVideoView extends RelativeLayout
             UZViewUtils.setUIFullScreenIcon(ibFullscreenIcon, true);
             UZViewUtils.goneViews(pipIcon);
         } else {
-            if(!isInPipMode){
+            if (!isInPipMode) {
                 UZViewUtils.hideSystemUi(playerView);
             }
 //            UZViewUtils.hideSystemUi(playerView);
@@ -935,7 +963,7 @@ public class UZVideoView extends RelativeLayout
 
     @TargetApi(Build.VERSION_CODES.N)
     public void enterPIPMode() {
-        if (isLandscape){
+        if (isLandscape) {
             throw new IllegalArgumentException("Cannot enter PIP Mode if screen is landscape");
         }
         if (isPIPEnable()) {
@@ -946,6 +974,9 @@ public class UZVideoView extends RelativeLayout
                 PictureInPictureParams.Builder params = new PictureInPictureParams.Builder();
                 Rational aspectRatio = new Rational(getVideoWidth(), getVideoHeight());
                 params.setAspectRatio(aspectRatio);
+//                List actions = new ArrayList<RemoteAction>();
+//                actions.add(new RemoteAction());
+//                params.setActions(actions);
                 ((Activity) getContext()).enterPictureInPictureMode(params.build());
             } else {
                 ((Activity) getContext()).enterPictureInPictureMode();
