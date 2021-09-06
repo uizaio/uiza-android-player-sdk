@@ -17,7 +17,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
 import android.view.LayoutInflater;
@@ -1868,7 +1867,12 @@ public class UZVideoView extends RelativeLayout
 
     private void setVisibilityOfPlayPauseReplay(boolean isShowReplay) {
         if (isShowReplay) {
-            UZViewUtils.goneViews(ibPlayIcon, ibPauseIcon);
+            if (ibPlayIcon != null) {
+                ibPlayIcon.post(() -> UZViewUtils.goneViews(ibPlayIcon));
+            }
+            if (ibPauseIcon != null) {
+                ibPauseIcon.post(() -> UZViewUtils.goneViews(ibPauseIcon));
+            }
             if (ibReplayIcon != null) {
                 UZViewUtils.visibleViews(ibReplayIcon);
                 ibReplayIcon.requestFocus();

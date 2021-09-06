@@ -1,17 +1,20 @@
-package com.uiza.sampleplayer;
+package com.uiza.sampleplayer.pip;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PersistableBundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.uiza.api.UZApi;
+import com.uiza.sampleplayer.R;
 import com.uiza.sdk.UZPlayer;
 import com.uiza.sdk.exceptions.UZException;
 import com.uiza.sdk.interfaces.UZPlayerCallback;
@@ -24,41 +27,54 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import timber.log.Timber;
 
-/**
- * Demo UZPlayer with Picture In Picture
- */
-public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCallback {
-
+public class FragmentPlayer extends Fragment implements UZPlayerCallback {
     private UZVideoView uzVideo;
     private EditText etLinkPlay;
     private Handler handler = new Handler(Looper.getMainLooper());
     private CompositeDisposable disposables;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         UZPlayer.setUZPlayerSkinLayoutId(R.layout.uzplayer_skin_default);
-        super.onCreate(savedState);
-        setContentView(R.layout.activity_pip_player);
-        uzVideo = findViewById(R.id.uz_video_view);
-        etLinkPlay = findViewById(R.id.et_link_play);
+        return inflater.inflate(R.layout.fragment_player, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        setupViews(view);
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    private void setupViews(View view) {
+        uzVideo = view.findViewById(R.id.uz_video_view);
+        etLinkPlay = view.findViewById(R.id.et_link_play);
         uzVideo.setPlayerCallback(this);
         uzVideo.setEnablePictureInPicture(true);
-        // If linkplay is livestream, it will auto move to live edge when onResume is called
         uzVideo.setAutoMoveToLiveEdge(true);
-        UZPlayback playbackInfo = null;
-        if (getIntent() != null) {
-            playbackInfo = getIntent().getParcelableExtra("extra_playback_info");
-        }
-        if (playbackInfo != null)
-            etLinkPlay.setText(playbackInfo.getFirstLinkPlay());
-        else
-            etLinkPlay.setText(LSApplication.urls[0]);
 
-//        etLinkPlay.setText("https://hls.ted.com/talks/2639.m3u8?preroll=Thousands");
+        etLinkPlay.setText("https://hls.ted.com/talks/2639.m3u8?preroll=Thousands");
 
-        findViewById(R.id.btn_play).setOnClickListener(view -> onPlay());
+        view.findViewById(R.id.btn_play).setOnClickListener(v -> onPlay());
         disposables = new CompositeDisposable();
         (new Handler()).postDelayed(this::onPlay, 100);
+
+        if (getActivity() != null) {
+            getActivity().getOnBackPressedDispatcher().addCallback(new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    if (!uzVideo.onBackPressed()) {
+                        if (getActivity() != null) {
+                            getActivity().finish();
+                        }
+                    }
+                }
+            });
+        }
     }
 
     private void onPlay() {
@@ -85,15 +101,17 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     }
 
     @Override
-    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
         uzVideo.onSaveInstanceState(outState);
     }
 
     @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        uzVideo.onRestoreInstanceState(savedInstanceState);
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (savedInstanceState != null) {
+            uzVideo.onRestoreInstanceState(savedInstanceState);
+        }
     }
 
     @Override
@@ -107,8 +125,8 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         uzVideo.onDestroyView();
         if (disposables != null)
             disposables.dispose();
@@ -128,23 +146,12 @@ public class PipPlayerActivity extends AppCompatActivity implements UZPlayerCall
     }
 
     @Override
-    public void onBackPressed() {
-        if (!uzVideo.onBackPressed()) {
-            super.onBackPressed();
-        }
+    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode);
+        uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, null);
     }
 
-    @Override
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, Configuration newConfig) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        if (newConfig != null) {
-            uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig);
-        }
-    }
-
-    @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
+    void onUserLeaveHint() {
         try {
             if (!uzVideo.isLandscape()) {
                 uzVideo.enterPIPMode();

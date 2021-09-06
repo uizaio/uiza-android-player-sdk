@@ -1,12 +1,13 @@
-package com.uiza.sampleplayer;
+package com.uiza.sampleplayer.pip;
 
-import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
+import com.uiza.sampleplayer.R;
 
 public class PipPlayerFrmActivity extends AppCompatActivity {
 

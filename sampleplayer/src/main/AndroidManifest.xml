@@ -26,7 +26,7 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".PipPlayerActivity"
+            android:name=".pip.PipPlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
@@ -34,7 +34,15 @@
             android:theme="@style/AppTheme.NoActionBar"
             tools:targetApi="n" />
         <activity
-            android:name=".PipPlayerFrmActivity"
+            android:name=".pip.PipPlayerFrmActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:parentActivityName=".MainActivity"
+            android:supportsPictureInPicture="true"
+            android:theme="@style/AppTheme.NoActionBar"
+            tools:targetApi="n" />
+        <activity
+            android:name=".pip.PipPlayerFrmPortraitActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:parentActivityName=".MainActivity"
