@@ -50,7 +50,7 @@ public class FragmentPlayerPortrait extends Fragment implements UZPlayerCallback
         uzVideo.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
             @Override
             public void onViewAttachedToWindow(View v) {
-                // Make the player fullscreen. Call this first to do resize.
+//                uzVideo.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
                 uzVideo.setFreeSize(true);
                 uzVideo.setSize(UZViewUtils.getScreenWidth(), UZViewUtils.getScreenHeight());
             }
@@ -139,9 +139,11 @@ public class FragmentPlayerPortrait extends Fragment implements UZPlayerCallback
         super.onPictureInPictureModeChanged(isInPictureInPictureMode);
         uzVideo.onPictureInPictureModeChanged(isInPictureInPictureMode, null);
         if (!isInPictureInPictureMode) {
-            uzVideo.post(() -> {
+            uzVideo.postDelayed(() -> {
+//                uzVideo.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_ZOOM);
                 uzVideo.setFreeSize(true);
-            });
+//                uzVideo.setSize(UZViewUtils.getScreenWidth(), UZViewUtils.getScreenHeight());
+            }, 10);
         }
     }
 
