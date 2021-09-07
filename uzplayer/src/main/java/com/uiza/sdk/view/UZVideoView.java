@@ -997,6 +997,11 @@ public class UZVideoView extends RelativeLayout
                     }
                     Rational aspectRatio = new Rational(w, h);
                     params.setAspectRatio(aspectRatio);
+                    if (actions == null || actions.isEmpty()) {
+                        //do nothing
+                    } else {
+                        params.setActions(actions);
+                    }
                     if (getContext() instanceof Activity) {
                         ((Activity) getContext()).enterPictureInPictureMode(params.build());
                     }
