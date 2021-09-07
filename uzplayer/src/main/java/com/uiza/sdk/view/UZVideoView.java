@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PictureInPictureParams;
+import android.app.RemoteAction;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
@@ -223,6 +224,7 @@ public class UZVideoView extends RelativeLayout
     private CompositeDisposable disposables;
     private boolean viewCreated = false;
     private final ConnectivityReceiver connectivityReceiver = new ConnectivityReceiver();
+    private ArrayList<RemoteAction> actions = new ArrayList<>();
 
     public UZVideoView(Context context) {
         super(context);
@@ -974,6 +976,12 @@ public class UZVideoView extends RelativeLayout
                 try {
                     Rational aspectRatio = new Rational(getVideoWidth(), getVideoHeight());
                     params.setAspectRatio(aspectRatio);
+                    if (actions == null || actions.isEmpty()) {
+                        //do nothing
+                    } else {
+                        params.setActions(actions);
+                    }
+
                     if (getContext() instanceof Activity) {
                         ((Activity) getContext()).enterPictureInPictureMode(params.build());
                     }
@@ -2303,5 +2311,13 @@ public class UZVideoView extends RelativeLayout
 
     public boolean isEnablePictureInPicture() {
         return enablePictureInPicture;
+    }
+
+    public void setActions(ArrayList<RemoteAction> actions) {
+        this.actions = actions;
+    }
+
+    public ArrayList<RemoteAction> getActions() {
+        return this.actions;
     }
 }

@@ -15,6 +15,7 @@
     <color name="black_95">#EE000000</color>
     <color name="red">#E63946</color>
     <color name="red_trans">#55FF0000</color>
+    <color name="transparent">#00000000</color>
     <color name="light_yellow">#FFFFE0</color>
     <color name="blue">#0000FF</color>
     <color name="blue_trans">#550000FF</color>
