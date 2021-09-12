@@ -24,9 +24,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_pip_player).setOnClickListener(v -> gotoActivity(PipPlayerActivity.class));
         findViewById(R.id.btn_pip_player_frm).setOnClickListener(v -> gotoActivity(PipPlayerFrmActivity.class));
         findViewById(R.id.btn_pip_player_frm_portrait).setOnClickListener(v -> gotoActivity(PipPlayerFrmPortraitActivity.class));
-        findViewById(R.id.btn_cast_player).setVisibility(View.GONE);
         findViewById(R.id.btn_analytic).setOnClickListener(v -> gotoActivity(AnalyticActivity.class));
-        //.setOnClickListener(v -> gotoActivity(CastPlayerActivity.class));
+        findViewById(R.id.btn_cast_player).setVisibility(View.GONE);
+        findViewById(R.id.btn_cast_player).setOnClickListener(v -> gotoActivity(CastPlayerActivity.class));
         ((AppCompatTextView) findViewById(R.id.txt_version)).setText(String.format(Locale.getDefault(),
                 "%s (%s)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
     }
